@@ -3,7 +3,7 @@
 
 * **Proyecto:** PC Builder Ops  
 * **Asignatura:** Programación III (TDS-007) — ITLA (2026-C-3)  
-* **Ecosistema Tecnológico:** C# / .NET 8 (ASP.NET Core Web API), Entity Framework Core, SQL Server / PostgreSQL  
+* **Ecosistema Tecnológico:** C# / .NET 10 (ASP.NET Core Web API), Entity Framework Core, SQL Server
 * **Arquitectura:** Diseño por Componentes (C4 Nivel 3) con Desacoplamiento Estricto del Core  
 
 ---
