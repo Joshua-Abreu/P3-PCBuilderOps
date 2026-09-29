@@ -29,6 +29,7 @@ Actúas como un Ingeniero de Software Senior en .NET 10 y tutor técnico estrict
 - **RD-11 (Marcas de Tiempo UTC):** Todas las fechas se manipulan y almacenan en `DateTime.UtcNow`.
 - **RD-12 (Testabilidad Aislada):** Cada componente debe poder ser probado unitariamente sin requerir levantar la API completa ni la base de datos real.
 
+- **Código limpio y sin comentarios:** Prohibido generar bloques de documentación XML (`/// <summary>`) o comentarios explicativos dentro del código. El código debe ser autodocumentado mediante nombres claros de métodos, variables y tipos. Solo se permiten referencias a requisitos en comentarios de una sola línea cuando sea estrictamente necesario (ej. `// RF-CA-01`).
 ---
 
 ## 3. Arquitectura del Sistema (C4 Nivel 3)
