@@ -49,3 +49,41 @@ flowchart TD
     MOD -->|"solicita reporte de ensambles"| REP
     MOD -.->|"registrar eventos críticos"| AUD
 ```
+
+## Cómo ejecutar el proyecto
+
+1. Clona el repositorio y entra en la carpeta:
+
+   ```bash
+   git clone https://github.com/Joshua-Abreu/P3-PCBuilderOps.git
+   cd P3-PCBuilderOps
+   ```
+
+2. Desde la carpeta que contiene el archivo `.sln` o `.csproj`, restaura las dependencias:
+
+   ```bash
+   dotnet restore
+   ```
+
+3. Configura la cadena de conexión a SQL Server bajo la clave `ConnectionStrings:DefaultConnection`. Puedes guardarla en `appsettings.Development.json` (archivo local que no debes subir al repositorio) o usar User Secrets desde la carpeta del proyecto:
+
+   ```bash
+   dotnet user-secrets init
+   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<cadena-de-conexion>"
+   ```
+
+   Nunca guardes la cadena de conexión en `appsettings.json`. Si la aplicación usa otro nombre para la clave de conexión, utiliza ese nombre en la configuración.
+
+4. Con la base de datos configurada, aplica las migraciones de Entity Framework Core:
+
+   ```bash
+   dotnet ef database update
+   ```
+
+5. Ejecuta la API desde la carpeta del proyecto:
+
+   ```bash
+   dotnet run
+   ```
+
+   El repositorio todavía no incluye un archivo `.sln` ni `.csproj`; estos comandos se podrán ejecutar cuando se agregue el proyecto .NET.
