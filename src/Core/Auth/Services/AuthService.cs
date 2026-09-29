@@ -6,11 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Core.Auth.Services;
 
-/// <summary>
-/// Servicio de autenticación y gestión de cuentas.
-/// RD-01: Responsabilidad única. RD-02: Sin lógica en controladores.
-/// RD-11: Todas las fechas en UTC.
-/// </summary>
 public class AuthService : IAuthService
 {
     private readonly AppDbContext _dbContext;
@@ -27,23 +22,19 @@ public class AuthService : IAuthService
         _inputValidator = inputValidator;
     }
 
-    /// <inheritdoc />
     public async Task RegistrarAsync(string correo, string password, CancellationToken ct = default)
     {
-        // RD-07: Validación de entradas
         _inputValidator.ValidarCorreo(correo);
         _inputValidator.ValidarPassword(password);
 
         correo = correo.Trim().ToLowerInvariant();
 
-        // RF-CA-01: Rechazar si el correo ya existe
         var existe = await _dbContext.Usuarios
             .AnyAsync(u => u.Correo == correo, ct);
 
         if (existe)
             throw new AutenticacionException("El correo ya está registrado.");
 
-        // RF-CA-15: Crear usuario inactivo con rol Estándar
         var usuario = new Usuario
         {
             Id = Guid.NewGuid(),
@@ -55,7 +46,6 @@ public class AuthService : IAuthService
             IntentosFallidos = 0
         };
 
-        // RF-CA-15: Token de activación con expiración 24h (RD-11: UTC)
         var tokenActivacion = new TokenActivacion
         {
             Id = Guid.NewGuid(),
@@ -65,7 +55,6 @@ public class AuthService : IAuthService
             FueUsado = false
         };
 
-        // RF-NOT-08: Encolar correo de activación (sin SMTP)
         var enlaceActivacion = $"/api/auth/activar?token={tokenActivacion.Token}";
         var correoEnCola = new CorreoEnCola
         {
@@ -77,7 +66,6 @@ public class AuthService : IAuthService
             FechaCreacionUtc = DateTime.UtcNow
         };
 
-        // Persistir todo en la misma transacción
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
 
         try
@@ -96,28 +84,23 @@ public class AuthService : IAuthService
         }
     }
 
-    /// <inheritdoc />
     public async Task ActivarCuentaAsync(string token, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(token))
             throw new ValidacionException("El token es obligatorio.");
 
-        // RF-CA-16: Buscar el token
         var tokenActivacion = await _dbContext.TokensActivacion
             .FirstOrDefaultAsync(t => t.Token == token, ct);
 
         if (tokenActivacion is null)
             throw new AutenticacionException("El token de activación no es válido.");
 
-        // RF-CA-16: Rechazar si ya fue usado
         if (tokenActivacion.FueUsado)
             throw new AutenticacionException("El token de activación ya fue utilizado.");
 
-        // RF-CA-16: Rechazar si expiró (RD-11: UTC)
         if (tokenActivacion.ExpiracionUtc < DateTime.UtcNow)
             throw new AutenticacionException("El token de activación ha expirado.");
 
-        // RF-CA-16: Marcar token como usado y activar usuario
         tokenActivacion.FueUsado = true;
 
         var usuario = await _dbContext.Usuarios
@@ -131,10 +114,8 @@ public class AuthService : IAuthService
         await _dbContext.SaveChangesAsync(ct);
     }
 
-    /// <inheritdoc />
     public async Task ReenviarActivacionAsync(string correo, CancellationToken ct = default)
     {
-        // RF-CA-17: Respuesta siempre exitosa e idéntica exista o no el correo
         if (string.IsNullOrWhiteSpace(correo))
             return;
 
@@ -143,11 +124,9 @@ public class AuthService : IAuthService
         var usuario = await _dbContext.Usuarios
             .FirstOrDefaultAsync(u => u.Correo == correo, ct);
 
-        // RF-CA-17: Si no existe o ya está activo, no hacer nada (no filtrar)
         if (usuario is null || usuario.EstaActivo)
             return;
 
-        // RF-CA-17: Marcar tokens anteriores como usados
         var tokensAnteriores = await _dbContext.TokensActivacion
             .Where(t => t.UsuarioId == usuario.Id && !t.FueUsado)
             .ToListAsync(ct);
@@ -157,7 +136,6 @@ public class AuthService : IAuthService
             t.FueUsado = true;
         }
 
-        // RF-CA-17: Generar nuevo token
         var nuevoToken = new TokenActivacion
         {
             Id = Guid.NewGuid(),
@@ -167,7 +145,6 @@ public class AuthService : IAuthService
             FueUsado = false
         };
 
-        // RF-NOT-08: Encolar nuevo correo
         var enlaceActivacion = $"/api/auth/activar?token={nuevoToken.Token}";
         var correoEnCola = new CorreoEnCola
         {

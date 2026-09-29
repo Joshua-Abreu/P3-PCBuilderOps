@@ -3,14 +3,8 @@ using Core.Auth.Exceptions;
 
 namespace Core.Auth.Services;
 
-/// <summary>
-/// Validador de políticas de entrada.
-/// RD-07: Datos malformados devuelven error controlado.
-/// RF-CA-14: Contraseña mínimo 8 caracteres, al menos una letra y un número.
-/// </summary>
 public class InputValidator : IInputValidator
 {
-    // RFC 5322 simplificado
     private static readonly Regex CorreoRegex = new(
         @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);

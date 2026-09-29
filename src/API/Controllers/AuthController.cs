@@ -5,10 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-/// <summary>
-/// Controlador de autenticación.
-/// RD-02: Cero lógica de negocio. Solo recibe DTOs, valida ModelState y delega.
-/// </summary>
 [ApiController]
 [Route("api/auth")]
 public class AuthController : ControllerBase
@@ -20,10 +16,6 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
-    /// <summary>
-    /// Registra un nuevo usuario.
-    /// RF-CA-01: Correo único. RF-CA-14: Política de contraseña. RF-CA-15: Activación por token.
-    /// </summary>
     [HttpPost("registro")]
     public async Task<IActionResult> Registrar([FromBody] RegistroRequest request, CancellationToken ct)
     {
@@ -45,10 +37,6 @@ public class AuthController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Activa la cuenta mediante token.
-    /// RF-CA-16: Validación de token y activación.
-    /// </summary>
     [HttpGet("activar")]
     public async Task<IActionResult> Activar([FromQuery] string token, CancellationToken ct)
     {
@@ -70,10 +58,6 @@ public class AuthController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Reenvía el correo de activación.
-    /// RF-CA-17: Respuesta siempre exitosa e idéntica exista o no el correo.
-    /// </summary>
     [HttpPost("reenviar-activacion")]
     public async Task<IActionResult> ReenviarActivacion([FromBody] ReenviarActivacionRequest request, CancellationToken ct)
     {
@@ -82,7 +66,6 @@ public class AuthController : ControllerBase
 
         await _authService.ReenviarActivacionAsync(request.Correo, ct);
 
-        // RF-CA-17: Siempre 200 OK con el mismo mensaje
         return Ok(new MensajeRespuesta("Si la cuenta existe y está pendiente de activación, se ha enviado un nuevo enlace"));
     }
 }

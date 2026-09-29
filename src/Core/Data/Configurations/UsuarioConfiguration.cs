@@ -4,23 +4,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Core.Data.Configurations;
 
-/// <summary>
-/// Configuración Fluent API de la entidad Usuario.
-/// RF-CA-01: Índice único en Correo.
-/// </summary>
 public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
 {
     public void Configure(EntityTypeBuilder<Usuario> builder)
     {
         builder.ToTable("Usuarios");
-
         builder.HasKey(u => u.Id);
 
         builder.Property(u => u.Correo)
             .IsRequired()
             .HasMaxLength(256);
 
-        // RF-CA-01: Correo único
         builder.HasIndex(u => u.Correo)
             .IsUnique()
             .HasDatabaseName("IX_Usuarios_Correo");

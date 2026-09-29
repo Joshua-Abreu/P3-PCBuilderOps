@@ -2,13 +2,8 @@ using BCrypt.Net;
 
 namespace Core.Auth.Services;
 
-/// <summary>
-/// Implementación de hash de contraseñas usando BCrypt.Net-Next.
-/// RD-05: Hash y sal criptográfica. Jamás texto plano.
-/// </summary>
 public class BcryptPasswordHasher : IPasswordHasher
 {
-    // Work factor 12: balance entre seguridad y rendimiento
     private const int WorkFactor = 12;
 
     public string Hash(string password)

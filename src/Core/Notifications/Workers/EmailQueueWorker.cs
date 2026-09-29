@@ -7,12 +7,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Core.Notifications.Workers;
 
-/// <summary>
-/// Worker en segundo plano que procesa la cola de correos.
-/// RF-NOT-12: No duplicación — solo procesa correos Pendientes.
-/// RF-NOT-13: Envío asíncrono sin bloquear la aplicación.
-/// RD-11: Fechas en UTC.
-/// </summary>
 public class EmailQueueWorker : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
@@ -39,7 +33,6 @@ public class EmailQueueWorker : BackgroundService
             }
             catch (Exception ex)
             {
-                // RD-08: Log limpio, sin interrumpir el proceso
                 _logger.LogError(ex, "Error procesando cola de correos");
             }
 
@@ -53,7 +46,6 @@ public class EmailQueueWorker : BackgroundService
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
 
-        // RF-NOT-12: Solo correos Pendientes (no duplicación)
         var pendientes = await dbContext.CorreosEnCola
             .Where(c => c.Estado == "Pendiente")
             .OrderBy(c => c.FechaCreacionUtc)
@@ -70,7 +62,6 @@ public class EmailQueueWorker : BackgroundService
             {
                 await emailSender.EnviarAsync(correo.Destinatario, correo.Asunto, correo.Cuerpo, ct);
 
-                // RF-NOT-12: Marcar como Enviado inmediatamente
                 correo.Estado = "Enviado";
                 correo.FechaEnvioUtc = DateTime.UtcNow;
 
@@ -80,7 +71,6 @@ public class EmailQueueWorker : BackgroundService
             }
             catch (Exception ex)
             {
-                // Si falla, permanece Pendiente para el siguiente ciclo
                 _logger.LogWarning(ex, "No se pudo enviar correo a {Destinatario}. Reintentando en próximo ciclo.", correo.Destinatario);
             }
         }

@@ -3,11 +3,6 @@ using MimeKit;
 
 namespace Core.Notifications.Services;
 
-/// <summary>
-/// Implementación de envío de correos usando MailKit sobre SMTP.
-/// RD-10: Secretos leídos desde variables de entorno. Cero credenciales en código.
-/// RF-NOT-13: Envío asíncrono con manejo limpio de errores.
-/// </summary>
 public class SmtpEmailSender : IEmailSender
 {
     private readonly string _host;
@@ -18,7 +13,6 @@ public class SmtpEmailSender : IEmailSender
 
     public SmtpEmailSender()
     {
-        // RD-10: Configuración exclusivamente desde variables de entorno
         _host = Environment.GetEnvironmentVariable("SMTP_HOST") ?? string.Empty;
         _port = int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT"), out var port) ? port : 587;
         _user = Environment.GetEnvironmentVariable("SMTP_USER") ?? string.Empty;
@@ -48,7 +42,6 @@ public class SmtpEmailSender : IEmailSender
         }
         catch (Exception ex)
         {
-            // RD-08: Log limpio sin exponer detalles internos
             Console.WriteLine($"[SMTP] Error enviando correo a {destinatario}: {ex.Message}");
             throw;
         }

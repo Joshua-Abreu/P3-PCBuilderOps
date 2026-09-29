@@ -5,10 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Core.Data;
 
-/// <summary>
-/// Contexto de base de datos de la aplicación.
-/// Configura las entidades del Core mediante Fluent API.
-/// </summary>
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
@@ -22,8 +18,6 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        // Aplicar configuraciones Fluent API desde este ensamblado
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 }
