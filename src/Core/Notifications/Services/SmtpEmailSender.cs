@@ -1,0 +1,56 @@
+using MailKit.Net.Smtp;
+using MimeKit;
+
+namespace Core.Notifications.Services;
+
+/// <summary>
+/// Implementación de envío de correos usando MailKit sobre SMTP.
+/// RD-10: Secretos leídos desde variables de entorno. Cero credenciales en código.
+/// RF-NOT-13: Envío asíncrono con manejo limpio de errores.
+/// </summary>
+public class SmtpEmailSender : IEmailSender
+{
+    private readonly string _host;
+    private readonly int _port;
+    private readonly string _user;
+    private readonly string _password;
+    private readonly string _from;
+
+    public SmtpEmailSender()
+    {
+        // RD-10: Configuración exclusivamente desde variables de entorno
+        _host = Environment.GetEnvironmentVariable("SMTP_HOST") ?? string.Empty;
+        _port = int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT"), out var port) ? port : 587;
+        _user = Environment.GetEnvironmentVariable("SMTP_USER") ?? string.Empty;
+        _password = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? string.Empty;
+        _from = Environment.GetEnvironmentVariable("SMTP_FROM") ?? string.Empty;
+    }
+
+    public async Task EnviarAsync(string destinatario, string asunto, string cuerpo, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(_host))
+            throw new InvalidOperationException("SMTP_HOST no está configurado.");
+
+        var mensaje = new MimeMessage();
+        mensaje.From.Add(new MailboxAddress("PC Builder Ops", _from));
+        mensaje.To.Add(MailboxAddress.Parse(destinatario));
+        mensaje.Subject = asunto;
+        mensaje.Body = new TextPart("plain") { Text = cuerpo };
+
+        using var client = new SmtpClient();
+
+        try
+        {
+            await client.ConnectAsync(_host, _port, MailKit.Security.SecureSocketOptions.StartTls, ct);
+            await client.AuthenticateAsync(_user, _password, ct);
+            await client.SendAsync(mensaje, ct);
+            await client.DisconnectAsync(true, ct);
+        }
+        catch (Exception ex)
+        {
+            // RD-08: Log limpio sin exponer detalles internos
+            Console.WriteLine($"[SMTP] Error enviando correo a {destinatario}: {ex.Message}");
+            throw;
+        }
+    }
+}

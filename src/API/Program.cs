@@ -1,34 +1,58 @@
+using Core.Auth.Exceptions;
+using Core.Auth.Services;
+using Core.Data;
+using Core.Notifications.Services;
+using Core.Notifications.Workers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// RD-09, RD-10: Cadena de conexión desde variable de entorno con fallback local
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
+    ?? "Server=localhost;Database=PCBuilderOps;Trusted_Connection=True;TrustServerCertificate=True";
+
+// Registro de dependencias (RD-01, RD-02)
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
+builder.Services.AddScoped<IInputValidator, InputValidator>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
+
+// RF-NOT-13: Servicio en segundo plano
+builder.Services.AddHostedService<EmailQueueWorker>();
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
-app.UseHttpsRedirection();
-
-var summaries = new[]
+// RD-08: Middleware global de excepciones — nunca exponer stack traces ni SQL
+app.Use(async (context, next) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    try
+    {
+        await next();
+    }
+    catch (ValidacionException ex)
+    {
+        context.Response.StatusCode = 400;
+        await context.Response.WriteAsJsonAsync(new { mensaje = ex.Message });
+    }
+    catch (AutenticacionException ex)
+    {
+        context.Response.StatusCode = 400;
+        await context.Response.WriteAsJsonAsync(new { mensaje = ex.Message });
+    }
+    catch (Exception)
+    {
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsJsonAsync(new { mensaje = "Error interno del servidor." });
+    }
 });
 
-app.Run();
+app.UseHttpsRedirection();
+app.MapControllers();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+app.Run();
