@@ -1,6 +1,6 @@
 # PC Builder Ops
 
-> **Sistema de Gestión de Ensamblaje y Pruebas de Computadoras Custom**  
+> **Sistema de Gestión de Ensamblaje y Pruebas de Computadoras**  
 > Proyecto de la asignatura **Programación III (TDS-007)** — ITLA (2026-C-3)
 
 ---
