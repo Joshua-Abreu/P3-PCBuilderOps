@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<TokenActivacion> TokensActivacion => Set<TokenActivacion>();
     public DbSet<CorreoEnCola> CorreosEnCola => Set<CorreoEnCola>();
     public DbSet<SesionUsuario> SesionesUsuario => Set<SesionUsuario>();
+    public DbSet<TokenRecuperacion> TokensRecuperacion => Set<TokenRecuperacion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
