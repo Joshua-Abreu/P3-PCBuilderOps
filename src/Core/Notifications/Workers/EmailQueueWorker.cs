@@ -1,6 +1,4 @@
-using Core.Data;
 using Core.Notifications.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,7 +9,7 @@ public class EmailQueueWorker : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<EmailQueueWorker> _logger;
-    private readonly TimeSpan _intervalo = TimeSpan.FromSeconds(10);
+    private readonly TimeSpan _intervalo;
 
     public EmailQueueWorker(
         IServiceProvider serviceProvider,
@@ -19,6 +17,10 @@ public class EmailQueueWorker : BackgroundService
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        var intervaloSegundos = int.TryParse(
+            Environment.GetEnvironmentVariable("EMAIL_WORKER_INTERVALO_SEGUNDOS"),
+            out var seg) ? seg : 30;
+        _intervalo = TimeSpan.FromSeconds(intervaloSegundos);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -29,7 +31,9 @@ public class EmailQueueWorker : BackgroundService
         {
             try
             {
-                await ProcesarColaAsync(stoppingToken);
+                using var scope = _serviceProvider.CreateScope();
+                var colaCorreoService = scope.ServiceProvider.GetRequiredService<IColaCorreoService>();
+                await colaCorreoService.DespacharPendientesAsync(stoppingToken);
             }
             catch (Exception ex)
             {
@@ -37,42 +41,6 @@ public class EmailQueueWorker : BackgroundService
             }
 
             await Task.Delay(_intervalo, stoppingToken);
-        }
-    }
-
-    private async Task ProcesarColaAsync(CancellationToken ct)
-    {
-        using var scope = _serviceProvider.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
-
-        var pendientes = await dbContext.CorreosEnCola
-            .Where(c => c.Estado == "Pendiente")
-            .OrderBy(c => c.FechaCreacionUtc)
-            .ToListAsync(ct);
-
-        if (pendientes.Count == 0)
-            return;
-
-        _logger.LogInformation("Procesando {Count} correos pendientes", pendientes.Count);
-
-        foreach (var correo in pendientes)
-        {
-            try
-            {
-                await emailSender.EnviarAsync(correo.Destinatario, correo.Asunto, correo.Cuerpo, ct);
-
-                correo.Estado = "Enviado";
-                correo.FechaEnvioUtc = DateTime.UtcNow;
-
-                await dbContext.SaveChangesAsync(ct);
-
-                _logger.LogInformation("Correo enviado a {Destinatario}", correo.Destinatario);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "No se pudo enviar correo a {Destinatario}. Reintentando en próximo ciclo.", correo.Destinatario);
-            }
         }
     }
 }
