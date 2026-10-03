@@ -3,3 +3,6 @@ namespace API.DTOs;
 public record RegistroRequest(string Correo, string Password);
 public record ReenviarActivacionRequest(string Correo);
 public record MensajeRespuesta(string Mensaje);
+public record LoginRequest(string Correo, string Password);
+public record LoginRespuesta(string Token, DateTime ExpiracionUtc);
+public record UsuarioAutenticadoRespuesta(Guid Id, string Correo, string Rol);

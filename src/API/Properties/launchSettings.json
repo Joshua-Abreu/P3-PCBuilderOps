@@ -7,7 +7,9 @@
       "launchBrowser": false,
       "applicationUrl": "http://localhost:5206",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CONNECTION_STRING": "Server=DESKTOP-H07APQ1;Database=PCBuilderOps;Trusted_Connection=True;TrustServerCertificate=True;",
+        "JWT_SECRET": "EstaEsUnaClaveSecretaSuperLargaYProtegidaDe32BytesMinimo!"
       }
     },
     "https": {
