@@ -1,6 +1,122 @@
 @API_HostAddress = http://localhost:5206
+@authToken = {{loginAdmin.response.body.token}}
+@nuevoUsuarioId = {{crearUsuario.response.body.id}}
 
-GET {{API_HostAddress}}/weatherforecast/
+### 1. Login de Administrador
+# @name loginAdmin
+POST {{API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "correo": "cuenta_activa@itla.edu.do",
+  "password": "NuevaPassword456"
+}
+
+###
+
+### 2. Listar usuarios sin token (esperar 401)
+GET {{API_HostAddress}}/api/usuarios
 Accept: application/json
+
+###
+
+### 3. Listar usuarios paginados
+GET {{API_HostAddress}}/api/usuarios?pagina=1&tamanoPagina=5
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+###
+
+### 4. Listar usuarios filtrados por rol 2 (Administrador)
+GET {{API_HostAddress}}/api/usuarios?pagina=1&tamanoPagina=5&rol=2
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+###
+
+### 5. Crear usuario de prueba (rol 1 = Estandar)
+# @name crearUsuario
+POST {{API_HostAddress}}/api/usuarios
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "correo": "usuario.prueba@itla.edu.do",
+  "password": "Prueba12345",
+  "rol": "Estandar",
+  "activarInmediatamente": true
+}
+
+###
+
+### 6. Obtener usuario creado por ID
+GET {{API_HostAddress}}/api/usuarios/{{nuevoUsuarioId}}
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+###
+
+### 7. Cambiar rol del usuario a 2 (Administrador)
+PUT {{API_HostAddress}}/api/usuarios/{{nuevoUsuarioId}}/rol
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "rol": "Administrador"
+}
+
+###
+
+### 8. Desactivar usuario
+PATCH {{API_HostAddress}}/api/usuarios/{{nuevoUsuarioId}}/estado
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "activar": false
+}
+
+###
+
+### 9. Obtener datos del admin logueado
+# @name meAdmin
+GET {{API_HostAddress}}/api/auth/yo
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+###
+
+### 10. CASO NEGATIVO: Auto-desactivación del admin (esperar 403)
+PATCH {{API_HostAddress}}/api/usuarios/{{meAdmin.response.body.id}}/estado
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "activar": false
+}
+
+###
+
+### 11. CASO NEGATIVO: Cambio de contraseña con contraseña actual errónea (esperar 400)
+POST {{API_HostAddress}}/api/auth/cambiar-password
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "passwordActual": "PasswordIncorrecto123",
+  "nuevaPassword": "NuevaPassword789"
+}
+
+###
+
+### 12. CASO EXITOSO: Cambio de contraseña con contraseña actual válida (esperar 200)
+POST {{API_HostAddress}}/api/auth/cambiar-password
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "passwordActual": "NuevaPassword456",
+  "nuevaPassword": "NuevaPassword789"
+}
 
 ###

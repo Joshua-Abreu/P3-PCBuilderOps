@@ -23,6 +23,7 @@ builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<IInputValidator, InputValidator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
 
@@ -64,6 +65,11 @@ app.Use(async (context, next) =>
     catch (AutenticacionException ex)
     {
         context.Response.StatusCode = 400;
+        await context.Response.WriteAsJsonAsync(new { mensaje = ex.Message });
+    }
+    catch (ReglaNegocioException ex)
+    {
+        context.Response.StatusCode = 403;
         await context.Response.WriteAsJsonAsync(new { mensaje = ex.Message });
     }
     catch (Exception)

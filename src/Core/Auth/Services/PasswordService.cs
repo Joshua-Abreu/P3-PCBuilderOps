@@ -137,4 +137,34 @@ public class PasswordService : IPasswordService
 
         await _dbContext.SaveChangesAsync(ct);
     }
+
+    public async Task CambiarPasswordAsync(Guid usuarioId, string passwordActual, string nuevaPassword, CancellationToken ct = default)
+    {
+        var usuario = await _dbContext.Usuarios
+            .FirstOrDefaultAsync(u => u.Id == usuarioId, ct);
+
+        if (usuario is null)
+            throw new Core.Auth.Exceptions.AutenticacionException("Usuario no encontrado.");
+
+        if (!_passwordHasher.Verificar(passwordActual, usuario.PasswordHash))
+            throw new Core.Auth.Exceptions.ValidacionException("La contraseña actual es incorrecta.");
+
+        _inputValidator.ValidarPassword(nuevaPassword);
+
+        usuario.PasswordHash = _passwordHasher.Hash(nuevaPassword);
+        usuario.DebeCambiarPassword = false;
+        usuario.IntentosFallidos = 0;
+
+        var sesionesActivas = await _dbContext.SesionesUsuario
+            .Where(s => s.UsuarioId == usuarioId && !s.EstaRevocada)
+            .ToListAsync(ct);
+
+        foreach (var sesion in sesionesActivas)
+        {
+            sesion.EstaRevocada = true;
+            sesion.FechaRevocacionUtc = DateTime.UtcNow;
+        }
+
+        await _dbContext.SaveChangesAsync(ct);
+    }
 }
