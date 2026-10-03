@@ -11,10 +11,12 @@ namespace API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IPasswordService _passwordService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IPasswordService passwordService)
     {
         _authService = authService;
+        _passwordService = passwordService;
     }
 
     [HttpPost("registro")]
@@ -78,9 +80,8 @@ public class AuthController : ControllerBase
 
         try
         {
-            var token = await _authService.LoginAsync(request.Correo, request.Password, ct);
-            var expiracion = DateTime.UtcNow.AddHours(1);
-            return Ok(new LoginRespuesta(token, expiracion));
+            var result = await _authService.LoginAsync(request.Correo, request.Password, ct);
+            return Ok(new LoginRespuesta(result.Token, result.ExpiracionUtc, result.DebeCambiarPassword));
         }
         catch (ValidacionException ex)
         {
@@ -116,5 +117,37 @@ public class AuthController : ControllerBase
         await _authService.LogoutAsync(token, ct);
 
         return Ok(new MensajeRespuesta("Sesión cerrada exitosamente."));
+    }
+
+    [HttpPost("olvide-password")]
+    public async Task<IActionResult> OlvidePassword([FromBody] OlvidePasswordRequest request, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(new MensajeRespuesta("Datos de entrada inválidos."));
+
+        await _passwordService.OlvidePasswordAsync(request.Correo, ct);
+
+        return Ok(new MensajeRespuesta("Si el correo existe en el sistema, se ha enviado un enlace de recuperación."));
+    }
+
+    [HttpPost("restablecer-password")]
+    public async Task<IActionResult> RestablecerPassword([FromBody] RestablecerPasswordRequest request, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(new MensajeRespuesta("Datos de entrada inválidos."));
+
+        try
+        {
+            await _passwordService.RestablecerPasswordAsync(request.Token, request.NuevaPassword, ct);
+            return Ok(new MensajeRespuesta("Contraseña restablecida exitosamente."));
+        }
+        catch (ValidacionException ex)
+        {
+            return BadRequest(new MensajeRespuesta(ex.Message));
+        }
+        catch (AutenticacionException ex)
+        {
+            return BadRequest(new MensajeRespuesta(ex.Message));
+        }
     }
 }

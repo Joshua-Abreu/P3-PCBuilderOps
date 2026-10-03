@@ -10,4 +10,5 @@ public class Usuario
     public DateTime FechaCreacionUtc { get; set; }
     public int IntentosFallidos { get; set; }
     public DateTime? BloqueadoHastaUtc { get; set; }
+    public bool DebeCambiarPassword { get; set; } = false;
 }

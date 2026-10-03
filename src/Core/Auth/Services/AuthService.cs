@@ -179,7 +179,7 @@ public class AuthService : IAuthService
         }
     }
 
-    public async Task<string> LoginAsync(string correo, string password, CancellationToken ct = default)
+    public async Task<LoginResultado> LoginAsync(string correo, string password, CancellationToken ct = default)
     {
         _inputValidator.ValidarCorreo(correo);
 
@@ -229,7 +229,7 @@ public class AuthService : IAuthService
         _dbContext.SesionesUsuario.Add(sesion);
         await _dbContext.SaveChangesAsync(ct);
 
-        return tokenJwt;
+        return new LoginResultado(tokenJwt, sesion.ExpiracionUtc, usuario.DebeCambiarPassword);
     }
 
     public async Task LogoutAsync(string tokenJwt, CancellationToken ct = default)
@@ -268,5 +268,3 @@ public class AuthService : IAuthService
         return new UsuarioAutenticado(usuario.Id, usuario.Correo, usuario.Rol);
     }
 }
-
-public record UsuarioAutenticado(Guid Id, string Correo, RolUsuario Rol);
