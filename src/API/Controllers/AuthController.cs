@@ -150,4 +150,31 @@ public class AuthController : ControllerBase
             return BadRequest(new MensajeRespuesta(ex.Message));
         }
     }
+
+    [Authorize]
+    [HttpPost("cambiar-password")]
+    public async Task<IActionResult> CambiarPassword([FromBody] CambiarPasswordRequest request, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(new MensajeRespuesta("Datos de entrada inválidos."));
+
+        var usuarioIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+
+        if (usuarioIdClaim is null || !Guid.TryParse(usuarioIdClaim.Value, out var usuarioId))
+            return Unauthorized(new MensajeRespuesta("No autenticado."));
+
+        try
+        {
+            await _passwordService.CambiarPasswordAsync(usuarioId, request.PasswordActual, request.NuevaPassword, ct);
+            return Ok(new MensajeRespuesta("Contraseña actualizada exitosamente."));
+        }
+        catch (ValidacionException ex)
+        {
+            return BadRequest(new MensajeRespuesta(ex.Message));
+        }
+        catch (AutenticacionException ex)
+        {
+            return BadRequest(new MensajeRespuesta(ex.Message));
+        }
+    }
 }
