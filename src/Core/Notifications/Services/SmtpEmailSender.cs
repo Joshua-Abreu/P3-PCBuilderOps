@@ -3,7 +3,7 @@ using MimeKit;
 
 namespace Core.Notifications.Services;
 
-public class SmtpEmailSender : IEmailSender
+public class SmtpEmailSender : ISmtpEmailSender
 {
     private readonly string _host;
     private readonly int _port;
@@ -16,8 +16,11 @@ public class SmtpEmailSender : IEmailSender
         _host = Environment.GetEnvironmentVariable("SMTP_HOST") ?? string.Empty;
         _port = int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT"), out var port) ? port : 587;
         _user = Environment.GetEnvironmentVariable("SMTP_USER") ?? string.Empty;
-        _password = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? string.Empty;
+        _password = Environment.GetEnvironmentVariable("SMTP_PASS") ?? string.Empty;
         _from = Environment.GetEnvironmentVariable("SMTP_FROM") ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(_host))
+            Console.WriteLine("[SMTP] ADVERTENCIA: SMTP_HOST no está configurado. El envío de correos no funcionará.");
     }
 
     public async Task EnviarAsync(string destinatario, string asunto, string cuerpo, CancellationToken ct = default)
