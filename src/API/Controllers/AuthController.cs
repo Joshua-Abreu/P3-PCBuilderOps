@@ -137,6 +137,27 @@ public class AuthController : ControllerBase
         return Ok(new MensajeRespuesta("Si el correo existe en el sistema, se ha enviado un enlace de recuperación."));
     }
 
+    [HttpGet("restablecer-password")]
+    public async Task<IActionResult> ValidarTokenRestablecerPassword([FromQuery] string token, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            return BadRequest(new MensajeRespuesta("El token es obligatorio."));
+
+        try
+        {
+            await _passwordService.ValidarTokenRecuperacionAsync(token, ct);
+            return Ok(new MensajeRespuesta("Token válido. Envía la nueva contraseña mediante POST a /api/auth/restablecer-password."));
+        }
+        catch (ValidacionException ex)
+        {
+            return BadRequest(new MensajeRespuesta(ex.Message));
+        }
+        catch (AutenticacionException ex)
+        {
+            return BadRequest(new MensajeRespuesta(ex.Message));
+        }
+    }
+
     [HttpPost("restablecer-password")]
     public async Task<IActionResult> RestablecerPassword([FromBody] RestablecerPasswordRequest request, CancellationToken ct)
     {

@@ -3,6 +3,7 @@ using Core.Auth.Exceptions;
 using Core.Data;
 using Core.Notifications.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Core.Auth.Services;
 
@@ -15,18 +16,26 @@ public class AuthService : IAuthService
     private readonly IPasswordHasher _passwordHasher;
     private readonly IInputValidator _inputValidator;
     private readonly IJwtService _jwtService;
+    private readonly IConfiguration _configuration;
 
     public AuthService(
         AppDbContext dbContext,
         IPasswordHasher passwordHasher,
         IInputValidator inputValidator,
-        IJwtService jwtService)
+        IJwtService jwtService,
+        IConfiguration configuration)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
         _inputValidator = inputValidator;
         _jwtService = jwtService;
+        _configuration = configuration;
     }
+
+    private string ObtenerBaseUrl() =>
+        (Environment.GetEnvironmentVariable("APP_BASE_URL")
+            ?? _configuration["App:BaseUrl"]
+            ?? "http://localhost:5206").TrimEnd('/');
 
     public async Task RegistrarAsync(string correo, string password, CancellationToken ct = default)
     {
@@ -61,7 +70,7 @@ public class AuthService : IAuthService
             FueUsado = false
         };
 
-        var enlaceActivacion = $"/api/auth/activar?token={tokenActivacion.Token}";
+        var enlaceActivacion = $"{ObtenerBaseUrl()}/api/auth/activar?token={tokenActivacion.Token}";
         var correoEnCola = new CorreoEnCola
         {
             Id = Guid.NewGuid(),
@@ -151,7 +160,7 @@ public class AuthService : IAuthService
             FueUsado = false
         };
 
-        var enlaceActivacion = $"/api/auth/activar?token={nuevoToken.Token}";
+        var enlaceActivacion = $"{ObtenerBaseUrl()}/api/auth/activar?token={nuevoToken.Token}";
         var correoEnCola = new CorreoEnCola
         {
             Id = Guid.NewGuid(),
