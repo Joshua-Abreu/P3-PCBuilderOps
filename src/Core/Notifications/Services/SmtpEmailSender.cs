@@ -16,12 +16,20 @@ public class SmtpEmailSender : ISmtpEmailSender
         _host = Environment.GetEnvironmentVariable("SMTP_HOST") ?? string.Empty;
         _port = int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT"), out var port) ? port : 587;
         _user = Environment.GetEnvironmentVariable("SMTP_USER") ?? string.Empty;
-        _password = Environment.GetEnvironmentVariable("SMTP_PASS") ?? string.Empty;
+        _password = Environment.GetEnvironmentVariable("SMTP_PASS")
+            ?? Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? string.Empty;
         _from = Environment.GetEnvironmentVariable("SMTP_FROM") ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(_host))
             Console.WriteLine("[SMTP] ADVERTENCIA: SMTP_HOST no está configurado. El envío de correos no funcionará.");
     }
+
+    private MailKit.Security.SecureSocketOptions ObtenerOpcionSeguridad(int puerto) => puerto switch
+    {
+        465 => MailKit.Security.SecureSocketOptions.SslOnConnect,
+        587 => MailKit.Security.SecureSocketOptions.StartTls,
+        _ => MailKit.Security.SecureSocketOptions.Auto
+    };
 
     public async Task EnviarAsync(string destinatario, string asunto, string cuerpo, CancellationToken ct = default)
     {
@@ -38,7 +46,8 @@ public class SmtpEmailSender : ISmtpEmailSender
 
         try
         {
-            await client.ConnectAsync(_host, _port, MailKit.Security.SecureSocketOptions.StartTls, ct);
+            var opcionSeguridad = ObtenerOpcionSeguridad(_port);
+            await client.ConnectAsync(_host, _port, opcionSeguridad, ct);
             await client.AuthenticateAsync(_user, _password, ct);
             await client.SendAsync(mensaje, ct);
             await client.DisconnectAsync(true, ct);

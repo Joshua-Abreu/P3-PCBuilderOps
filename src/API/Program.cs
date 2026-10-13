@@ -5,7 +5,6 @@ using Core.Auth.Exceptions;
 using Core.Auth.Services;
 using Core.Data;
 using Core.Notifications.Services;
-using Core.Notifications.Workers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -29,8 +28,6 @@ builder.Services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddSingleton<ISmtpEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IColaCorreoService, ColaCorreoService>();
-
-builder.Services.AddHostedService<EmailQueueWorker>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
