@@ -10,6 +10,7 @@ public interface IAuthService
     Task<LoginResultado> LoginAsync(string correo, string password, CancellationToken ct = default);
     Task LogoutAsync(string tokenJwt, CancellationToken ct = default);
     Task<UsuarioAutenticado?> ObtenerUsuarioAutenticadoAsync(CancellationToken ct = default);
+    Task<UsuarioAutenticado?> ObtenerUsuarioPorIdAsync(Guid usuarioId, CancellationToken ct = default);
 }
 
 public record LoginResultado(string Token, DateTime ExpiracionUtc, bool DebeCambiarPassword);

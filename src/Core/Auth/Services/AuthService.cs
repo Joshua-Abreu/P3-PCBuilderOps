@@ -3,6 +3,7 @@ using Core.Auth.Exceptions;
 using Core.Data;
 using Core.Notifications.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Core.Auth.Services;
 
@@ -15,18 +16,26 @@ public class AuthService : IAuthService
     private readonly IPasswordHasher _passwordHasher;
     private readonly IInputValidator _inputValidator;
     private readonly IJwtService _jwtService;
+    private readonly IConfiguration _configuration;
 
     public AuthService(
         AppDbContext dbContext,
         IPasswordHasher passwordHasher,
         IInputValidator inputValidator,
-        IJwtService jwtService)
+        IJwtService jwtService,
+        IConfiguration configuration)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
         _inputValidator = inputValidator;
         _jwtService = jwtService;
+        _configuration = configuration;
     }
+
+    private string ObtenerBaseUrl() =>
+        (Environment.GetEnvironmentVariable("APP_BASE_URL")
+            ?? _configuration["App:BaseUrl"]
+            ?? "http://localhost:5206").TrimEnd('/');
 
     public async Task RegistrarAsync(string correo, string password, CancellationToken ct = default)
     {
@@ -61,7 +70,7 @@ public class AuthService : IAuthService
             FueUsado = false
         };
 
-        var enlaceActivacion = $"/api/auth/activar?token={tokenActivacion.Token}";
+        var enlaceActivacion = $"{ObtenerBaseUrl()}/api/auth/activar?token={tokenActivacion.Token}";
         var correoEnCola = new CorreoEnCola
         {
             Id = Guid.NewGuid(),
@@ -151,7 +160,7 @@ public class AuthService : IAuthService
             FueUsado = false
         };
 
-        var enlaceActivacion = $"/api/auth/activar?token={nuevoToken.Token}";
+        var enlaceActivacion = $"{ObtenerBaseUrl()}/api/auth/activar?token={nuevoToken.Token}";
         var correoEnCola = new CorreoEnCola
         {
             Id = Guid.NewGuid(),
@@ -214,17 +223,18 @@ public class AuthService : IAuthService
         usuario.IntentosFallidos = 0;
         usuario.BloqueadoHastaUtc = null;
 
-        var tokenJwt = _jwtService.GenerarToken(usuario.Id, usuario.Correo, usuario.Rol);
-
         var sesion = new SesionUsuario
         {
             Id = Guid.NewGuid(),
             UsuarioId = usuario.Id,
-            TokenJwt = tokenJwt,
+            TokenJwt = string.Empty,
             FechaCreacionUtc = DateTime.UtcNow,
             ExpiracionUtc = DateTime.UtcNow.AddHours(1),
             EstaRevocada = false
         };
+
+        var tokenJwt = _jwtService.GenerarToken(usuario.Id, usuario.Correo, usuario.Rol, sesion.Id);
+        sesion.TokenJwt = tokenJwt;
 
         _dbContext.SesionesUsuario.Add(sesion);
         await _dbContext.SaveChangesAsync(ct);
@@ -261,6 +271,17 @@ public class AuthService : IAuthService
 
         var usuario = await _dbContext.Usuarios
             .FirstOrDefaultAsync(u => u.Id == sesion.UsuarioId, ct);
+
+        if (usuario is null)
+            return null;
+
+        return new UsuarioAutenticado(usuario.Id, usuario.Correo, usuario.Rol);
+    }
+
+    public async Task<UsuarioAutenticado?> ObtenerUsuarioPorIdAsync(Guid usuarioId, CancellationToken ct = default)
+    {
+        var usuario = await _dbContext.Usuarios
+            .FirstOrDefaultAsync(u => u.Id == usuarioId, ct);
 
         if (usuario is null)
             return null;

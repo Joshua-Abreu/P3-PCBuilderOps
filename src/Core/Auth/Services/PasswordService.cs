@@ -2,6 +2,7 @@ using Core.Auth.Domain;
 using Core.Data;
 using Core.Notifications.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Core.Auth.Services;
 
@@ -10,16 +11,24 @@ public class PasswordService : IPasswordService
     private readonly AppDbContext _dbContext;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IInputValidator _inputValidator;
+    private readonly IConfiguration _configuration;
 
     public PasswordService(
         AppDbContext dbContext,
         IPasswordHasher passwordHasher,
-        IInputValidator inputValidator)
+        IInputValidator inputValidator,
+        IConfiguration configuration)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
         _inputValidator = inputValidator;
+        _configuration = configuration;
     }
+
+    private string ObtenerBaseUrl() =>
+        (Environment.GetEnvironmentVariable("APP_BASE_URL")
+            ?? _configuration["App:BaseUrl"]
+            ?? "http://localhost:5206").TrimEnd('/');
 
     public async Task OlvidePasswordAsync(string correo, CancellationToken ct = default)
     {
@@ -44,7 +53,7 @@ public class PasswordService : IPasswordService
             FueUsado = false
         };
 
-        var enlaceRecuperacion = $"http://localhost:5206/api/auth/restablecer-password?token={tokenRecuperacion.Token}";
+        var enlaceRecuperacion = $"{ObtenerBaseUrl()}/api/auth/restablecer-password?token={tokenRecuperacion.Token}";
         var correoEnCola = new CorreoEnCola
         {
             Id = Guid.NewGuid(),
@@ -72,13 +81,16 @@ public class PasswordService : IPasswordService
         }
     }
 
-    public async Task RestablecerPasswordAsync(string token, string nuevaPassword, CancellationToken ct = default)
+    public async Task ValidarTokenRecuperacionAsync(string token, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(token))
             throw new Core.Auth.Exceptions.ValidacionException("El token es obligatorio.");
 
-        _inputValidator.ValidarPassword(nuevaPassword);
+        await ObtenerTokenRecuperacionValidoAsync(token, ct);
+    }
 
+    private async Task<TokenRecuperacion> ObtenerTokenRecuperacionValidoAsync(string token, CancellationToken ct)
+    {
         var tokenRecuperacion = await _dbContext.TokensRecuperacion
             .FirstOrDefaultAsync(t => t.Token == token, ct);
 
@@ -90,6 +102,18 @@ public class PasswordService : IPasswordService
 
         if (tokenRecuperacion.ExpiracionUtc < DateTime.UtcNow)
             throw new Core.Auth.Exceptions.AutenticacionException("El token de recuperación ha expirado.");
+
+        return tokenRecuperacion;
+    }
+
+    public async Task RestablecerPasswordAsync(string token, string nuevaPassword, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            throw new Core.Auth.Exceptions.ValidacionException("El token es obligatorio.");
+
+        _inputValidator.ValidarPassword(nuevaPassword);
+
+        var tokenRecuperacion = await ObtenerTokenRecuperacionValidoAsync(token, ct);
 
         var usuario = await _dbContext.Usuarios
             .FirstOrDefaultAsync(u => u.Id == tokenRecuperacion.UsuarioId, ct);

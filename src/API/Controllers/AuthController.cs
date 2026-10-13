@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using API.DTOs;
 using Core.Auth.Exceptions;
 using Core.Auth.Services;
@@ -97,7 +98,13 @@ public class AuthController : ControllerBase
     [HttpGet("yo")]
     public async Task<IActionResult> Yo(CancellationToken ct)
     {
-        var usuario = await _authService.ObtenerUsuarioAutenticadoAsync(ct);
+        var usuarioIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("sub");
+
+        if (string.IsNullOrEmpty(usuarioIdClaim) || !Guid.TryParse(usuarioIdClaim, out var usuarioId))
+            return Unauthorized(new MensajeRespuesta("No autenticado."));
+
+        var usuario = await _authService.ObtenerUsuarioPorIdAsync(usuarioId, ct);
 
         if (usuario is null)
             return Unauthorized(new MensajeRespuesta("No autenticado."));
@@ -130,6 +137,27 @@ public class AuthController : ControllerBase
         return Ok(new MensajeRespuesta("Si el correo existe en el sistema, se ha enviado un enlace de recuperación."));
     }
 
+    [HttpGet("restablecer-password")]
+    public async Task<IActionResult> ValidarTokenRestablecerPassword([FromQuery] string token, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            return BadRequest(new MensajeRespuesta("El token es obligatorio."));
+
+        try
+        {
+            await _passwordService.ValidarTokenRecuperacionAsync(token, ct);
+            return Ok(new MensajeRespuesta("Token válido. Envía la nueva contraseña mediante POST a /api/auth/restablecer-password."));
+        }
+        catch (ValidacionException ex)
+        {
+            return BadRequest(new MensajeRespuesta(ex.Message));
+        }
+        catch (AutenticacionException ex)
+        {
+            return BadRequest(new MensajeRespuesta(ex.Message));
+        }
+    }
+
     [HttpPost("restablecer-password")]
     public async Task<IActionResult> RestablecerPassword([FromBody] RestablecerPasswordRequest request, CancellationToken ct)
     {
@@ -158,9 +186,10 @@ public class AuthController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(new MensajeRespuesta("Datos de entrada inválidos."));
 
-        var usuarioIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        var usuarioIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("sub");
 
-        if (usuarioIdClaim is null || !Guid.TryParse(usuarioIdClaim.Value, out var usuarioId))
+        if (string.IsNullOrEmpty(usuarioIdClaim) || !Guid.TryParse(usuarioIdClaim, out var usuarioId))
             return Unauthorized(new MensajeRespuesta("No autenticado."));
 
         try

@@ -6,4 +6,7 @@
   <Folder Name="/src/Modules/">
     <Project Path="src/Modules/PCBuilderOps/PCBuilderOps.csproj" />
   </Folder>
+  <Folder Name="/src/Workers/">
+    <Project Path="src/Workers/EmailDispatcher/EmailDispatcher.csproj" />
+  </Folder>
 </Solution>
