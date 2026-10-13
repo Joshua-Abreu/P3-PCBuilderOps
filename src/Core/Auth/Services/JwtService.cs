@@ -24,7 +24,7 @@ public class JwtService : IJwtService
             : 60;
     }
 
-    public string GenerarToken(Guid usuarioId, string correo, RolUsuario rol)
+    public string GenerarToken(Guid usuarioId, string correo, RolUsuario rol, Guid sesionId)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -34,7 +34,7 @@ public class JwtService : IJwtService
             new Claim(JwtRegisteredClaimNames.Sub, usuarioId.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, correo),
             new Claim(ClaimTypes.Role, rol.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Jti, sesionId.ToString())
         };
 
         var token = new JwtSecurityToken(

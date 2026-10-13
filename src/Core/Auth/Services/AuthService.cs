@@ -214,17 +214,18 @@ public class AuthService : IAuthService
         usuario.IntentosFallidos = 0;
         usuario.BloqueadoHastaUtc = null;
 
-        var tokenJwt = _jwtService.GenerarToken(usuario.Id, usuario.Correo, usuario.Rol);
-
         var sesion = new SesionUsuario
         {
             Id = Guid.NewGuid(),
             UsuarioId = usuario.Id,
-            TokenJwt = tokenJwt,
+            TokenJwt = string.Empty,
             FechaCreacionUtc = DateTime.UtcNow,
             ExpiracionUtc = DateTime.UtcNow.AddHours(1),
             EstaRevocada = false
         };
+
+        var tokenJwt = _jwtService.GenerarToken(usuario.Id, usuario.Correo, usuario.Rol, sesion.Id);
+        sesion.TokenJwt = tokenJwt;
 
         _dbContext.SesionesUsuario.Add(sesion);
         await _dbContext.SaveChangesAsync(ct);
@@ -261,6 +262,17 @@ public class AuthService : IAuthService
 
         var usuario = await _dbContext.Usuarios
             .FirstOrDefaultAsync(u => u.Id == sesion.UsuarioId, ct);
+
+        if (usuario is null)
+            return null;
+
+        return new UsuarioAutenticado(usuario.Id, usuario.Correo, usuario.Rol);
+    }
+
+    public async Task<UsuarioAutenticado?> ObtenerUsuarioPorIdAsync(Guid usuarioId, CancellationToken ct = default)
+    {
+        var usuario = await _dbContext.Usuarios
+            .FirstOrDefaultAsync(u => u.Id == usuarioId, ct);
 
         if (usuario is null)
             return null;

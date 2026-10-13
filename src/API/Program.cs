@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using Core.Auth.Exceptions;
 using Core.Auth.Services;
@@ -43,6 +45,53 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "PCBuilderOps",
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var dbContext = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+                var principal = context.Principal;
+
+                var jtiClaim = principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+
+                if (string.IsNullOrEmpty(jtiClaim) || !Guid.TryParse(jtiClaim, out var sesionId))
+                {
+                    context.Fail("Token sin identificador de sesión válido.");
+                    return;
+                }
+
+                var sesion = await dbContext.SesionesUsuario
+                    .FirstOrDefaultAsync(s => s.Id == sesionId);
+
+                if (sesion is null)
+                {
+                    context.Fail("Sesión no encontrada.");
+                    return;
+                }
+
+                if (sesion.EstaRevocada)
+                {
+                    context.Fail("Sesión revocada.");
+                    return;
+                }
+
+                if (sesion.ExpiracionUtc <= DateTime.UtcNow)
+                {
+                    context.Fail("Sesión expirada.");
+                    return;
+                }
+
+                var usuario = await dbContext.Usuarios
+                    .FirstOrDefaultAsync(u => u.Id == sesion.UsuarioId);
+
+                if (usuario is null || !usuario.EstaActivo)
+                {
+                    context.Fail("Usuario inactivo o no encontrado.");
+                    return;
+                }
+            }
         };
     });
 

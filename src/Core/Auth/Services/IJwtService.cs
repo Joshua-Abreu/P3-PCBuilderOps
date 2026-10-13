@@ -5,6 +5,6 @@ namespace Core.Auth.Services;
 
 public interface IJwtService
 {
-    string GenerarToken(Guid usuarioId, string correo, RolUsuario rol);
+    string GenerarToken(Guid usuarioId, string correo, RolUsuario rol, Guid sesionId);
     ClaimsPrincipal? ValidarToken(string token);
 }
