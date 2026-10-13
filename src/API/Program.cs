@@ -12,9 +12,14 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
+    ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+    ?? Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Server=localhost;Database=PCBuilderOps;Trusted_Connection=True;TrustServerCertificate=True";
 
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
+    ?? Environment.GetEnvironmentVariable("Jwt__Key")
+    ?? builder.Configuration["Jwt:Key"]
     ?? "ClaveSuperSecretaDeDesarrollo2026!";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
