@@ -10,14 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
-    ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-    ?? Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Server=localhost;Database=PCBuilderOps;Trusted_Connection=True;TrustServerCertificate=True";
+var connectionString = CadenaConexion.Obtener(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 var configuracionJwt = ConfiguracionJwt.DesdeEntorno();
 
+// Mantener igual que Core/Data/AppDbContextFactory.cs (migraciones): toda opción nueva de UseSqlServer va en ambos.
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
