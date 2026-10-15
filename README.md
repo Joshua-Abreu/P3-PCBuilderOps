@@ -59,12 +59,12 @@ Conforme a las directivas de seguridad **RF-NOT-13** y **RD-10**, ninguna creden
 
 ### Cadena de conexión a base de datos
 
-La aplicación resuelve la cadena de conexión en el siguiente orden de prioridad:
+La API, el despachador de correos y las migraciones resuelven la cadena de conexión en un solo punto (`CadenaConexion`), en este orden:
 
 1. `CONNECTION_STRING` (variable de entorno directa)
 2. `ConnectionStrings__DefaultConnection` (formato doble guion bajo para variables de entorno)
-3. `ConnectionStrings:DefaultConnection` (formato estándar de configuración .NET)
-4. Fallback local: `Server=localhost;Database=PCBuilderOps;Trusted_Connection=True;TrustServerCertificate=True`
+3. `ConnectionStrings:DefaultConnection` en la configuración de la API (solo la API)
+4. Valor local por defecto, sin credenciales: `Server=localhost;Database=PCBuilderOps;Trusted_Connection=True;TrustServerCertificate=True`
 
 ### Clave secreta para JWT
 
@@ -83,7 +83,7 @@ Un valor adecuado para `JWT_SECRET` puede generarse en PowerShell con:
 [Convert]::ToBase64String((1..48 | ForEach-Object { Get-Random -Maximum 256 }))
 ```
 
-> `JWT_SECRET` también debe estar definida al aplicar las migraciones (`dotnet ef database update`), porque la herramienta arranca la API para leer su configuración.
+> Las migraciones (`dotnet ef`) no arrancan la API: usan `AppDbContextFactory` y solo necesitan la cadena de conexión, no `JWT_SECRET`.
 
 ### Credenciales SMTP
 
@@ -101,10 +101,11 @@ El registro público siempre crea usuarios **Estándar**. Para disponer del prim
 
 | Variable | Propósito |
 |----------|-----------|
+| `ADMIN_NOMBRE` | Nombre del primer Administrador (entre 2 y 100 caracteres). |
 | `ADMIN_CORREO` | Correo del primer Administrador. |
 | `ADMIN_PASSWORD` | Contraseña del primer Administrador (mínimo 8 caracteres, con letras y números). |
 
-Al arrancar, si la base de datos **no tiene ningún Administrador**, la API crea esa cuenta ya activa y con rol Administrador (si el correo ya estaba registrado, lo promueve y le asigna esa contraseña). Si ya existe algún Administrador, las variables se ignoran, por lo que reiniciar la aplicación no duplica ni modifica cuentas. La consola indica si el Administrador fue `Creado` o `Promovido`, o advierte si faltan las variables.
+Al arrancar, si la base de datos **no tiene ningún Administrador**, la API crea esa cuenta ya activa y con rol Administrador (si el correo ya estaba registrado, lo promueve y le asigna esa contraseña). Si ya existe algún Administrador, las variables se ignoran, por lo que reiniciar la aplicación no duplica ni modifica cuentas. Las tres variables son obligatorias: si falta alguna, no se crea el Administrador. La consola indica si fue `Creado` o `Promovido`, o advierte si faltan variables.
 
 Para usar `src/API/API.http`, complete al inicio del archivo `@adminCorreo` y `@adminPassword` con los mismos valores de `ADMIN_CORREO` y `ADMIN_PASSWORD`.
 
@@ -128,7 +129,7 @@ dotnet restore
 
 ### 3. Aplicar migraciones de base de datos
 
-El proyecto Core contiene el `AppDbContext` y las migraciones. No existe el proyecto `src/Infrastructure`. Use el siguiente comando:
+El proyecto Core contiene el `AppDbContext` y las migraciones. No existe el proyecto `src/Infrastructure`. `dotnet ef` **no lee** `launchSettings.json`: si su base no es la local por defecto, defina `CONNECTION_STRING` en la terminal antes de ejecutar el comando (en PowerShell: `$env:CONNECTION_STRING = "..."`).
 
 ```bash
 dotnet ef database update --project src/Core --startup-project src/API
@@ -172,9 +173,9 @@ Para reproducir cada criterio de la Práctica 1 se provee `src/API/API.http`, qu
 
 | Criterio | Cómo provocarlo | Resultado esperado |
 |----------|-----------------|--------------------|
-| **RF-CA-01** (Correo único) | `POST /api/auth/registro` con datos válidos y repetirlo con el mismo correo. | El primero retorna `201 Created`; el segundo, `400 Bad Request` con mensaje controlado. |
+| **RF-CA-01** (Correo único) | `POST /api/auth/registro` con cuerpo `{"nombre": "...", "correo": "...", "password": "..."}` y repetirlo con el mismo correo. | El primero retorna `201 Created`; el segundo, `400 Bad Request` con mensaje controlado. |
 | **RF-CA-02** (Hash con sal) | Registrar dos usuarios con la misma contraseña y ejecutar `SELECT Correo, PasswordHash FROM Usuarios`. | La contraseña no aparece en texto plano y los dos valores almacenados son distintos (BCrypt con sal aleatoria). |
-| **RF-CA-14** (Política de contraseña) y **RD-07** | Registrar con una contraseña de 5 caracteres, sin números o sin letras, y con un correo mal formado o vacío. Repetir la contraseña inválida en `POST /api/auth/cambiar-password` y en `POST /api/auth/restablecer-password`. | `400 Bad Request` con mensaje controlado en todos los casos, nunca una excepción sin manejar. |
+| **RF-CA-14** (Política de contraseña) y **RD-07** | Registrar con una contraseña de 5 caracteres, sin números o sin letras, con un correo mal formado o vacío, y sin nombre o con un nombre de 1 carácter. Repetir la contraseña inválida en `POST /api/auth/cambiar-password` y en `POST /api/auth/restablecer-password`. | `400 Bad Request` con mensaje controlado en todos los casos, nunca una excepción sin manejar. |
 | **RF-CA-15** (Cuenta inactiva hasta activar) | Iniciar sesión justo después de registrarse. | `401` con el mensaje "La cuenta no está activa." El correo de activación queda `Pendiente` en `CorreosEnCola`. |
 | **RF-CA-16** (Enlace de un solo uso con vencimiento) | Abrir el enlace recibido (`GET /api/auth/activar?token=...`), abrirlo otra vez e iniciar sesión. | Primera apertura `200 OK`; segunda `400` sin cambiar el estado. El inicio de sesión funciona tras activar. El enlace vence a las 24 horas. |
 | **RF-CA-17** (Reenvío neutro) | `POST /api/auth/reenviar-activacion` con un correo inexistente y con uno pendiente de activar. | Respuesta idéntica (`200 OK`) en ambos casos. El enlace anterior deja de servir. |
