@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using API.Validacion;
 using Core.Auth.Exceptions;
 using Core.Auth.Services;
 using Core.Data;
@@ -86,7 +87,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+        options.InvalidModelStateResponseFactory = RespuestaModeloInvalido.Crear);
 
 var app = builder.Build();
 
