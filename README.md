@@ -164,59 +164,72 @@ Este proceso independiente lee los correos pendientes de la cola, los envía ví
 
 ## Guía de Verificación de Criterios de Aceptación
 
-Para reproducir y calificar cada criterio de aceptación de la Práctica 1, se provee el archivo de pruebas integrado `src/API/API.http`, el cual puede ejecutarse secuencialmente desde Visual Studio Code (extensión REST Client) o importarse en Postman.
+Para reproducir cada criterio de la Práctica 1 se provee `src/API/API.http`, que puede ejecutarse desde Visual Studio Code (extensión REST Client) o importarse en Postman. Los tokens de activación y recuperación llegan por correo; si el despachador no está configurado, pueden leerse directamente en las tablas `TokensActivacion` y `TokensRecuperacion`.
 
-### 1. Registro, Validación and Activación (Bloque 1.1)
+### 1. Registro y activación (Bloque 1.1)
 
-| Criterio | Descripción | Resultado esperado |
-|----------|-------------|-------------------|
-| **RF-CA-01** (Registro exitoso) | Enviar `POST /api/auth/registro` con datos válidos. | Retorna `201 Created` y coloca un correo en estado Pendiente en `CorreosEnCola`. |
-| **RF-CA-02** (Unicidad) | Volver a enviar el registro con el mismo correo. | Retorna rechazo controlado con mensaje neutro. |
-| **RF-CA-14** (Política de contraseñas y validación) | Enviar registro con contraseña menor a 8 caracteres o correo sin formato RFC 5322. | Retorna `400 Bad Request` con el listado de fallos. |
-| **RF-CA-15 / RF-CA-16** (Activación de cuenta) | Abrir el enlace recibido por correo o invocar `GET /api/auth/activar?token={token}`. | La cuenta pasa a estado activo (`200 OK`). Si se invoca por segunda vez el mismo token, se rechaza de forma controlada (`400 Bad Request`). |
-| **RF-CA-17** (Reenvío neutro) | `POST /api/auth/reenviar-activacion` | Retorna siempre `200 OK` con mensaje neutro independientemente de si el correo existe, ya estaba activo o no existe. |
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **RF-CA-01** (Correo único) | `POST /api/auth/registro` con datos válidos y repetirlo con el mismo correo. | El primero retorna `201 Created`; el segundo, `400 Bad Request` con mensaje controlado. |
+| **RF-CA-02** (Hash con sal) | Registrar dos usuarios con la misma contraseña y ejecutar `SELECT Correo, PasswordHash FROM Usuarios`. | La contraseña no aparece en texto plano y los dos valores almacenados son distintos (BCrypt con sal aleatoria). |
+| **RF-CA-14** (Política de contraseña) y **RD-07** | Registrar con una contraseña de 5 caracteres, sin números o sin letras, y con un correo mal formado o vacío. Repetir la contraseña inválida en `POST /api/auth/cambiar-password` y en `POST /api/auth/restablecer-password`. | `400 Bad Request` con mensaje controlado en todos los casos, nunca una excepción sin manejar. |
+| **RF-CA-15** (Cuenta inactiva hasta activar) | Iniciar sesión justo después de registrarse. | `401` con el mensaje "La cuenta no está activa." El correo de activación queda `Pendiente` en `CorreosEnCola`. |
+| **RF-CA-16** (Enlace de un solo uso con vencimiento) | Abrir el enlace recibido (`GET /api/auth/activar?token=...`), abrirlo otra vez e iniciar sesión. | Primera apertura `200 OK`; segunda `400` sin cambiar el estado. El inicio de sesión funciona tras activar. El enlace vence a las 24 horas. |
+| **RF-CA-17** (Reenvío neutro) | `POST /api/auth/reenviar-activacion` con un correo inexistente y con uno pendiente de activar. | Respuesta idéntica (`200 OK`) en ambos casos. El enlace anterior deja de servir. |
 
-### 2. Autenticación and Control de Sesiones (Bloque 1.2)
+### 2. Sesión (Bloque 1.2)
 
-| Criterio | Descripción | Resultado esperado |
-|----------|-------------|-------------------|
-| **RF-CA-03** (Credenciales inválidas) | `POST /api/auth/login` con credenciales incorrectas. | Responde con mensaje neutro sin revelar si falló el correo o la contraseña. |
-| **RF-CA-07** (Consulta de identidad) | `GET /api/auth/yo` with cabecera `Authorization: Bearer <TOKEN>`. | Retorna el identificador, correo y rol del usuario en sesión. |
-| **RF-CA-18** (Logout and revocación) | `POST /api/auth/logout` | Invalida el token en la tabla `SesionesUsuario`. Consultas subsecuentes a endpoints protegidos con dicho token son rechazadas con `401 Unauthorized`. |
-| **RF-CA-19** (Protección contra fuerza bruta) | Enviar 5 intentos consecutivos con contraseña incorrecta para una misma cuenta. | El quinto intento bloquea temporalmente la cuenta por 15 minutos; cualquier intento posterior durante esa ventana es rechazado indicando el bloqueo. |
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **RF-CA-03** (Inicio de sesión) | `POST /api/auth/login` con credenciales correctas, con contraseña incorrecta y con un correo inexistente. | Correctas: `200 OK` con token. Los dos rechazos son idénticos: `401` "Credenciales incorrectas." |
+| **RF-CA-07** (Usuario autenticado) | `GET /api/auth/yo` con y sin cabecera `Authorization: Bearer <TOKEN>`. | Con token: identificador, correo y rol. Sin token: `401`. |
+| **RF-CA-18** (Cierre de sesión) | `POST /api/auth/logout` y volver a usar el mismo token en `GET /api/auth/yo`. | El token cerrado se rechaza con `401`. |
+| **RF-CA-19** (Bloqueo por intentos) | Fallar la contraseña cinco veces seguidas y en el sexto intento usar la correcta. | El sexto intento se rechaza indicando el bloqueo durante 15 minutos. Un inicio de sesión correcto antes del bloqueo pone el contador en cero. |
 
-### 3. Roles and Administración de Usuarios (Bloques 1.3 y 1.4)
+### 3. Roles y administración de usuarios (Bloque 1.3)
 
 > **Requisito previo:** iniciar sesión con el Administrador definido en `ADMIN_CORREO` / `ADMIN_PASSWORD` (ver [Administrador inicial](#administrador-inicial)) y usar su token en las peticiones de esta sección.
 
-| Criterio | Descripción | Resultado esperado |
-|----------|-------------|-------------------|
-| **RF-CA-05 / RF-CA-06 / RF-CA-13** (Protección por rol) | Intentar consultar `GET /api/usuarios` sin token o con un token de usuario estándar. | Sin token: `401 Unauthorized`. Con token estándar: `403 Forbidden`. Solo el rol Administrador (Rol = 2) tiene acceso. |
-| **RF-CA-08 / RF-CA-21** (Consulta paginada segura) | `GET /api/usuarios?pagina=1&tamanoPagina=10` | Lista usuarios aplicando paginación y filtros (activo, rol) sin exponer contraseñas, hashes ni tokens. |
-| **RF-CA-04** (Creación administrativa) | `POST /api/usuarios` | Permite a un Administrador crear usuarios asignando directamente su rol. |
-| **RF-CA-20** (Desactivación and reglas de autoprotección) | `PATCH /api/usuarios/{id}/estado` | Permite desactivar cuentas, revocando inmediatamente todas sus sesiones activas. Si un Administrador intenta auto-desactivar su propia cuenta o remover su propio rol de administrador, la solicitud es rechazada para prevenir el bloqueo total del sistema. |
-| **RF-CA-22** (Cambio voluntario de contraseña) | Con sesión activa, `POST /api/auth/cambiar-password` | Exige ingresar la contraseña actual válida para poder establecer una nueva. Invalida las demás sesiones abiertas. |
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **RF-CA-04** (Dos roles) | `GET /api/usuarios` como Administrador. | Cada usuario tiene exactamente un rol: `Estandar` o `Administrador`. |
+| **RF-CA-05** (Exigencia de rol en un punto) | Revisar `src/API/Controllers`. | Cada controlador declara su exigencia con `[Authorize]` o `[Authorize(Roles = "Administrador")]`. |
+| **RF-CA-06** y **RD-06** (Rechazo a Estándar) | Con token de un usuario Estándar, invocar a mano `GET /api/usuarios` o `PUT /api/usuarios/{id}/rol`. | `403 Forbidden`. Sin token: `401`. |
+| **RF-CA-08** (Cambio de rol) | Como Administrador, `PUT /api/usuarios/{id}/rol`. Como Estándar, intentar cambiar el rol propio. | Administrador: `200 OK`. Estándar: `403`, incluso sobre su propio rol. |
+| **RF-CA-20** (Desactivar y reactivar) | `PATCH /api/usuarios/{id}/estado` con `{"activar": false}` sobre un usuario con sesión abierta; probar su token e iniciar sesión. Intentar desactivarse a sí mismo. | El token del usuario desactivado responde `401` y no puede iniciar sesión. La autodesactivación se rechaza con `403`. `{"activar": true}` lo reactiva. |
+| **RF-CA-21** (Listado de usuarios) | `GET /api/usuarios?pagina=1&tamanoPagina=10` como Administrador y como Estándar. | Administrador: correo, rol y estado, sin hashes ni tokens. Estándar: `403`. |
 
-### 4. Recuperación de Contraseña (Bloque 1.3)
+### 4. Contraseñas: recuperación, cambio y restablecimiento (Bloque 1.4)
 
-| Criterio | Descripción | Resultado esperado |
-|----------|-------------|-------------------|
-| **RF-CA-09 / RF-CA-10** (Solicitud de recuperación) | `POST /api/auth/olvide-password` | Responde siempre de manera neutra (`200 OK`) y encola el token de recuperación en `CorreosEnCola`. |
-| **RF-CA-11 / RF-CA-12** (Nueva contraseña con código) | `POST /api/auth/restablecer-password` | Recibe el token emitido and la nueva contraseña. Al procesarse con éxito, revoca todas las sesiones anteriores and marca el token como consumido impidiendo reutilizaciones. |
-| **RF-CA-13** (Restablecimiento forzado por Administrador) | Con sesión de Administrador, `POST /api/usuarios/{id}/forzar-restablecimiento` (petición 14 de `API.http`). Luego intentar iniciar sesión con la contraseña anterior (petición 15) y ejecutar el despachador de correos. | Retorna `200 OK`. La contraseña anterior deja de servir (`401`), las sesiones abiertas del usuario se revocan, los códigos de recuperación previos se invalidan y se encola en `CorreosEnCola` un correo con un nuevo código para definir la contraseña mediante `POST /api/auth/restablecer-password`. Un usuario Estándar recibe `403`. |
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **RF-CA-09** (Inicio de la recuperación) | `POST /api/auth/olvide-password` con un correo inexistente y con uno registrado. | Respuesta idéntica (`200 OK`) en ambos casos. |
+| **RF-CA-10** (Código de un solo uso por la cola) | Revisar `CorreosEnCola` tras el paso anterior y usar el código dos veces. | El correo queda `Pendiente` con un enlace absoluto. El código vence a las 2 horas; el segundo uso se rechaza y la contraseña no cambia. |
+| **RF-CA-11** (Nueva contraseña con el código) | `POST /api/auth/restablecer-password` con el código y una contraseña nueva; luego iniciar sesión con la anterior y con la nueva. | La anterior responde `401`; la nueva, `200 OK`. |
+| **RF-CA-12** (Sesiones anteriores invalidadas) | Usar un token emitido antes del restablecimiento. | `401`. |
+| **RF-CA-13** (Restablecimiento forzado por Administrador) | Con sesión de Administrador, `POST /api/usuarios/{id}/forzar-restablecimiento` (petición 14 de `API.http`). Luego iniciar sesión con la contraseña anterior (petición 15) y ejecutar el despachador de correos. | `200 OK`. La contraseña anterior deja de servir (`401`), las sesiones del usuario se revocan, los códigos previos se invalidan y se encola un correo con un código nuevo para definir la contraseña. Un Estándar recibe `403`. |
+| **RF-CA-22** (Cambio de la propia contraseña) | Con sesión, `POST /api/auth/cambiar-password` con la contraseña actual incorrecta y luego con la correcta. | Incorrecta: `400`. Correcta: `200 OK`, se aplica la política (RF-CA-14) y se cierran las sesiones abiertas (RF-CA-12). |
 
-### 5. Cola de Correos and Despacho SMTP (Bloque 1.5)
+### 5. Correo saliente por cola (Bloque 1.5)
 
-| Criterio | Descripción | Resultado esperado |
-|----------|-------------|-------------------|
-| **RF-NOT-08 / RF-NOT-09** (Tolerancia a fallos) | El sistema encola notificaciones en `CorreosEnCola` sin interrumpir las operaciones de registro o recuperación aunque el servidor SMTP esté fuera de línea. | Las operaciones principales no se ven afectadas por la caída del servidor SMTP. |
-| **RF-NOT-12** (Despacho and Idempotencia) | El despachador independiente (`dotnet run --project src/Workers/EmailDispatcher`) o el endpoint `POST /api/admin/correos/despachar` | Procesa los registros con estado `Pendiente`, los envía vía SMTP and actualiza el registro con `Estado = 'Enviado'` and su correspondiente `FechaEnvioUtc`. Si se vuelve a ejecutar el despachador, los correos ya enviados no se duplican. |
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **RF-NOT-08** (La operación no depende del SMTP) | Dejar `SMTP_HOST` vacío o apuntando a un servidor inaccesible y registrar un usuario. | El registro responde `201` y el correo queda `Pendiente` en `CorreosEnCola`. |
+| **RF-NOT-09** (Proceso independiente) | Con SMTP configurado, ejecutar `dotnet run --project src/Workers/EmailDispatcher`. | Envía los pendientes, los marca `Enviado` con `FechaEnvioUtc` y termina. El correo llega a la bandeja real. |
+| **RF-NOT-12** (Sin duplicados) | Ejecutar el despachador dos veces seguidas. | La segunda ejecución no reenvía ningún correo ya enviado. |
+| **RF-NOT-13** y **RD-10** (Credenciales fuera del repositorio) | Revisar el código y `git log -p`. | SMTP, JWT, cadena de conexión y Administrador inicial se leen solo de variables de entorno. |
 
-### 6. Estructura de la Máquina de Estados de Negocio (Bloque 1.6)
+### 6. Persistencia (RD-09)
 
-| Criterio | Descripción | Resultado esperado |
-|----------|-------------|-------------------|
-| **RF-NEG-03 / RD-04** | Las entidades del dominio central (`OrdenServicio`), sus estados (`EstadoOrdenServicio`) and la lógica de transición se encuentran centralizados en `src/Core/Ordenes/Domain/`. | Estructura centralizada and desacoplada. |
-| **RF-NEG-04 / RF-NEG-05** | Se definen los 4 estados del taller (Recibida, EnDiagnostico, EnProceso, Entregada), la restricción terminal de Entregada, and la regla explícita de rechazo para el salto prohibido Recibida → Entregada. | Las transiciones inválidas son rechazadas con excepción controlada. |
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **RD-09** (Los datos sobreviven al reinicio) | Registrar un usuario, detener la API con `Ctrl+C`, volver a ejecutarla e iniciar sesión con ese usuario. | El usuario sigue existiendo: la información vive en SQL Server, fuera del proceso. |
 
-Para consultar la matriz de transición completa and responsabilidades por rol, revise el documento formal: [`docs/maquina-de-estados.md`](docs/maquina-de-estados.md).
+### 7. Estructura de la máquina de estados de negocio (Bloque 1.6)
+
+| Criterio | Dónde verlo | Resultado esperado |
+|----------|-------------|--------------------|
+| **RF-NEG-03 / RD-04** | `src/Core/Ordenes/Domain/`: la entidad `OrdenServicio`, sus estados (`EstadoOrdenServicio`) y la clase `MaquinaEstadosOrden`. | Estados y transiciones declarados en un solo lugar. |
+| **RF-NEG-04 / RF-NEG-05** | `MaquinaEstadosOrden`. | Cuatro estados (Recibida, EnDiagnostico, EnProceso, Entregada); Entregada es terminal y el salto directo Recibida → Entregada se rechaza explícitamente. |
+
+La tabla completa de transiciones (desde, hacia, quién la ejecuta y condición) está en [`docs/maquina-de-estados.md`](docs/maquina-de-estados.md).
