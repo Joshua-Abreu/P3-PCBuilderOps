@@ -106,6 +106,8 @@ El registro público siempre crea usuarios **Estándar**. Para disponer del prim
 
 Al arrancar, si la base de datos **no tiene ningún Administrador**, la API crea esa cuenta ya activa y con rol Administrador (si el correo ya estaba registrado, lo promueve y le asigna esa contraseña). Si ya existe algún Administrador, las variables se ignoran, por lo que reiniciar la aplicación no duplica ni modifica cuentas. La consola indica si el Administrador fue `Creado` o `Promovido`, o advierte si faltan las variables.
 
+Para usar `src/API/API.http`, complete al inicio del archivo `@adminCorreo` y `@adminPassword` con los mismos valores de `ADMIN_CORREO` y `ADMIN_PASSWORD`.
+
 ---
 
 ## Cómo ejecutar el proyecto

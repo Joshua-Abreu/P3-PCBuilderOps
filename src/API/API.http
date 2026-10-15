@@ -1,15 +1,19 @@
+# Completa estas dos variables con los mismos valores de ADMIN_CORREO y ADMIN_PASSWORD que usa la API.
+@adminCorreo = admin@ejemplo.com
+@adminPassword = CambiaEsto123
+
 @API_HostAddress = http://localhost:5206
 @authToken = {{loginAdmin.response.body.token}}
 @nuevoUsuarioId = {{crearUsuario.response.body.id}}
 
-### 1. Login de Administrador (usa ADMIN_CORREO y ADMIN_PASSWORD del entorno)
+### 1. Login de Administrador
 # @name loginAdmin
 POST {{API_HostAddress}}/api/auth/login
 Content-Type: application/json
 
 {
-  "correo": "{{$processEnv ADMIN_CORREO}}",
-  "password": "{{$processEnv ADMIN_PASSWORD}}"
+  "correo": "{{adminCorreo}}",
+  "password": "{{adminPassword}}"
 }
 
 ###
@@ -115,7 +119,7 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "passwordActual": "{{$processEnv ADMIN_PASSWORD}}",
+  "passwordActual": "{{adminPassword}}",
   "nuevaPassword": "NuevaPassword789"
 }
 
