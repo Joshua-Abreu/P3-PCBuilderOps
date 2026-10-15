@@ -45,6 +45,7 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
+  "nombre": "Usuario de Prueba",
   "correo": "usuario.prueba@itla.edu.do",
   "password": "Prueba12345",
   "rol": "Estandar",

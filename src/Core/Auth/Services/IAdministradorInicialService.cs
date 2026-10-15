@@ -2,7 +2,7 @@ namespace Core.Auth.Services;
 
 public interface IAdministradorInicialService
 {
-    Task<ResultadoAdministradorInicial> AsegurarAsync(string? correo, string? password, CancellationToken ct = default);
+    Task<ResultadoAdministradorInicial> AsegurarAsync(string? nombre, string? correo, string? password, CancellationToken ct = default);
 }
 
 public enum ResultadoAdministradorInicial

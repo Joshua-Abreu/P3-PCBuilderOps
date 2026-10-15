@@ -28,7 +28,7 @@ public class AuthController : ControllerBase
 
         try
         {
-            await _authService.RegistrarAsync(request.Correo, request.Password, ct);
+            await _authService.RegistrarAsync(request.Nombre, request.Correo, request.Password, ct);
             return StatusCode(201, new MensajeRespuesta("Registro exitoso. Revisa tu correo para activar la cuenta."));
         }
         catch (ValidacionException ex)
@@ -109,7 +109,7 @@ public class AuthController : ControllerBase
         if (usuario is null)
             return Unauthorized(new MensajeRespuesta("No autenticado."));
 
-        return Ok(new UsuarioAutenticadoRespuesta(usuario.Id, usuario.Correo, usuario.Rol.ToString()));
+        return Ok(new UsuarioAutenticadoRespuesta(usuario.Id, usuario.Nombre, usuario.Correo, usuario.Rol.ToString()));
     }
 
     [Authorize]

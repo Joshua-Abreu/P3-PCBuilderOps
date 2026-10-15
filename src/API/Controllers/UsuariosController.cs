@@ -61,6 +61,7 @@ public class UsuariosController : ControllerBase
         try
         {
             var usuario = await _usuarioAdminService.CrearAsync(
+                request.Nombre,
                 request.Correo,
                 request.Password,
                 rol,

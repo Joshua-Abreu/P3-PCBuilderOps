@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using API.Validacion;
 using Core.Auth.Exceptions;
 using Core.Auth.Services;
 using Core.Data;
@@ -9,14 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
-    ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-    ?? Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Server=localhost;Database=PCBuilderOps;Trusted_Connection=True;TrustServerCertificate=True";
+var connectionString = CadenaConexion.Obtener(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 var configuracionJwt = ConfiguracionJwt.DesdeEntorno();
 
+// Mantener igual que Core/Data/AppDbContextFactory.cs (migraciones): toda opción nueva de UseSqlServer va en ambos.
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -86,7 +84,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+        options.InvalidModelStateResponseFactory = RespuestaModeloInvalido.Crear);
 
 var app = builder.Build();
 
@@ -98,11 +98,12 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var resultado = await administradorInicial.AsegurarAsync(
+            Environment.GetEnvironmentVariable("ADMIN_NOMBRE"),
             Environment.GetEnvironmentVariable("ADMIN_CORREO"),
             Environment.GetEnvironmentVariable("ADMIN_PASSWORD"));
 
         if (resultado == ResultadoAdministradorInicial.SinConfiguracion)
-            logger.LogWarning("No existe ningún Administrador. Define ADMIN_CORREO y ADMIN_PASSWORD para crear el primero.");
+            logger.LogWarning("No existe ningún Administrador. Define ADMIN_NOMBRE, ADMIN_CORREO y ADMIN_PASSWORD para crear el primero.");
         else if (resultado != ResultadoAdministradorInicial.YaExisteAdministrador)
             logger.LogInformation("Administrador inicial {Resultado} a partir de ADMIN_CORREO.", resultado);
     }

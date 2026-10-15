@@ -157,6 +157,11 @@ namespace Core.Data.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(256)

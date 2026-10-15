@@ -5,10 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
-    ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-    ?? Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection")
-    ?? "Server=localhost;Database=PCBuilderOps;Trusted_Connection=True;TrustServerCertificate=True";
+var connectionString = CadenaConexion.Obtener();
 
 if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("SMTP_HOST")))
 {
