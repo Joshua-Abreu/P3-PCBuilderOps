@@ -32,10 +32,7 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    private string ObtenerBaseUrl() =>
-        (Environment.GetEnvironmentVariable("APP_BASE_URL")
-            ?? _configuration["App:BaseUrl"]
-            ?? "http://localhost:5206").TrimEnd('/');
+    private string ObtenerBaseUrl() => UrlBaseAplicacion.Obtener(_configuration);
 
     public async Task RegistrarAsync(string correo, string password, CancellationToken ct = default)
     {
@@ -257,25 +254,6 @@ public class AuthService : IAuthService
         sesion.FechaRevocacionUtc = DateTime.UtcNow;
 
         await _dbContext.SaveChangesAsync(ct);
-    }
-
-    public async Task<UsuarioAutenticado?> ObtenerUsuarioAutenticadoAsync(CancellationToken ct = default)
-    {
-        var sesion = await _dbContext.SesionesUsuario
-            .Where(s => !s.EstaRevocada && s.ExpiracionUtc > DateTime.UtcNow)
-            .OrderByDescending(s => s.FechaCreacionUtc)
-            .FirstOrDefaultAsync(ct);
-
-        if (sesion is null)
-            return null;
-
-        var usuario = await _dbContext.Usuarios
-            .FirstOrDefaultAsync(u => u.Id == sesion.UsuarioId, ct);
-
-        if (usuario is null)
-            return null;
-
-        return new UsuarioAutenticado(usuario.Id, usuario.Correo, usuario.Rol);
     }
 
     public async Task<UsuarioAutenticado?> ObtenerUsuarioPorIdAsync(Guid usuarioId, CancellationToken ct = default)

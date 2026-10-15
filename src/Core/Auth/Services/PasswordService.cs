@@ -25,10 +25,7 @@ public class PasswordService : IPasswordService
         _configuration = configuration;
     }
 
-    private string ObtenerBaseUrl() =>
-        (Environment.GetEnvironmentVariable("APP_BASE_URL")
-            ?? _configuration["App:BaseUrl"]
-            ?? "http://localhost:5206").TrimEnd('/');
+    private string ObtenerBaseUrl() => UrlBaseAplicacion.Obtener(_configuration);
 
     public async Task OlvidePasswordAsync(string correo, CancellationToken ct = default)
     {
@@ -43,33 +40,14 @@ public class PasswordService : IPasswordService
         if (usuario is null)
             return;
 
-        var tokenRecuperacion = new TokenRecuperacion
-        {
-            Id = Guid.NewGuid(),
-            UsuarioId = usuario.Id,
-            Token = Guid.NewGuid().ToString("N"),
-            FechaCreacionUtc = DateTime.UtcNow,
-            ExpiracionUtc = DateTime.UtcNow.AddHours(2),
-            FueUsado = false
-        };
-
-        var enlaceRecuperacion = $"{ObtenerBaseUrl()}/api/auth/restablecer-password?token={tokenRecuperacion.Token}";
-        var correoEnCola = new CorreoEnCola
-        {
-            Id = Guid.NewGuid(),
-            Destinatario = correo,
-            Asunto = "Recuperación de contraseña",
-            Cuerpo = $"Haz clic en el siguiente enlace para restablecer tu contraseña: {enlaceRecuperacion}",
-            Estado = "Pendiente",
-            FechaCreacionUtc = DateTime.UtcNow
-        };
-
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
 
         try
         {
-            _dbContext.TokensRecuperacion.Add(tokenRecuperacion);
-            _dbContext.CorreosEnCola.Add(correoEnCola);
+            EncolarCorreoRecuperacion(
+                usuario,
+                "Recuperación de contraseña",
+                "Haz clic en el siguiente enlace para restablecer tu contraseña");
 
             await _dbContext.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
@@ -139,7 +117,8 @@ public class PasswordService : IPasswordService
         await _dbContext.SaveChangesAsync(ct);
     }
 
-    public async Task ForzarCambioPasswordAsync(Guid usuarioId, CancellationToken ct = default)
+    // RF-CA-13
+    public async Task ForzarRestablecimientoAsync(Guid usuarioId, CancellationToken ct = default)
     {
         var usuario = await _dbContext.Usuarios
             .FirstOrDefaultAsync(u => u.Id == usuarioId, ct);
@@ -147,7 +126,22 @@ public class PasswordService : IPasswordService
         if (usuario is null)
             throw new Core.Auth.Exceptions.AutenticacionException("Usuario no encontrado.");
 
+        usuario.PasswordHash = _passwordHasher.Hash(Guid.NewGuid().ToString("N"));
         usuario.DebeCambiarPassword = true;
+
+        var tokensPendientes = await _dbContext.TokensRecuperacion
+            .Where(t => t.UsuarioId == usuarioId && !t.FueUsado)
+            .ToListAsync(ct);
+
+        foreach (var token in tokensPendientes)
+        {
+            token.FueUsado = true;
+        }
+
+        EncolarCorreoRecuperacion(
+            usuario,
+            "Restablecimiento de contraseña requerido",
+            "Un administrador restableció tu contraseña. Define una nueva desde el siguiente enlace");
 
         var sesionesActivas = await _dbContext.SesionesUsuario
             .Where(s => s.UsuarioId == usuarioId && !s.EstaRevocada)
@@ -190,5 +184,32 @@ public class PasswordService : IPasswordService
         }
 
         await _dbContext.SaveChangesAsync(ct);
+    }
+
+    private void EncolarCorreoRecuperacion(Usuario usuario, string asunto, string mensaje)
+    {
+        var tokenRecuperacion = new TokenRecuperacion
+        {
+            Id = Guid.NewGuid(),
+            UsuarioId = usuario.Id,
+            Token = Guid.NewGuid().ToString("N"),
+            FechaCreacionUtc = DateTime.UtcNow,
+            ExpiracionUtc = DateTime.UtcNow.AddHours(2),
+            FueUsado = false
+        };
+
+        var enlaceRecuperacion = $"{ObtenerBaseUrl()}/api/auth/restablecer-password?token={tokenRecuperacion.Token}";
+        var correoEnCola = new CorreoEnCola
+        {
+            Id = Guid.NewGuid(),
+            Destinatario = usuario.Correo,
+            Asunto = asunto,
+            Cuerpo = $"{mensaje}: {enlaceRecuperacion}",
+            Estado = "Pendiente",
+            FechaCreacionUtc = DateTime.UtcNow
+        };
+
+        _dbContext.TokensRecuperacion.Add(tokenRecuperacion);
+        _dbContext.CorreosEnCola.Add(correoEnCola);
     }
 }

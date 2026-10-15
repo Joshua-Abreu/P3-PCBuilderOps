@@ -13,10 +13,12 @@ namespace API.Controllers;
 public class UsuariosController : ControllerBase
 {
     private readonly IUsuarioAdminService _usuarioAdminService;
+    private readonly IPasswordService _passwordService;
 
-    public UsuariosController(IUsuarioAdminService usuarioAdminService)
+    public UsuariosController(IUsuarioAdminService usuarioAdminService, IPasswordService passwordService)
     {
         _usuarioAdminService = usuarioAdminService;
+        _passwordService = passwordService;
     }
 
     [HttpGet]
@@ -121,6 +123,21 @@ public class UsuariosController : ControllerBase
         catch (ReglaNegocioException ex)
         {
             return StatusCode(403, new MensajeRespuesta(ex.Message));
+        }
+    }
+
+    // RF-CA-13
+    [HttpPost("{id:guid}/forzar-restablecimiento")]
+    public async Task<IActionResult> ForzarRestablecimiento(Guid id, CancellationToken ct)
+    {
+        try
+        {
+            await _passwordService.ForzarRestablecimientoAsync(id, ct);
+            return Ok(new MensajeRespuesta("Contraseña restablecida. El usuario recibirá un correo para definir una nueva."));
+        }
+        catch (AutenticacionException ex)
+        {
+            return NotFound(new MensajeRespuesta(ex.Message));
         }
     }
 
