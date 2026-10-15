@@ -53,12 +53,14 @@ Aplican de forma obligatoria a todo el sistema según la especificación del cur
 * **Estado terminal:**  
   `Entregada` (no se admiten transiciones salientes ni modificaciones sobre la orden).
 
-#### 3.3 Requerimientos Funcionales del Dominio (RF-NEG)
-* **RF-NEG-01 (Validación técnica de compatibilidad):** El sistema valida que el procesador coincida con el socket de la tarjeta madre y que la fuente (PSU) cubra la demanda energética sumada antes de generar la cotización.
-* **RF-NEG-02 (Apertura y reserva de taller):** El sistema permite iniciar la orden en `En Armado`, reservando el inventario y asignando la orden a un técnico responsable.
-* **RF-NEG-03 (Registro de estrés térmico y telemetría):** El técnico registra los resultados de pruebas de estrés térmico indicando si la configuración es térmicamente estable.
-* **RF-NEG-04 (Certificación de control de calidad):** El pase a `Entregada` solo procede si existen pruebas registradas y aprobadas en su totalidad.
-* **RF-NEG-05 (Consulta de expediente de hardware):** El cliente consulta en línea las especificaciones completas, seriales y resultados de pruebas de su ensamble.
+#### 3.3 Funcionalidades del Dominio (FN)
+> Los identificadores `RF-NEG-01` a `RF-NEG-10` corresponden a los requisitos del módulo de negocio definidos por el maestro (ver `docs/requisitos/core.md`, sección 9). Las funcionalidades propias de PC Builder Ops usan el prefijo `FN-` y, en conjunto, cumplen **RF-NEG-02** (al menos cinco funcionalidades separables).
+
+* **FN-01 (Validación técnica de compatibilidad):** El sistema valida que el procesador coincida con el socket de la tarjeta madre y que la fuente (PSU) cubra la demanda energética sumada antes de generar la cotización.
+* **FN-02 (Apertura y reserva de taller):** El sistema permite iniciar la orden en `En Armado`, reservando el inventario y asignando la orden a un técnico responsable.
+* **FN-03 (Registro de estrés térmico y telemetría):** El técnico registra los resultados de pruebas de estrés térmico indicando si la configuración es térmicamente estable.
+* **FN-04 (Certificación de control de calidad):** El pase a `Entregada` solo procede si existen pruebas registradas y aprobadas en su totalidad.
+* **FN-05 (Consulta de expediente de hardware):** El cliente consulta en línea las especificaciones completas, seriales y resultados de pruebas de su ensamble.
 
 ---
 
