@@ -1,6 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Core.Auth.Domain;
 using Microsoft.IdentityModel.Tokens;
 
@@ -8,26 +7,16 @@ namespace Core.Auth.Services;
 
 public class JwtService : IJwtService
 {
-    private readonly string _secret;
-    private readonly string _issuer;
-    private readonly string _audience;
-    private readonly int _expiracionMinutos;
+    private readonly ConfiguracionJwt _configuracion;
 
-    public JwtService()
+    public JwtService(ConfiguracionJwt configuracion)
     {
-        _secret = Environment.GetEnvironmentVariable("JWT_SECRET")
-            ?? throw new InvalidOperationException("JWT_SECRET no está configurado.");
-        _issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "PCBuilderOps";
-        _audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "PCBuilderOps";
-        _expiracionMinutos = int.TryParse(Environment.GetEnvironmentVariable("JWT_EXPIRACION_MINUTOS"), out var min)
-            ? min
-            : 60;
+        _configuracion = configuracion;
     }
 
     public string GenerarToken(Guid usuarioId, string correo, RolUsuario rol, Guid sesionId)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var creds = new SigningCredentials(_configuracion.ClaveFirma, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
         {
@@ -38,10 +27,10 @@ public class JwtService : IJwtService
         };
 
         var token = new JwtSecurityToken(
-            issuer: _issuer,
-            audience: _audience,
+            issuer: _configuracion.Emisor,
+            audience: _configuracion.Audiencia,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(_expiracionMinutos),
+            expires: DateTime.UtcNow.AddMinutes(_configuracion.ExpiracionMinutos),
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
@@ -49,24 +38,9 @@ public class JwtService : IJwtService
 
     public ClaimsPrincipal? ValidarToken(string token)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
-        var handler = new JwtSecurityTokenHandler();
-
         try
         {
-            var principal = handler.ValidateToken(token, new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = key,
-                ValidateIssuer = true,
-                ValidIssuer = _issuer,
-                ValidateAudience = true,
-                ValidAudience = _audience,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            }, out _);
-
-            return principal;
+            return new JwtSecurityTokenHandler().ValidateToken(token, _configuracion.ParametrosValidacion(), out _);
         }
         catch
         {

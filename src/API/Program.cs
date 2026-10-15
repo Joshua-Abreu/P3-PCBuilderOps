@@ -1,13 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Core.Auth.Exceptions;
 using Core.Auth.Services;
 using Core.Data;
 using Core.Notifications.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,10 +15,7 @@ var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
     ?? builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Server=localhost;Database=PCBuilderOps;Trusted_Connection=True;TrustServerCertificate=True";
 
-var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
-    ?? Environment.GetEnvironmentVariable("Jwt__Key")
-    ?? builder.Configuration["Jwt:Key"]
-    ?? "ClaveSuperSecretaDeDesarrollo2026!";
+var configuracionJwt = ConfiguracionJwt.DesdeEntorno();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -31,6 +26,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
 builder.Services.AddScoped<IAdministradorInicialService, AdministradorInicialService>();
+builder.Services.AddSingleton(configuracionJwt);
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddSingleton<ISmtpEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IColaCorreoService, ColaCorreoService>();
@@ -38,17 +34,7 @@ builder.Services.AddScoped<IColaCorreoService, ColaCorreoService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
-            ValidateIssuer = true,
-            ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "PCBuilderOps",
-            ValidateAudience = true,
-            ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "PCBuilderOps",
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
-        };
+        options.TokenValidationParameters = configuracionJwt.ParametrosValidacion();
 
         options.Events = new JwtBearerEvents
         {

@@ -68,12 +68,22 @@ La aplicación resuelve la cadena de conexión en el siguiente orden de priorida
 
 ### Clave secreta para JWT
 
-La clave de firma de tokens se resuelve en el siguiente orden:
+La configuración de tokens se lee únicamente de variables de entorno, en un solo punto del código (`ConfiguracionJwt`), y la usan tanto la emisión como la validación de tokens. **No existe ninguna clave por defecto:** si `JWT_SECRET` falta o es demasiado corta, la API no arranca y lo indica en la consola.
 
-1. `JWT_SECRET` (variable de entorno directa)
-2. `Jwt__Key` (formato doble guion bajo)
-3. `Jwt:Key` (configuración .NET estándar)
-4. Fallback: `ClaveSuperSecretaDeDesarrollo2026!` (solo desarrollo)
+| Variable | Obligatoria | Propósito |
+|----------|-------------|-----------|
+| `JWT_SECRET` | Sí | Clave de firma HMAC-SHA256 de los tokens. Mínimo 32 caracteres; use un valor aleatorio propio. |
+| `JWT_ISSUER` | No (`PCBuilderOps`) | Emisor esperado del token. |
+| `JWT_AUDIENCE` | No (`PCBuilderOps`) | Audiencia esperada del token. |
+| `JWT_EXPIRACION_MINUTOS` | No (`60`) | Duración del token en minutos. |
+
+Un valor adecuado para `JWT_SECRET` puede generarse en PowerShell con:
+
+```powershell
+[Convert]::ToBase64String((1..48 | ForEach-Object { Get-Random -Maximum 256 }))
+```
+
+> `JWT_SECRET` también debe estar definida al aplicar las migraciones (`dotnet ef database update`), porque la herramienta arranca la API para leer su configuración.
 
 ### Credenciales SMTP
 
