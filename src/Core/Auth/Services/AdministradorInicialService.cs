@@ -21,7 +21,7 @@ public class AdministradorInicialService : IAdministradorInicialService
         _inputValidator = inputValidator;
     }
 
-    public async Task<ResultadoAdministradorInicial> AsegurarAsync(string? correo, string? password, CancellationToken ct = default)
+    public async Task<ResultadoAdministradorInicial> AsegurarAsync(string? nombre, string? correo, string? password, CancellationToken ct = default)
     {
         var existeAdministrador = await _dbContext.Usuarios
             .AnyAsync(u => u.Rol == RolUsuario.Administrador, ct);
@@ -29,9 +29,10 @@ public class AdministradorInicialService : IAdministradorInicialService
         if (existeAdministrador)
             return ResultadoAdministradorInicial.YaExisteAdministrador;
 
-        if (string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(password))
+        if (string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(password))
             return ResultadoAdministradorInicial.SinConfiguracion;
 
+        _inputValidator.ValidarNombre(nombre);
         _inputValidator.ValidarCorreo(correo);
         _inputValidator.ValidarPassword(password);
 
@@ -55,6 +56,7 @@ public class AdministradorInicialService : IAdministradorInicialService
             resultado = ResultadoAdministradorInicial.Creado;
         }
 
+        usuario.Nombre = nombre.Trim();
         usuario.PasswordHash = _passwordHasher.Hash(password);
         usuario.Rol = RolUsuario.Administrador;
         usuario.EstaActivo = true;

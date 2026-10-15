@@ -4,7 +4,7 @@ namespace Core.Auth.Services;
 
 public interface IAuthService
 {
-    Task RegistrarAsync(string correo, string password, CancellationToken ct = default);
+    Task RegistrarAsync(string nombre, string correo, string password, CancellationToken ct = default);
     Task ActivarCuentaAsync(string token, CancellationToken ct = default);
     Task ReenviarActivacionAsync(string correo, CancellationToken ct = default);
     Task<LoginResultado> LoginAsync(string correo, string password, CancellationToken ct = default);
@@ -13,4 +13,4 @@ public interface IAuthService
 }
 
 public record LoginResultado(string Token, DateTime ExpiracionUtc, bool DebeCambiarPassword);
-public record UsuarioAutenticado(Guid Id, string Correo, RolUsuario Rol);
+public record UsuarioAutenticado(Guid Id, string Nombre, string Correo, RolUsuario Rol);

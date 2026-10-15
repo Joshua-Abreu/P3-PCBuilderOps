@@ -98,11 +98,12 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var resultado = await administradorInicial.AsegurarAsync(
+            Environment.GetEnvironmentVariable("ADMIN_NOMBRE"),
             Environment.GetEnvironmentVariable("ADMIN_CORREO"),
             Environment.GetEnvironmentVariable("ADMIN_PASSWORD"));
 
         if (resultado == ResultadoAdministradorInicial.SinConfiguracion)
-            logger.LogWarning("No existe ningún Administrador. Define ADMIN_CORREO y ADMIN_PASSWORD para crear el primero.");
+            logger.LogWarning("No existe ningún Administrador. Define ADMIN_NOMBRE, ADMIN_CORREO y ADMIN_PASSWORD para crear el primero.");
         else if (resultado != ResultadoAdministradorInicial.YaExisteAdministrador)
             logger.LogInformation("Administrador inicial {Resultado} a partir de ADMIN_CORREO.", resultado);
     }

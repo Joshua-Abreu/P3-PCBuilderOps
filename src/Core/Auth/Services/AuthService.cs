@@ -34,8 +34,9 @@ public class AuthService : IAuthService
 
     private string ObtenerBaseUrl() => UrlBaseAplicacion.Obtener(_configuration);
 
-    public async Task RegistrarAsync(string correo, string password, CancellationToken ct = default)
+    public async Task RegistrarAsync(string nombre, string correo, string password, CancellationToken ct = default)
     {
+        _inputValidator.ValidarNombre(nombre);
         _inputValidator.ValidarCorreo(correo);
         _inputValidator.ValidarPassword(password);
 
@@ -50,6 +51,7 @@ public class AuthService : IAuthService
         var usuario = new Usuario
         {
             Id = Guid.NewGuid(),
+            Nombre = nombre.Trim(),
             Correo = correo,
             PasswordHash = _passwordHasher.Hash(password),
             Rol = RolUsuario.Estandar,
@@ -264,6 +266,6 @@ public class AuthService : IAuthService
         if (usuario is null)
             return null;
 
-        return new UsuarioAutenticado(usuario.Id, usuario.Correo, usuario.Rol);
+        return new UsuarioAutenticado(usuario.Id, usuario.Nombre, usuario.Correo, usuario.Rol);
     }
 }

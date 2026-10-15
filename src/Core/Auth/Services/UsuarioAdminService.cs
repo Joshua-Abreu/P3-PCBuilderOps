@@ -46,7 +46,7 @@ public class UsuarioAdminService : IUsuarioAdminService
             .OrderBy(u => u.Correo)
             .Skip((pagina - 1) * tamanoPagina)
             .Take(tamanoPagina)
-            .Select(u => new UsuarioDetalle(u.Id, u.Correo, u.Rol.ToString(), u.EstaActivo, u.FechaCreacionUtc, u.DebeCambiarPassword))
+            .Select(u => new UsuarioDetalle(u.Id, u.Nombre, u.Correo, u.Rol.ToString(), u.EstaActivo, u.FechaCreacionUtc, u.DebeCambiarPassword))
             .ToListAsync(ct);
 
         return new PaginacionUsuarios(total, pagina, tamanoPagina, usuarios);
@@ -60,11 +60,12 @@ public class UsuarioAdminService : IUsuarioAdminService
         if (usuario is null)
             return null;
 
-        return new UsuarioDetalle(usuario.Id, usuario.Correo, usuario.Rol.ToString(), usuario.EstaActivo, usuario.FechaCreacionUtc, usuario.DebeCambiarPassword);
+        return new UsuarioDetalle(usuario.Id, usuario.Nombre, usuario.Correo, usuario.Rol.ToString(), usuario.EstaActivo, usuario.FechaCreacionUtc, usuario.DebeCambiarPassword);
     }
 
-    public async Task<UsuarioDetalle> CrearAsync(string correo, string password, RolUsuario rol, bool activarInmediatamente, CancellationToken ct = default)
+    public async Task<UsuarioDetalle> CrearAsync(string nombre, string correo, string password, RolUsuario rol, bool activarInmediatamente, CancellationToken ct = default)
     {
+        _inputValidator.ValidarNombre(nombre);
         _inputValidator.ValidarCorreo(correo);
         _inputValidator.ValidarPassword(password);
 
@@ -79,6 +80,7 @@ public class UsuarioAdminService : IUsuarioAdminService
         var usuario = new Usuario
         {
             Id = Guid.NewGuid(),
+            Nombre = nombre.Trim(),
             Correo = correo,
             PasswordHash = _passwordHasher.Hash(password),
             Rol = rol,
@@ -128,7 +130,7 @@ public class UsuarioAdminService : IUsuarioAdminService
             throw;
         }
 
-        return new UsuarioDetalle(usuario.Id, usuario.Correo, usuario.Rol.ToString(), usuario.EstaActivo, usuario.FechaCreacionUtc, usuario.DebeCambiarPassword);
+        return new UsuarioDetalle(usuario.Id, usuario.Nombre, usuario.Correo, usuario.Rol.ToString(), usuario.EstaActivo, usuario.FechaCreacionUtc, usuario.DebeCambiarPassword);
     }
 
     public async Task CambiarRolAsync(Guid id, RolUsuario nuevoRol, Guid adminId, CancellationToken ct = default)

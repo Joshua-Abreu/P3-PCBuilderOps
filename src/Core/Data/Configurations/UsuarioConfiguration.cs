@@ -11,6 +11,10 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
         builder.ToTable("Usuarios");
         builder.HasKey(u => u.Id);
 
+        builder.Property(u => u.Nombre)
+            .IsRequired()
+            .HasMaxLength(LongitudesUsuario.NombreMaximo);
+
         builder.Property(u => u.Correo)
             .IsRequired()
             .HasMaxLength(256);
