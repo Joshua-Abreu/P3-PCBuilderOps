@@ -3,6 +3,7 @@ using Core.Auth.Exceptions;
 using Core.Data;
 using Core.Notifications.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Core.Auth.Services;
 
@@ -11,15 +12,18 @@ public class UsuarioAdminService : IUsuarioAdminService
     private readonly AppDbContext _dbContext;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IInputValidator _inputValidator;
+    private readonly IConfiguration _configuration;
 
     public UsuarioAdminService(
         AppDbContext dbContext,
         IPasswordHasher passwordHasher,
-        IInputValidator inputValidator)
+        IInputValidator inputValidator,
+        IConfiguration configuration)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
         _inputValidator = inputValidator;
+        _configuration = configuration;
     }
 
     public async Task<PaginacionUsuarios> ListarAsync(int pagina, int tamanoPagina, RolUsuario? rol, bool? activo, CancellationToken ct = default)
@@ -100,7 +104,7 @@ public class UsuarioAdminService : IUsuarioAdminService
                     FueUsado = false
                 };
 
-                var enlaceActivacion = $"/api/auth/activar?token={tokenActivacion.Token}";
+                var enlaceActivacion = $"{UrlBaseAplicacion.Obtener(_configuration)}/api/auth/activar?token={tokenActivacion.Token}";
                 var correoEnCola = new CorreoEnCola
                 {
                     Id = Guid.NewGuid(),

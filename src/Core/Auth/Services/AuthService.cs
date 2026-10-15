@@ -32,10 +32,7 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    private string ObtenerBaseUrl() =>
-        (Environment.GetEnvironmentVariable("APP_BASE_URL")
-            ?? _configuration["App:BaseUrl"]
-            ?? "http://localhost:5206").TrimEnd('/');
+    private string ObtenerBaseUrl() => UrlBaseAplicacion.Obtener(_configuration);
 
     public async Task RegistrarAsync(string correo, string password, CancellationToken ct = default)
     {
