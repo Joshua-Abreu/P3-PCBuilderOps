@@ -30,6 +30,7 @@ builder.Services.AddScoped<IInputValidator, InputValidator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
+builder.Services.AddScoped<IAdministradorInicialService, AdministradorInicialService>();
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddSingleton<ISmtpEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IColaCorreoService, ColaCorreoService>();
@@ -102,6 +103,32 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var administradorInicial = scope.ServiceProvider.GetRequiredService<IAdministradorInicialService>();
+
+    try
+    {
+        var resultado = await administradorInicial.AsegurarAsync(
+            Environment.GetEnvironmentVariable("ADMIN_CORREO"),
+            Environment.GetEnvironmentVariable("ADMIN_PASSWORD"));
+
+        if (resultado == ResultadoAdministradorInicial.SinConfiguracion)
+            logger.LogWarning("No existe ningún Administrador. Define ADMIN_CORREO y ADMIN_PASSWORD para crear el primero.");
+        else if (resultado != ResultadoAdministradorInicial.YaExisteAdministrador)
+            logger.LogInformation("Administrador inicial {Resultado} a partir de ADMIN_CORREO.", resultado);
+    }
+    catch (ValidacionException ex)
+    {
+        logger.LogWarning("No se creó el Administrador inicial: {Motivo}", ex.Message);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "No se pudo verificar el Administrador inicial. ¿Aplicaste las migraciones?");
+    }
+}
 
 app.Use(async (context, next) =>
 {

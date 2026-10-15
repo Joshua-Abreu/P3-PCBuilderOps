@@ -85,6 +85,17 @@ La clave de firma de tokens se resuelve en el siguiente orden:
 | `SMTP_PASS` | `SMTP_PASSWORD` | Contraseña de aplicación o token de autenticación SMTP. |
 | `SMTP_FROM` | — | Dirección de remitente que figurará en el encabezado de los correos salientes. |
 
+### Administrador inicial
+
+El registro público siempre crea usuarios **Estándar**. Para disponer del primer **Administrador**, defina estas variables antes de ejecutar la API:
+
+| Variable | Propósito |
+|----------|-----------|
+| `ADMIN_CORREO` | Correo del primer Administrador. |
+| `ADMIN_PASSWORD` | Contraseña del primer Administrador (mínimo 8 caracteres, con letras y números). |
+
+Al arrancar, si la base de datos **no tiene ningún Administrador**, la API crea esa cuenta ya activa y con rol Administrador (si el correo ya estaba registrado, lo promueve y le asigna esa contraseña). Si ya existe algún Administrador, las variables se ignoran, por lo que reiniciar la aplicación no duplica ni modifica cuentas. La consola indica si el Administrador fue `Creado` o `Promovido`, o advierte si faltan las variables.
+
 ---
 
 ## Cómo ejecutar el proyecto
@@ -165,6 +176,8 @@ Para reproducir y calificar cada criterio de aceptación de la Práctica 1, se p
 | **RF-CA-19** (Protección contra fuerza bruta) | Enviar 5 intentos consecutivos con contraseña incorrecta para una misma cuenta. | El quinto intento bloquea temporalmente la cuenta por 15 minutos; cualquier intento posterior durante esa ventana es rechazado indicando el bloqueo. |
 
 ### 3. Roles and Administración de Usuarios (Bloques 1.3 y 1.4)
+
+> **Requisito previo:** iniciar sesión con el Administrador definido en `ADMIN_CORREO` / `ADMIN_PASSWORD` (ver [Administrador inicial](#administrador-inicial)) y usar su token en las peticiones de esta sección.
 
 | Criterio | Descripción | Resultado esperado |
 |----------|-------------|-------------------|

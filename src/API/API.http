@@ -2,14 +2,14 @@
 @authToken = {{loginAdmin.response.body.token}}
 @nuevoUsuarioId = {{crearUsuario.response.body.id}}
 
-### 1. Login de Administrador
+### 1. Login de Administrador (usa ADMIN_CORREO y ADMIN_PASSWORD del entorno)
 # @name loginAdmin
 POST {{API_HostAddress}}/api/auth/login
 Content-Type: application/json
 
 {
-  "correo": "cuenta_activa@itla.edu.do",
-  "password": "NuevaPassword456"
+  "correo": "{{$processEnv ADMIN_CORREO}}",
+  "password": "{{$processEnv ADMIN_PASSWORD}}"
 }
 
 ###
@@ -115,7 +115,7 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "passwordActual": "NuevaPassword456",
+  "passwordActual": "{{$processEnv ADMIN_PASSWORD}}",
   "nuevaPassword": "NuevaPassword789"
 }
 
