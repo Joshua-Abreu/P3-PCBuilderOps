@@ -127,3 +127,21 @@ Authorization: Bearer {{authToken}}
 Accept: application/json
 
 ###
+
+### 14. RF-CA-13: Forzar restablecimiento de contraseña de un usuario (Administrador)
+POST {{API_HostAddress}}/api/usuarios/{{nuevoUsuarioId}}/forzar-restablecimiento
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+###
+
+### 15. RF-CA-13 CASO NEGATIVO: el usuario ya no puede entrar con su contraseña anterior (esperar 401)
+POST {{API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "correo": "usuario.prueba@itla.edu.do",
+  "password": "Prueba12345"
+}
+
+###

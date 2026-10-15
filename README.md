@@ -179,7 +179,8 @@ Para reproducir y calificar cada criterio de aceptación de la Práctica 1, se p
 | Criterio | Descripción | Resultado esperado |
 |----------|-------------|-------------------|
 | **RF-CA-09 / RF-CA-10** (Solicitud de recuperación) | `POST /api/auth/olvide-password` | Responde siempre de manera neutra (`200 OK`) y encola el token de recuperación en `CorreosEnCola`. |
-| **RF-CA-11 / RF-CA-12** (Restablecimiento forzado) | `POST /api/auth/restablecer-password` | Recibe el token emitido and la nueva contraseña. Al procesarse con éxito, revoca todas las sesiones anteriores and marca el token como consumido impidiendo reutilizaciones. |
+| **RF-CA-11 / RF-CA-12** (Nueva contraseña con código) | `POST /api/auth/restablecer-password` | Recibe el token emitido and la nueva contraseña. Al procesarse con éxito, revoca todas las sesiones anteriores and marca el token como consumido impidiendo reutilizaciones. |
+| **RF-CA-13** (Restablecimiento forzado por Administrador) | Con sesión de Administrador, `POST /api/usuarios/{id}/forzar-restablecimiento` (petición 14 de `API.http`). Luego intentar iniciar sesión con la contraseña anterior (petición 15) y ejecutar el despachador de correos. | Retorna `200 OK`. La contraseña anterior deja de servir (`401`), las sesiones abiertas del usuario se revocan, los códigos de recuperación previos se invalidan y se encola en `CorreosEnCola` un correo con un nuevo código para definir la contraseña mediante `POST /api/auth/restablecer-password`. Un usuario Estándar recibe `403`. |
 
 ### 5. Cola de Correos and Despacho SMTP (Bloque 1.5)
 
