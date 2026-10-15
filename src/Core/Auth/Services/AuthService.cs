@@ -256,25 +256,6 @@ public class AuthService : IAuthService
         await _dbContext.SaveChangesAsync(ct);
     }
 
-    public async Task<UsuarioAutenticado?> ObtenerUsuarioAutenticadoAsync(CancellationToken ct = default)
-    {
-        var sesion = await _dbContext.SesionesUsuario
-            .Where(s => !s.EstaRevocada && s.ExpiracionUtc > DateTime.UtcNow)
-            .OrderByDescending(s => s.FechaCreacionUtc)
-            .FirstOrDefaultAsync(ct);
-
-        if (sesion is null)
-            return null;
-
-        var usuario = await _dbContext.Usuarios
-            .FirstOrDefaultAsync(u => u.Id == sesion.UsuarioId, ct);
-
-        if (usuario is null)
-            return null;
-
-        return new UsuarioAutenticado(usuario.Id, usuario.Correo, usuario.Rol);
-    }
-
     public async Task<UsuarioAutenticado?> ObtenerUsuarioPorIdAsync(Guid usuarioId, CancellationToken ct = default)
     {
         var usuario = await _dbContext.Usuarios

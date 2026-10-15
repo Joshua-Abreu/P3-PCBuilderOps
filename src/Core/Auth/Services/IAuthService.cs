@@ -9,7 +9,6 @@ public interface IAuthService
     Task ReenviarActivacionAsync(string correo, CancellationToken ct = default);
     Task<LoginResultado> LoginAsync(string correo, string password, CancellationToken ct = default);
     Task LogoutAsync(string tokenJwt, CancellationToken ct = default);
-    Task<UsuarioAutenticado?> ObtenerUsuarioAutenticadoAsync(CancellationToken ct = default);
     Task<UsuarioAutenticado?> ObtenerUsuarioPorIdAsync(Guid usuarioId, CancellationToken ct = default);
 }
 
