@@ -12,7 +12,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 
 | Pieza | Semanas | Estado |
 |-------|---------|--------|
-| 1. Control de acceso | 2–4 | ✅ Entregada (etiqueta `practica-1`, ya calificada) y corregida en el PR #16. |
+| 1. Control de acceso | 2–4 | ✅ Entregada (etiqueta `practica-1`, ya calificada), corregida en el PR #16 y con `Usuario.Nombre` desde el PR #18. |
 | Máquina de estados del negocio (estructura) | 4 | ⚠️ Entregada con desviaciones conocidas (ver abajo). |
 | 2. Gestión de permisos | 6–8 | ⏳ **Siguiente.** Sin código todavía. |
 | Máquina de estados del negocio (pruebas) | 8 | Pendiente. |
@@ -73,8 +73,8 @@ Actúas como un Ingeniero de Software Senior en .NET 10 y tutor técnico estrict
 - **RD-04 (Transiciones Centralizadas):** Toda máquina de estados se resuelve en un único servicio u orquestador de dominio. Prohibido dispersar `if (estado == ...)` en controladores o múltiples capas.
 - **RD-05 (Hash Criptográfico):** Las contraseñas se guardan siempre con hash y sal (usando `BCrypt.Net-Next`). Jamás texto plano.
 - **RD-06 (Autorización en Servidor):** Todo endpoint valida roles en el backend. Una petición forzada a mano por un usuario `Estándar` hacia un recurso de `Administrador` debe ser rechazada con `403 Forbidden`.
-- **RD-07 (Validación de Entradas):** Datos malformados o vacíos devuelven `400 Bad Request` controlado.
-- **RD-08 (Manejo de Errores Limpio):** No exponer trazas de error (stack traces), rutas internas ni errores de SQL al cliente.
+- **RD-07 (Validación de Entradas):** Datos malformados o vacíos devuelven `400 Bad Request` controlado. Toda respuesta de error usa el formato `{"mensaje": "..."}` (`MensajeRespuesta`); los rechazos automáticos de ASP.NET pasan por `RespuestaModeloInvalido` y nunca se devuelve `ProblemDetails`.
+- **RD-08 (Manejo de Errores Limpio):** No exponer trazas de error (stack traces), rutas internas, nombres de tipos, `traceId` ni errores de SQL al cliente.
 - **RD-09 (Persistencia Externa):** La base de datos vive fuera del proceso/contenedor. Los datos sobreviven al reinicio.
 - **RD-10 (Secretos en Entorno):** Cero contraseñas, cadenas de conexión o llaves en código fuente o repositorios. Todo se lee desde variables de entorno, sin valores de respaldo para secretos.
 - **RD-11 (Marcas de Tiempo UTC):** Todas las fechas se manipulan y almacenan en `DateTime.UtcNow`.
@@ -125,7 +125,7 @@ Objetivo (ver `docs/requisitos/negocio.md`; el código actual aún no lo cumple,
 ## 7. Comandos Estándar de Ejecución y Validación
 - Compilar solución: `dotnet build P3-PCBuilderOps.slnx`
 - Migraciones EF Core (Crear): `dotnet ef migrations add <Nombre> --project src/Core --startup-project src/API --output-dir Data/Migrations`
-- Migraciones EF Core (Aplicar): `dotnet ef database update --project src/Core --startup-project src/API` (requiere `JWT_SECRET` definido)
+- Migraciones EF Core (Aplicar): `dotnet ef database update --project src/Core --startup-project src/API`. Usa `AppDbContextFactory`: no arranca la API, solo necesita la cadena de conexión y **no lee** `launchSettings.json`.
 - Ejecutar API: `dotnet run --project src/API`
 - Ejecutar Worker independiente: `dotnet run --project src/Workers/EmailDispatcher`
 
@@ -134,7 +134,8 @@ Objetivo (ver `docs/requisitos/negocio.md`; el código actual aún no lo cumple,
 - Ejecutar la API de prueba en un puerto distinto (ej. `--urls http://localhost:5299`) y detenerla por su PID al terminar: lanzada con `dotnet API.dll`, el proceso se llama `dotnet`, no `API`, y si queda vivo bloquea `dotnet build`.
 
 ## 8. Variables de Entorno y Enlaces Externos
-- **Variables:** `CONNECTION_STRING`, `JWT_SECRET` (obligatoria, mínimo 32 bytes), `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_EXPIRACION_MINUTOS`, `APP_BASE_URL`, `ADMIN_CORREO`, `ADMIN_PASSWORD` y `SMTP_*`. Localmente están en `src/API/Properties/launchSettings.json`, ignorado por git.
+- **Variables:** `CONNECTION_STRING`, `JWT_SECRET` (obligatoria, mínimo 32 bytes), `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_EXPIRACION_MINUTOS`, `APP_BASE_URL`, `ADMIN_NOMBRE`, `ADMIN_CORREO`, `ADMIN_PASSWORD` (las tres `ADMIN_*` son obligatorias para crear el Administrador inicial) y `SMTP_*`. Localmente están en `src/API/Properties/launchSettings.json`, ignorado por git.
+- **Cadena de conexión:** se obtiene únicamente con `CadenaConexion.Obtener()` (API, despachador y migraciones). Toda opción nueva de `UseSqlServer` va tanto en `src/API/Program.cs` como en `AppDbContextFactory`.
 - **JWT:** se lee únicamente mediante `ConfiguracionJwt.DesdeEntorno()`; emisión y validación comparten esa configuración.
 - **URLs en Correos:** Toda URL de activación o restablecimiento DEBE ser absoluta, usando `UrlBaseAplicacion.Obtener(configuration)`. Queda prohibido generar rutas relativas tipo `/api/...`.
 - **Negociación SMTP Dinámica:** `SmtpEmailSender` evalúa el puerto: 465 -> `SslOnConnect`, 587 -> `StartTls`, otros -> `Auto`.
