@@ -39,7 +39,7 @@ Se pueden agregar atributos; no se puede omitir ninguno de estos.
 | Notificacion | Destinatario · tipo · mensaje · leída o no leída · fecha |
 | RegistroAuditoria | Usuario que actuó · acción · entidad afectada · identificador de la entidad · fecha y hora · valor anterior · valor nuevo |
 
-> Brechas actuales frente a esta tabla: `Usuario` no tiene `Nombre`; `CorreoEnCola` no tiene `Intentos` ni `UltimoError` (llegan en la semana 11).
+> Brechas actuales frente a esta tabla: `CorreoEnCola` no tiene `Intentos` ni `UltimoError` (llegan en la semana 11). `Usuario.Nombre` existe desde el PR #18.
 
 ## 3. Pieza 1 — Control de acceso (semanas 2 a 4)
 

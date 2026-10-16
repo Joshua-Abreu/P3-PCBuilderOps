@@ -40,8 +40,20 @@ Las funcionalidades propias de PC Builder Ops se identifican como FN-01 a FN-05 
 `CLAUDE.md` solo importa `AGENTS.md`; los requisitos viven en `docs/requisitos/` y cada entrega tiene su archivo en `docs/entregas/`.
 **Por qué:** una sola fuente compartida por Claude Code y opencode, y contexto completo sin depender de los PDFs.
 
+### 2026-10-15 · `Usuario.Nombre` obligatorio (atributo mínimo del Core, RD-07)
+Entre 2 y 100 caracteres (`LongitudesUsuario`), sin espacios al inicio ni al final. Lo exigen el registro, el alta por Administrador y el Administrador inicial (`ADMIN_NOMBRE` obligatoria, igual que `ADMIN_CORREO` y `ADMIN_PASSWORD`). La migración `AddNombreUsuario` asigna a los usuarios existentes la parte del correo antes de la `@`, recortada a 100 caracteres.
+**Por qué:** es un atributo mínimo de `Usuario` en los Requerimientos del Core. Rellenar con la parte del correo deja a cada usuario existente con un nombre identificable sin pedir datos a mano.
+
+### 2026-10-15 · Errores de validación siempre en formato `{"mensaje"}` (RD-07, RD-08)
+`RespuestaModeloInvalido` reemplaza la respuesta automática de ASP.NET (`ProblemDetails`) por `"Datos de entrada inválidos. Revisa: <campos>."`, nombrando solo los campos que fallaron.
+**Por qué:** controlar el formato de todos los errores y no exponer `traceId` ni nombres de tipos internos como `API.DTOs.CrearUsuarioRequest`.
+
+### 2026-10-15 · Migraciones sin arrancar la API y cadena de conexión en un único punto (RD-09, RD-10)
+`AppDbContextFactory` crea el `DbContext` en tiempo de diseño solo con `CadenaConexion.Obtener()`; la API, el despachador y las migraciones comparten esa resolución.
+**Por qué:** `dotnet ef` no lee `launchSettings.json` y, al arrancar la API, exigía `JWT_SECRET` sin necesitarlo. Cada herramienta pide solo lo que usa. Costo: la configuración de `UseSqlServer` vive en dos lugares (`Program.cs` y la fábrica); ambos tienen un comentario que lo recuerda, como excepción aprobada a la regla de no comentar.
+
 ## Pendientes
 
 - **Rol de los técnicos.** Solo existen dos roles (RF-CA-04). Opción A: los técnicos son Administradores (simple, pero pueden cambiar roles y ver auditoría). Opción B: los técnicos son Estándar y obtienen el permiso "operar órdenes del taller" mediante Gestión de permisos (da un caso real a RF-GP-05). Decidir antes de la Práctica 2.
 - **Retrabajo `EnPruebas → EnArmado`.** Más realista cuando una prueba falla y da más casos a la suite de la semana 8. Decidir antes de la semana 8.
-- **Atributo `Nombre` en `Usuario`.** La tabla de entidades del Core lo exige y hoy no existe.
+- **Fechas leídas de la base sin `Z` (RD-11).** `fechaCreacionUtc` sale con `Z` al crearse pero sin ella al leerse de SQL Server (`DateTimeKind.Unspecified`). Unificar marcando las fechas como UTC al leerlas.
