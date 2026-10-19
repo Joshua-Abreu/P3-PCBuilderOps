@@ -251,6 +251,96 @@ namespace Core.Data.Migrations
 
                     b.ToTable("OrdenesServicio");
                 });
+
+            modelBuilder.Entity("Core.Permisos.Domain.PermisoUsuario", b =>
+                {
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Permiso")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaOtorgadoUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("SolicitudId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UsuarioId", "Permiso");
+
+                    b.HasIndex("SolicitudId");
+
+                    b.ToTable("PermisosUsuario", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Permisos.Domain.SolicitudPermiso", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AprobadorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaCreacionUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaResolucionUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MotivoRechazo")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Permiso")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("SolicitanteId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AprobadorId");
+
+                    b.HasIndex("Estado")
+                        .HasDatabaseName("IX_SolicitudesPermiso_Estado");
+
+                    b.HasIndex("SolicitanteId");
+
+                    b.ToTable("SolicitudesPermiso", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Permisos.Domain.PermisoUsuario", b =>
+                {
+                    b.HasOne("Core.Permisos.Domain.SolicitudPermiso", null)
+                        .WithMany()
+                        .HasForeignKey("SolicitudId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Core.Auth.Domain.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Core.Permisos.Domain.SolicitudPermiso", b =>
+                {
+                    b.HasOne("Core.Auth.Domain.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("AprobadorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Core.Auth.Domain.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("SolicitanteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
 #pragma warning restore 612, 618
         }
     }
