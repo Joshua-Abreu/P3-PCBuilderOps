@@ -124,6 +124,7 @@ Objetivo (ver `docs/requisitos/negocio.md`; el código actual aún no lo cumple,
 
 ## 7. Comandos Estándar de Ejecución y Validación
 - Compilar solución: `dotnet build P3-PCBuilderOps.slnx`
+- Ejecutar pruebas: `dotnet test P3-PCBuilderOps.slnx` (sin variables de entorno ni SQL Server; SQLite en memoria)
 - Migraciones EF Core (Crear): `dotnet ef migrations add <Nombre> --project src/Core --startup-project src/API --output-dir Data/Migrations`
 - Migraciones EF Core (Aplicar): `dotnet ef database update --project src/Core --startup-project src/API`. Usa `AppDbContextFactory`: no arranca la API, solo necesita la cadena de conexión y **no lee** `launchSettings.json`.
 - Ejecutar API: `dotnet run --project src/API`

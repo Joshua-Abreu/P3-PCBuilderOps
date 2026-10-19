@@ -90,21 +90,21 @@ Marcar cada punto solo después de verificarlo contra el código en ejecución.
 
 - [x] Dominio: `SolicitudPermiso`, estados y `MaquinaEstadosSolicitud` como único punto de transiciones (RD-04)
 - [x] Persistencia y migración de solicitudes y permisos de usuario (RD-09)
-- [ ] RF-GP-01 Crear solicitud (nace Pendiente; rechaza duplicados y permisos inexistentes)
-- [ ] RF-GP-02 Admin lista pendientes; Estándar solo ve las suyas
-- [ ] RF-GP-03 Aprobar registra aprobador y fecha
-- [ ] RF-GP-04 Rechazar exige motivo y lo registra
-- [ ] RF-GP-05 Aprobar aplica el permiso; `GET /api/taller/ordenes` pasa de 403 a 200 sin volver a iniciar sesión
-- [ ] RF-GP-06 Transiciones fuera de la tabla → 409 y estado sin cambios
-- [ ] RF-GP-07 Resolver la propia solicitud → 403
+- [x] RF-GP-01 Crear solicitud (nace Pendiente; rechaza duplicados y permisos inexistentes)
+- [x] RF-GP-02 Admin lista pendientes; Estándar solo ve las suyas
+- [x] RF-GP-03 Aprobar registra aprobador y fecha
+- [x] RF-GP-04 Rechazar exige motivo y lo registra
+- [x] RF-GP-05 Aprobar aplica el permiso; `GET /api/taller/ordenes` pasa de 403 a 200 sin volver a iniciar sesión
+- [x] RF-GP-06 Transiciones fuera de la tabla → 409 y estado sin cambios
+- [x] RF-GP-07 Resolver la propia solicitud → 403
 - [ ] Proyecto de pruebas en la solución; `dotnet test` pasa desde un clon limpio sin variables de entorno
 - [x] Prueba de transición válida con estado + dato registrado
 - [x] Prueba de transición prohibida con rechazo + estado sin cambios
 - [x] Pruebas independientes, con tres fases y nombres descriptivos
-- [ ] README: cómo provocar cada RF-GP y sección **Pruebas** con el comando
-- [ ] `API.http` con el flujo completo
+- [x] README: cómo provocar cada RF-GP y sección **Pruebas** con el comando
+- [x] `API.http` con el flujo completo
 - [ ] `docs/bitacora-asignacion-2.md` con al menos un error real del agente
-- [ ] Revisión: Control de acceso sigue funcionando
+- [x] Revisión: Control de acceso sigue funcionando
 - [ ] Commits citan sus IDs; PR con las cuatro secciones
 - [ ] Etiqueta `asignacion-2` creada y subida antes del cierre
 - [ ] `AGENTS.md` sección 0 actualizada
