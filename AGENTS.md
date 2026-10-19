@@ -14,7 +14,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 |-------|---------|--------|
 | 1. Control de acceso | 2–4 | ✅ Entregada (etiqueta `practica-1`, ya calificada), corregida en el PR #16 y con `Usuario.Nombre` desde el PR #18. |
 | Máquina de estados del negocio (estructura) | 4 | ⚠️ Entregada con desviaciones conocidas (ver abajo). |
-| 2. Gestión de permisos | 6–8 | ⏳ **Siguiente.** Sin código todavía. |
+| 2. Gestión de permisos | 6–8 | ⏳ **En curso: Asignación 2** (cierra el martes 20/10, 11:59 p. m.) en `feature/gestion-permisos`. Ver `docs/entregas/asignacion-2.md`. |
 | Máquina de estados del negocio (pruebas) | 8 | Pendiente. |
 | 3. Manejador de documentos | 9 | Pendiente. |
 | 4. Notificaciones y cola de correos | 11–12 | Parcial: existe la cola mínima de la Práctica 1 (sin reintentos, estado fallido ni bandeja interna). |
