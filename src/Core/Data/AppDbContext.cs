@@ -2,6 +2,7 @@ using Core.Auth.Domain;
 using Core.Data.Configurations;
 using Core.Notifications.Domain;
 using Core.Ordenes.Domain;
+using Core.Permisos.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Core.Data;
@@ -18,6 +19,8 @@ public class AppDbContext : DbContext
     public DbSet<SesionUsuario> SesionesUsuario => Set<SesionUsuario>();
     public DbSet<TokenRecuperacion> TokensRecuperacion => Set<TokenRecuperacion>();
     public DbSet<OrdenServicio> OrdenesServicio => Set<OrdenServicio>();
+    public DbSet<SolicitudPermiso> SolicitudesPermiso => Set<SolicitudPermiso>();
+    public DbSet<PermisoUsuario> PermisosUsuario => Set<PermisoUsuario>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -2,6 +2,10 @@
 @adminCorreo = admin@ejemplo.com
 @adminPassword = CambiaEsto123
 
+# Usuario Estándar (técnico) para Gestión de permisos (peticiones 16 a 32).
+@tecnicoCorreo = tecnico.prueba@itla.edu.do
+@tecnicoPassword = Tecnico12345
+
 @API_HostAddress = http://localhost:5206
 @authToken = {{loginAdmin.response.body.token}}
 @nuevoUsuarioId = {{crearUsuario.response.body.id}}
@@ -148,5 +152,179 @@ Content-Type: application/json
   "correo": "usuario.prueba@itla.edu.do",
   "password": "Prueba12345"
 }
+
+###
+
+### ===== Gestión de permisos (Asignación 2) =====
+### Si ejecutaste la petición 12, la contraseña del Administrador cambió: actualiza @adminPassword antes de la 16.
+
+### 16. Login de Administrador para Gestión de permisos
+# @name loginAdminPermisos
+POST {{API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "correo": "{{adminCorreo}}",
+  "password": "{{adminPassword}}"
+}
+
+###
+
+### 17. Crear el técnico (Estándar) ya activo
+POST {{API_HostAddress}}/api/usuarios
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "nombre": "Técnico de Prueba",
+  "correo": "{{tecnicoCorreo}}",
+  "password": "{{tecnicoPassword}}",
+  "rol": "Estandar",
+  "activarInmediatamente": true
+}
+
+###
+
+### 18. Login del técnico
+# @name loginTecnico
+POST {{API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "correo": "{{tecnicoCorreo}}",
+  "password": "{{tecnicoPassword}}"
+}
+
+###
+
+### 19. RF-GP-05 (antes): el técnico aún no puede ver las órdenes del taller (esperar 403)
+GET {{API_HostAddress}}/api/taller/ordenes
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 20. RF-GP-01: el técnico solicita OperarTaller (esperar 201, Pendiente)
+# @name solicitud1
+POST {{API_HostAddress}}/api/permisos/solicitudes
+Authorization: Bearer {{loginTecnico.response.body.token}}
+Content-Type: application/json
+
+{
+  "permiso": "OperarTaller"
+}
+
+###
+
+### 21. RF-GP-01: repetir la solicitud pendiente (esperar 409)
+POST {{API_HostAddress}}/api/permisos/solicitudes
+Authorization: Bearer {{loginTecnico.response.body.token}}
+Content-Type: application/json
+
+{
+  "permiso": "OperarTaller"
+}
+
+###
+
+### 22. RD-07: permiso inexistente (esperar 400)
+POST {{API_HostAddress}}/api/permisos/solicitudes
+Authorization: Bearer {{loginTecnico.response.body.token}}
+Content-Type: application/json
+
+{
+  "permiso": "Volar"
+}
+
+###
+
+### 23. RF-GP-02: el técnico intenta ver las pendientes de todos (esperar 403)
+GET {{API_HostAddress}}/api/permisos/solicitudes/pendientes
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 24. RF-GP-02: el técnico ve solo sus solicitudes
+GET {{API_HostAddress}}/api/permisos/solicitudes/mias
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 25. RF-GP-02: el Administrador ve las pendientes
+GET {{API_HostAddress}}/api/permisos/solicitudes/pendientes
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 26. RF-GP-04: rechazar sin motivo (esperar 400; sigue Pendiente)
+POST {{API_HostAddress}}/api/permisos/solicitudes/{{solicitud1.response.body.id}}/rechazar
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{}
+
+###
+
+### 27. RF-GP-04: rechazar con motivo (esperar 200, Rechazada con motivo, aprobador y fecha)
+POST {{API_HostAddress}}/api/permisos/solicitudes/{{solicitud1.response.body.id}}/rechazar
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "motivo": "No trabaja en el taller."
+}
+
+###
+
+### 28. RF-GP-06: aprobar una solicitud Rechazada (esperar 409; sigue Rechazada)
+POST {{API_HostAddress}}/api/permisos/solicitudes/{{solicitud1.response.body.id}}/aprobar
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 29. RF-GP-01: el técnico vuelve a solicitar OperarTaller (esperar 201)
+# @name solicitud2
+POST {{API_HostAddress}}/api/permisos/solicitudes
+Authorization: Bearer {{loginTecnico.response.body.token}}
+Content-Type: application/json
+
+{
+  "permiso": "OperarTaller"
+}
+
+###
+
+### 30. RF-GP-03 y RF-GP-05: el Administrador aprueba (esperar 200, Aplicada con aprobador y fecha)
+POST {{API_HostAddress}}/api/permisos/solicitudes/{{solicitud2.response.body.id}}/aprobar
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 31. RF-GP-05 (después): con el MISMO token, sin volver a iniciar sesión (esperar 200)
+GET {{API_HostAddress}}/api/taller/ordenes
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 32. RF-GP-06: aprobar dos veces la misma solicitud (esperar 409; sigue Aplicada)
+POST {{API_HostAddress}}/api/permisos/solicitudes/{{solicitud2.response.body.id}}/aprobar
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 33. RF-GP-07: el Administrador crea su propia solicitud (esperar 201)
+# @name solicitudAdmin
+POST {{API_HostAddress}}/api/permisos/solicitudes
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "permiso": "OperarTaller"
+}
+
+###
+
+### 34. RF-GP-07: el Administrador intenta aprobar su propia solicitud (esperar 403)
+POST {{API_HostAddress}}/api/permisos/solicitudes/{{solicitudAdmin.response.body.id}}/aprobar
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
 
 ###

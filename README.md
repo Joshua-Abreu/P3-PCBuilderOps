@@ -118,8 +118,10 @@ Para usar `src/API/API.http`, complete al inicio del archivo `@adminCorreo` y `@
 ```bash
 git clone https://github.com/Joshua-Abreu/P3-PCBuilderOps.git
 cd P3-PCBuilderOps
-git checkout practica-1
+git checkout asignacion-2
 ```
+
+Use la etiqueta de la entrega que se revisa (`practica-1`, `asignacion-2`, …). Gestión de permisos y la suite de pruebas existen a partir de `asignacion-2`.
 
 ### 2. Restaurar dependencias
 
@@ -162,6 +164,28 @@ dotnet run --project src/Workers/EmailDispatcher
 ```
 
 Este proceso independiente lee los correos pendientes de la cola, los envía vía SMTP y termina su ejecución limpiamente.
+
+---
+
+## Pruebas
+
+Desde la raíz del repositorio, con el SDK de .NET 10 instalado:
+
+```bash
+dotnet test P3-PCBuilderOps.slnx
+```
+
+Ejecuta toda la suite de `tests/Core.Tests` (xUnit). **No requiere variables de entorno, SQL Server ni levantar la API** (RD-12): la máquina de estados se prueba en memoria y el servicio de Gestión de permisos usa una base SQLite en memoria nueva por cada prueba, por lo que las pruebas son independientes entre sí y del orden de ejecución.
+
+| Archivo | Qué verifica |
+|---------|--------------|
+| `tests/Core.Tests/Permisos/MaquinaEstadosSolicitudTests.cs` | Las 3 transiciones de la tabla son válidas y las 13 combinaciones restantes se rechazan (RD-04, RF-GP-06). |
+| `tests/Core.Tests/Permisos/SolicitudPermisoTests.cs` | Reglas de la solicitud: nace Pendiente, aprobar registra quién y cuándo, rechazar exige motivo, transiciones prohibidas no cambian el estado, nadie resuelve la propia (RF-GP-01, 03, 04, 05, 06, 07). |
+| `tests/Core.Tests/Permisos/GestionPermisosServiceTests.cs` | Lo mismo verificado sobre lo **guardado** en la base, más duplicados, otorgamiento del permiso y listados (RF-GP-01 a 07). |
+
+Pruebas que piden expresamente la Asignación 2:
+- **Transición válida:** `Aprobar_SolicitudPendiente_QuedaAplicadaYGuardaAprobadorYFecha` y `Rechazar_SolicitudPendienteConMotivo_QuedaRechazadaYGuardaMotivoAprobadorYFecha`.
+- **Transición prohibida:** `Aprobar_DosVecesLaMismaSolicitud_SeRechazaYLoGuardadoNoCambia` y `Aprobar_SolicitudRechazada_SeRechazaYNoOtorgaElPermiso`.
 
 ---
 
@@ -236,3 +260,23 @@ Para reproducir cada criterio de la Práctica 1 se provee `src/API/API.http`, qu
 | **RF-NEG-04 / RF-NEG-05** | `MaquinaEstadosOrden`. | Cuatro estados (Recibida, EnDiagnostico, EnProceso, Entregada); Entregada es terminal y el salto directo Recibida → Entregada se rechaza explícitamente. |
 
 La tabla completa de transiciones (desde, hacia, quién la ejecuta y condición) está en [`docs/maquina-de-estados.md`](docs/maquina-de-estados.md).
+
+### 8. Gestión de permisos (Asignación 2)
+
+**Transiciones:** `Pendiente → Aprobada → Aplicada` (aprobar aplica el permiso automáticamente) y `Pendiente → Rechazada`. Cualquier otra se rechaza con `409 Conflict` y el estado no cambia. El único permiso del catálogo es `OperarTaller`, que da acceso a `GET /api/taller/ordenes`.
+
+**Preparación:** iniciar sesión como Administrador (`ADMIN_CORREO` / `ADMIN_PASSWORD`) y registrar y activar un usuario Estándar (sección 1). Las peticiones 16 a 34 de `src/API/API.http` siguen este mismo orden (la 17 crea el técnico ya activo).
+
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **RF-GP-05** (antes de aprobar) | Con el token del Estándar, `GET /api/taller/ordenes`. | `403`: todavía no tiene el permiso. |
+| **RF-GP-01** (Crear solicitud) | Con el token del Estándar, `POST /api/permisos/solicitudes` con `{"permiso": "OperarTaller"}`. Repetir la misma petición. | `201` con `"estado": "Pendiente"`. La repetición responde `409` (ya hay una pendiente). Un permiso inexistente responde `400`. |
+| **RF-GP-02** (Consultar) | Con el token del Estándar, `GET /api/permisos/solicitudes/pendientes` y `GET /api/permisos/solicitudes/mias`. Con el del Administrador, `GET /api/permisos/solicitudes/pendientes`. | El Estándar recibe `403` en pendientes y en `mias` solo ve las suyas. El Administrador ve todas las pendientes. |
+| **RF-GP-04** (Rechazar con motivo) | Como Administrador, `POST /api/permisos/solicitudes/{id}/rechazar` con `{}` y luego con `{"motivo": "No trabaja en el taller."}`. | Sin motivo: `400` y la solicitud sigue `Pendiente`. Con motivo: `200`, `"estado": "Rechazada"`, el motivo, el `aprobadorId` y la `fechaResolucionUtc`. |
+| **RF-GP-06** (Rechazada → Aplicada) | Como Administrador, `POST /api/permisos/solicitudes/{id}/aprobar` sobre la solicitud rechazada. | `409` y la solicitud sigue `Rechazada`. |
+| **RF-GP-03** (Aprobar) | El Estándar crea una solicitud nueva y el Administrador la aprueba con `POST /api/permisos/solicitudes/{id}/aprobar`. | `200` con `"estado": "Aplicada"`, el `aprobadorId` del Administrador y la `fechaResolucionUtc`. |
+| **RF-GP-05** (Aplicación automática) | Con el **mismo token** del Estándar, sin volver a iniciar sesión, `GET /api/taller/ordenes`. | `200`: el permiso se aplicó al aprobar y se comprueba contra la base de datos en cada petición. |
+| **RF-GP-06** (Aprobar dos veces) | Repetir `POST /api/permisos/solicitudes/{id}/aprobar` sobre la solicitud aplicada. | `409` y la solicitud sigue `Aplicada` con el mismo aprobador y la misma fecha. |
+| **RF-GP-07** (Nadie resuelve la suya) | Con el token del Administrador, crear una solicitud (`POST /api/permisos/solicitudes`) y aprobarla o rechazarla él mismo. | `403` con el mensaje "No puedes resolver una solicitud creada por ti mismo." y la solicitud sigue `Pendiente`. |
+| **RD-06** | Con el token del Estándar, `POST /api/permisos/solicitudes/{id}/aprobar`. | `403`. |
+| **RD-09** | Detener y volver a ejecutar la API; repetir `GET /api/permisos/solicitudes/mias`. | Las solicitudes y el permiso otorgado siguen ahí. |
