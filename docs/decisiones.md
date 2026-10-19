@@ -74,6 +74,10 @@ Listado de solo lectura de la tabla actual `OrdenesServicio`, protegido por el p
 Proyecto de pruebas en `tests/`, incluido en la solución, ejecutable con `dotnet test` sin variables de entorno. La máquina de estados se prueba sin base de datos; el servicio, con SQLite en memoria (una base nueva por prueba). Los servicios reciben `TimeProvider` en lugar de usar `DateTime.UtcNow` directamente.
 **Por qué:** SQLite es relacional y permite verificar lo que realmente quedó guardado (estado, aprobador, fecha, motivo), cosa que EF Core InMemory no garantiza. Una base por prueba las hace independientes del orden. El reloj inyectado permite comprobar el "cuándo" exacto que exige RF-GP-03.
 
+### 2026-10-18 · Comentarios `// Preparar`, `// Actuar`, `// Verificar` en las pruebas
+Cada prueba marca sus tres fases con esos comentarios, como excepción a la regla de no comentar el código.
+**Por qué:** la rúbrica de la Asignación 2 exige que cada prueba tenga "tres fases identificables (preparar, actuar, verificar)". Los marcadores lo hacen explícito sin depender de la lectura de quien califica.
+
 ## Pendientes
 
 - **Retrabajo `EnPruebas → EnArmado`.** Más realista cuando una prueba falla y da más casos a la suite de la semana 8. Decidir antes de la semana 8.

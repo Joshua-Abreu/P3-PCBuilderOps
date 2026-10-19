@@ -9,4 +9,7 @@
   <Folder Name="/src/Workers/">
     <Project Path="src/Workers/EmailDispatcher/EmailDispatcher.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Core.Tests/Core.Tests.csproj" />
+  </Folder>
 </Solution>
