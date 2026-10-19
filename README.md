@@ -118,8 +118,10 @@ Para usar `src/API/API.http`, complete al inicio del archivo `@adminCorreo` y `@
 ```bash
 git clone https://github.com/Joshua-Abreu/P3-PCBuilderOps.git
 cd P3-PCBuilderOps
-git checkout practica-1
+git checkout asignacion-2
 ```
+
+Use la etiqueta de la entrega que se revisa (`practica-1`, `asignacion-2`, …). Gestión de permisos y la suite de pruebas existen a partir de `asignacion-2`.
 
 ### 2. Restaurar dependencias
 
