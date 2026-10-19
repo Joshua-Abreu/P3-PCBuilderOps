@@ -32,6 +32,12 @@ Se consultaron los avisos de GitHub (GHSA-846f-f764-76mx, CVE-2026-84008, y GHSA
 
 **Lección:** una actualización de seguridad se valida contra el aviso oficial y se comprueba después con `dotnet list package --vulnerable`, no se asume.
 
+### Segundo caso: migración aplicada sin recompilar
+
+* **Qué devolvió el agente:** generó la migración `AddGestionPermisos` y la aplicó a una base temporal con `dotnet ef database update --no-build`, sin recompilar después de crearla.
+* **Cómo se detectó:** EF Core respondió `PendingModelChangesWarning` ("el modelo tiene cambios pendientes") y la base no se creó. El ensamblado compilado no contenía la migración recién generada.
+* **Cómo se corrigió:** se recompiló la solución antes de aplicar la migración; se verificó en SQL Server que `SolicitudesPermiso` y `PermisosUsuario` se crean con las columnas, nulos y claves esperados, y se eliminó la base temporal.
+
 ---
 
 > Borrador en curso: se completa durante la asignación con el resto de tareas delegadas y la evidencia de la sesión.

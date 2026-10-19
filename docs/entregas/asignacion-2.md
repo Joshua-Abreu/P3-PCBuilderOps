@@ -88,8 +88,8 @@ Detalle y motivos en `docs/decisiones.md`.
 
 Marcar cada punto solo después de verificarlo contra el código en ejecución.
 
-- [ ] Dominio: `SolicitudPermiso`, estados y `MaquinaEstadosSolicitud` como único punto de transiciones (RD-04)
-- [ ] Persistencia y migración de solicitudes y permisos de usuario (RD-09)
+- [x] Dominio: `SolicitudPermiso`, estados y `MaquinaEstadosSolicitud` como único punto de transiciones (RD-04)
+- [x] Persistencia y migración de solicitudes y permisos de usuario (RD-09)
 - [ ] RF-GP-01 Crear solicitud (nace Pendiente; rechaza duplicados y permisos inexistentes)
 - [ ] RF-GP-02 Admin lista pendientes; Estándar solo ve las suyas
 - [ ] RF-GP-03 Aprobar registra aprobador y fecha
@@ -98,9 +98,9 @@ Marcar cada punto solo después de verificarlo contra el código en ejecución.
 - [ ] RF-GP-06 Transiciones fuera de la tabla → 409 y estado sin cambios
 - [ ] RF-GP-07 Resolver la propia solicitud → 403
 - [ ] Proyecto de pruebas en la solución; `dotnet test` pasa desde un clon limpio sin variables de entorno
-- [ ] Prueba de transición válida con estado + dato registrado
-- [ ] Prueba de transición prohibida con rechazo + estado sin cambios
-- [ ] Pruebas independientes, con tres fases y nombres descriptivos
+- [x] Prueba de transición válida con estado + dato registrado
+- [x] Prueba de transición prohibida con rechazo + estado sin cambios
+- [x] Pruebas independientes, con tres fases y nombres descriptivos
 - [ ] README: cómo provocar cada RF-GP y sección **Pruebas** con el comando
 - [ ] `API.http` con el flujo completo
 - [ ] `docs/bitacora-asignacion-2.md` con al menos un error real del agente
