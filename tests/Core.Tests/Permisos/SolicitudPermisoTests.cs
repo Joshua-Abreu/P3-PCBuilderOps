@@ -33,8 +33,11 @@ public class SolicitudPermisoTests
     [Fact]
     public void Crear_NuevaSolicitud_NaceEnPendienteSinResolucion()
     {
+        // Preparar
+        var permisoSolicitado = TipoPermiso.OperarTaller;
+
         // Actuar
-        var solicitud = SolicitudPermiso.Crear(SolicitanteId, TipoPermiso.OperarTaller, FechaCreacion);
+        var solicitud = SolicitudPermiso.Crear(SolicitanteId, permisoSolicitado, FechaCreacion);
 
         // Verificar
         Assert.Equal(EstadoSolicitud.Pendiente, solicitud.Estado);

@@ -35,6 +35,8 @@ public class MaquinaEstadosSolicitudTests
     [MemberData(nameof(TransicionesValidas))]
     public void EsTransicionValida_TransicionDeLaTabla_DevuelveVerdadero(EstadoSolicitud desde, EstadoSolicitud hacia)
     {
+        // Preparar: la transición llega desde TransicionesValidas
+
         // Actuar
         var esValida = MaquinaEstadosSolicitud.EsTransicionValida(desde, hacia);
 
@@ -46,6 +48,8 @@ public class MaquinaEstadosSolicitudTests
     [MemberData(nameof(TransicionesFueraDeLaTabla))]
     public void EsTransicionValida_TransicionFueraDeLaTabla_DevuelveFalso(EstadoSolicitud desde, EstadoSolicitud hacia)
     {
+        // Preparar: la transición llega desde TransicionesFueraDeLaTabla
+
         // Actuar
         var esValida = MaquinaEstadosSolicitud.EsTransicionValida(desde, hacia);
 
@@ -57,12 +61,15 @@ public class MaquinaEstadosSolicitudTests
     [MemberData(nameof(TransicionesFueraDeLaTabla))]
     public void ValidarTransicion_TransicionFueraDeLaTabla_LanzaTransicionNoPermitida(EstadoSolicitud desde, EstadoSolicitud hacia)
     {
+        // Preparar
+        var validar = () => MaquinaEstadosSolicitud.ValidarTransicion(desde, hacia);
+
         // Actuar
-        var excepcion = Assert.Throws<TransicionNoPermitidaException>(
-            () => MaquinaEstadosSolicitud.ValidarTransicion(desde, hacia));
+        var excepcion = Record.Exception(validar);
 
         // Verificar
-        Assert.Equal(desde, excepcion.Desde);
-        Assert.Equal(hacia, excepcion.Hacia);
+        var rechazo = Assert.IsType<TransicionNoPermitidaException>(excepcion);
+        Assert.Equal(desde, rechazo.Desde);
+        Assert.Equal(hacia, rechazo.Hacia);
     }
 }

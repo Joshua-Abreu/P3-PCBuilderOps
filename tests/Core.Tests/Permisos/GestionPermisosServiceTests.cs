@@ -51,8 +51,11 @@ public sealed class GestionPermisosServiceTests : IDisposable
     [Fact]
     public async Task Crear_SolicitudNueva_SeGuardaEnPendienteConSolicitanteYFecha()
     {
+        // Preparar
+        var servicio = NuevoServicio();
+
         // Actuar
-        var creada = await NuevoServicio().CrearAsync(_estandarId, TipoPermiso.OperarTaller);
+        var creada = await servicio.CrearAsync(_estandarId, TipoPermiso.OperarTaller);
 
         // Verificar
         var guardada = LeerGuardada(creada.Id);
@@ -289,8 +292,11 @@ public sealed class GestionPermisosServiceTests : IDisposable
     [Fact]
     public async Task Aprobar_SolicitudInexistente_LanzaSolicitudNoEncontrada()
     {
+        // Preparar
+        var idInexistente = Guid.NewGuid();
+
         // Actuar
-        var accion = () => NuevoServicio().AprobarAsync(Guid.NewGuid(), _administradorId);
+        var accion = () => NuevoServicio().AprobarAsync(idInexistente, _administradorId);
 
         // Verificar
         await Assert.ThrowsAsync<SolicitudNoEncontradaException>(accion);
