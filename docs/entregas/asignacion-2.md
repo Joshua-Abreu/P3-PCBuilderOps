@@ -97,14 +97,14 @@ Marcar cada punto solo después de verificarlo contra el código en ejecución.
 - [x] RF-GP-05 Aprobar aplica el permiso; `GET /api/taller/ordenes` pasa de 403 a 200 sin volver a iniciar sesión
 - [x] RF-GP-06 Transiciones fuera de la tabla → 409 y estado sin cambios
 - [x] RF-GP-07 Resolver la propia solicitud → 403
-- [ ] Proyecto de pruebas en la solución; `dotnet test` pasa desde un clon limpio sin variables de entorno
+- [x] Proyecto de pruebas en la solución; `dotnet test` pasa desde un clon limpio sin variables de entorno
 - [x] Prueba de transición válida con estado + dato registrado
 - [x] Prueba de transición prohibida con rechazo + estado sin cambios
 - [x] Pruebas independientes, con tres fases y nombres descriptivos
 - [x] README: cómo provocar cada RF-GP y sección **Pruebas** con el comando
 - [x] `API.http` con el flujo completo
-- [ ] `docs/bitacora-asignacion-2.md` con al menos un error real del agente
+- [x] `docs/bitacora-asignacion-2.md` con al menos un error real del agente (dos casos con evidencia)
 - [x] Revisión: Control de acceso sigue funcionando
-- [ ] Commits citan sus IDs; PR con las cuatro secciones
+- [ ] Commits citan sus IDs (✅); PR con las cuatro secciones
 - [ ] Etiqueta `asignacion-2` creada y subida antes del cierre
 - [ ] `AGENTS.md` sección 0 actualizada
