@@ -24,7 +24,7 @@ public class SolicitudPermiso
         Id = Guid.NewGuid(),
         SolicitanteId = solicitanteId,
         Permiso = permiso,
-        Estado = EstadoSolicitud.Pendiente,
+        Estado = EstadoSolicitud.Aprobada,
         FechaCreacionUtc = ahoraUtc
     };
 
