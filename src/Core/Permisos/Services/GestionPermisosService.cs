@@ -43,7 +43,7 @@ public class GestionPermisosService : IGestionPermisosService, IVerificadorPermi
     {
         var pendientes = await _dbContext.SolicitudesPermiso
             .AsNoTracking()
-            .Where(s => s.Estado == EstadoSolicitud.Pendiente)
+            .Where(s => s.Estado != EstadoSolicitud.Rechazada)
             .OrderBy(s => s.FechaCreacionUtc)
             .ToListAsync(ct);
 
