@@ -9,7 +9,7 @@ public static class MaquinaEstadosSolicitud
     {
         [EstadoSolicitud.Pendiente] = [EstadoSolicitud.Aprobada, EstadoSolicitud.Rechazada],
         [EstadoSolicitud.Aprobada] = [EstadoSolicitud.Aplicada],
-        [EstadoSolicitud.Aplicada] = [],
+        [EstadoSolicitud.Aplicada] = [EstadoSolicitud.Aprobada],
         [EstadoSolicitud.Rechazada] = []
     };
 
