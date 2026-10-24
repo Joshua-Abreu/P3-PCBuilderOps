@@ -14,7 +14,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 |-------|---------|--------|
 | 1. Control de acceso | 2–4 | ✅ Entregada (etiqueta `practica-1`, ya calificada), corregida en el PR #16 y con `Usuario.Nombre` desde el PR #18. |
 | Máquina de estados del negocio (estructura) | 4 | ⚠️ Entregada con desviaciones conocidas (ver abajo). |
-| 2. Gestión de permisos | 6–8 | ⏳ **En curso: Asignación 2** (cierra el martes 20/10, 11:59 p. m.) en `feature/gestion-permisos`. Ver `docs/entregas/asignacion-2.md`. |
+| 2. Gestión de permisos | 6–8 | ✅ Asignación 2 entregada (etiqueta `asignacion-2`, PR #20). ⏳ **En curso: Práctica 2, variante C** (cierra el domingo 25/10, 11:59 p. m.) en `feature/practica-2-suite`. Ver `docs/entregas/practica-2.md`. |
 | Máquina de estados del negocio (pruebas) | 8 | Pendiente. |
 | 3. Manejador de documentos | 9 | Pendiente. |
 | 4. Notificaciones y cola de correos | 11–12 | Parcial: existe la cola mínima de la Práctica 1 (sin reintentos, estado fallido ni bandeja interna). |
@@ -24,7 +24,8 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 ### Desviaciones conocidas (no corregir sin que el usuario lo pida)
 - El negocio vive en `src/Core/Ordenes/` y `AppDbContext` del Core tiene `DbSet<OrdenServicio>`. Viola RD-03; se mueve a `src/Modules/PCBuilderOps` en la semana 8.
 - Los estados implementados (`Recibida → EnDiagnostico → EnProceso → Entregada`) no son los de la propuesta aprobada. El objetivo está en `docs/requisitos/negocio.md`; se alinean en la semana 8.
-- No existe proyecto de pruebas automatizadas todavía (RD-12). Se crea con la Práctica 3.
+- Solo Gestión de permisos tiene pruebas automatizadas (`tests/Core.Tests`); Control de acceso y el negocio aún no (RD-12). Las del negocio llegan con la Práctica 3.
+- Las etiquetas `practica-2-defecto-N` contienen defectos plantados a propósito: nunca se fusionan a `main` ni se "corrigen".
 - La etiqueta `practica-1` no se mueve: la entrega ya fue calificada.
 
 ---

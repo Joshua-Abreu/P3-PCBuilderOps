@@ -69,12 +69,18 @@ public class GestionPermisosService : IGestionPermisosService, IVerificadorPermi
         var ahora = AhoraUtc;
 
         solicitud.Aprobar(aprobadorId, ahora);
-        solicitud.Aplicar();
-        _dbContext.PermisosUsuario.Add(PermisoUsuario.OtorgarPor(solicitud, ahora));
+        AplicarCambioDePermiso(solicitud, ahora);
 
         await _dbContext.SaveChangesAsync(ct);
 
         return ADetalle(solicitud);
+    }
+
+    // RF-GP-05
+    private void AplicarCambioDePermiso(SolicitudPermiso solicitud, DateTime ahoraUtc)
+    {
+        solicitud.Aplicar();
+        _dbContext.PermisosUsuario.Add(PermisoUsuario.OtorgarPor(solicitud, ahoraUtc));
     }
 
     // RF-GP-04

@@ -221,6 +221,41 @@ public class SolicitudPermisoTests
         Assert.Equal(FechaResolucion, solicitud.FechaResolucionUtc);
     }
 
+    // RF-GP-04, RF-GP-06
+    [Fact]
+    public void Rechazar_SolicitudAprobada_SeRechazaYElEstadoNoCambia()
+    {
+        // Preparar
+        var solicitud = NuevaSolicitudPendiente();
+        solicitud.Aprobar(AdministradorId, FechaResolucion);
+
+        // Actuar
+        var accion = () => solicitud.Rechazar(AdministradorId, "Cambio de opinión.", FechaResolucion.AddHours(1));
+
+        // Verificar
+        Assert.Throws<TransicionNoPermitidaException>(accion);
+        Assert.Equal(EstadoSolicitud.Aprobada, solicitud.Estado);
+        Assert.Null(solicitud.MotivoRechazo);
+        Assert.Equal(FechaResolucion, solicitud.FechaResolucionUtc);
+    }
+
+    // RF-GP-04, RF-GP-06
+    [Fact]
+    public void Rechazar_SolicitudYaRechazada_SeRechazaYConservaElPrimerRechazo()
+    {
+        // Preparar
+        var solicitud = SolicitudRechazada();
+
+        // Actuar
+        var accion = () => solicitud.Rechazar(AdministradorId, "Segundo motivo.", FechaResolucion.AddHours(1));
+
+        // Verificar
+        Assert.Throws<TransicionNoPermitidaException>(accion);
+        Assert.Equal(EstadoSolicitud.Rechazada, solicitud.Estado);
+        Assert.Equal("No trabaja en el taller.", solicitud.MotivoRechazo);
+        Assert.Equal(FechaResolucion, solicitud.FechaResolucionUtc);
+    }
+
     // RF-GP-07
     [Fact]
     public void Aprobar_PorElPropioSolicitante_SeRechazaYLaSolicitudSigueEnPendiente()

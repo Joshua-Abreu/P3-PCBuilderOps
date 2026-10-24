@@ -220,6 +220,26 @@ public sealed class GestionPermisosServiceTests : IDisposable
         Assert.Equal(0, ContarPermisosOtorgados(_estandarId));
     }
 
+    // RF-GP-04, RF-GP-06
+    [Fact]
+    public async Task Rechazar_DosVecesLaMismaSolicitud_SeRechazaYLoGuardadoNoCambia()
+    {
+        // Preparar
+        var solicitudId = await CrearSolicitudPendienteAsync(_estandarId);
+        await NuevoServicio().RechazarAsync(solicitudId, _administradorId, "No trabaja en el taller.");
+        _reloj.Fijar(FechaResolucion.AddHours(2));
+
+        // Actuar
+        var accion = () => NuevoServicio().RechazarAsync(solicitudId, _administradorId, "Segundo motivo.");
+
+        // Verificar
+        await Assert.ThrowsAsync<TransicionNoPermitidaException>(accion);
+        var guardada = LeerGuardada(solicitudId);
+        Assert.Equal(EstadoSolicitud.Rechazada, guardada.Estado);
+        Assert.Equal("No trabaja en el taller.", guardada.MotivoRechazo);
+        Assert.Equal(FechaResolucion, guardada.FechaResolucionUtc);
+    }
+
     // RF-GP-07
     [Fact]
     public async Task Aprobar_SolicitudPropiaDelAdministrador_SeRechazaYNoOtorgaElPermiso()
