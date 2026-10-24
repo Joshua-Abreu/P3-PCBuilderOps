@@ -60,7 +60,7 @@ public class SolicitudPermiso
         if (motivoLimpio.Length > MotivoRechazoMaximo)
             throw new ValidacionException($"El motivo del rechazo no puede superar {MotivoRechazoMaximo} caracteres.");
 
-        MaquinaEstadosSolicitud.ValidarTransicion(Estado, EstadoSolicitud.Rechazada);
+        if (Estado == EstadoSolicitud.Aplicada) throw new TransicionNoPermitidaException(Estado, EstadoSolicitud.Rechazada);
 
         Estado = EstadoSolicitud.Rechazada;
         AprobadorId = aprobadorId;
