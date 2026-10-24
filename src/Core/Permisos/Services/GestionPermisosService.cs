@@ -69,7 +69,6 @@ public class GestionPermisosService : IGestionPermisosService, IVerificadorPermi
         var ahora = AhoraUtc;
 
         solicitud.Aprobar(aprobadorId, ahora);
-        AplicarCambioDePermiso(solicitud, ahora);
 
         await _dbContext.SaveChangesAsync(ct);
 
