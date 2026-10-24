@@ -187,6 +187,40 @@ Pruebas que piden expresamente la Asignación 2:
 - **Transición válida:** `Aprobar_SolicitudPendiente_QuedaAplicadaYGuardaAprobadorYFecha` y `Rechazar_SolicitudPendienteConMotivo_QuedaRechazadaYGuardaMotivoAprobadorYFecha`.
 - **Transición prohibida:** `Aprobar_DosVecesLaMismaSolicitud_SeRechazaYLoGuardadoNoCambia` y `Aprobar_SolicitudRechazada_SeRechazaYNoOtorgaElPermiso`.
 
+Cada prueba indica en un comentario `// RF-GP-0N` el requisito que verifica. Pruebas representativas por requisito:
+
+| Requisito | Prueba |
+|-----------|--------|
+| RF-GP-01 | `Crear_NuevaSolicitud_NaceEnPendienteSinResolucion`, `Crear_SolicitudNueva_SeGuardaEnPendienteConSolicitanteYFecha` |
+| RF-GP-02 | `ListarPendientes_ConSolicitudesResueltas_DevuelveSoloLasPendientes`, `ListarDelSolicitante_ConSolicitudesDeOtros_DevuelveSoloLasPropias` |
+| RF-GP-03 | `Aprobar_SolicitudPendiente_QuedaAplicadaYGuardaAprobadorYFecha` |
+| RF-GP-04 | `Rechazar_SinMotivo_SeRechazaYLaSolicitudSigueIntacta` (motivo ausente, vacío o en blanco), `Rechazar_SolicitudAprobada_SeRechazaYElEstadoNoCambia` |
+| RF-GP-05 | `Aprobar_SolicitudPendiente_OtorgaElPermisoAlSolicitante` |
+| RF-GP-06 | `Aprobar_DosVecesLaMismaSolicitud_SeRechazaYLoGuardadoNoCambia`, `Aplicar_SolicitudRechazada_SeRechazaYElEstadoNoCambia`, `ValidarTransicion_TransicionFueraDeLaTabla_LanzaTransicionNoPermitida` |
+| RF-GP-07 | `Aprobar_SolicitudPropiaDelAdministrador_SeRechazaYNoOtorgaElPermiso`, `Rechazar_PorElPropioSolicitante_SeRechazaYLaSolicitudSigueEnPendiente` |
+
+---
+
+## Defectos
+
+Práctica 2, **variante C**. Cada defecto está plantado en un commit cuyo padre es `practica-2`, que cambia una sola línea de código de Gestión de permisos (ningún archivo de pruebas), y está etiquetado como `practica-2-defecto-N`. Para comprobarlo:
+
+```bash
+git checkout practica-2-defecto-N
+```
+```bash
+dotnet test P3-PCBuilderOps.slnx
+```
+
+| N | Requisito | Defecto plantado (archivo y línea) | Prueba que lo detecta | Comportamiento que comprueba |
+|---|-----------|------------------------------------|-----------------------|------------------------------|
+| 1 | RF-GP-02 | `src/Core/Permisos/Services/GestionPermisosService.cs`, línea 46: el filtro de pendientes pasa a «estado no es Rechazada». | `ListarPendientes_ConSolicitudesResueltas_DevuelveSoloLasPendientes` | La consulta de pendientes devuelve solo las solicitudes Pendiente, no las ya aplicadas. |
+| 2 | RF-GP-06 | `src/Core/Permisos/Domain/MaquinaEstadosSolicitud.cs`, línea 12: se agrega la transición `Aplicada → Aprobada`. | `Aprobar_SolicitudYaAplicada_SeRechazaYElEstadoNoCambia` | Aprobar una solicitud ya aplicada se rechaza y sigue Aplicada con el mismo aprobador y fecha. |
+| 3 | RF-GP-05 | `src/Core/Permisos/Services/GestionPermisosService.cs`, línea 72: se elimina la llamada `AplicarCambioDePermiso`. | `Aprobar_SolicitudPendiente_OtorgaElPermisoAlSolicitante` | Tras aprobar, el solicitante obtiene el permiso pedido (y la solicitud llega a Aplicada). |
+| 4 | RF-GP-04 | `src/Core/Permisos/Domain/SolicitudPermiso.cs`, línea 63: la validación «solo se rechaza una Pendiente» pasa a «estado no es Aplicada». | `Rechazar_SolicitudAprobada_SeRechazaYElEstadoNoCambia` | Rechazar una solicitud ya aprobada se rechaza y sigue Aprobada, sin motivo registrado. |
+| 5 | RF-GP-01 | `src/Core/Permisos/Domain/SolicitudPermiso.cs`, línea 27: el estado inicial pasa de Pendiente a Aprobada. | `Crear_NuevaSolicitud_NaceEnPendienteSinResolucion` | Una solicitud nueva nace en estado Pendiente, sin aprobador ni fecha de resolución. |
+| 6 | RF-GP-07 | `src/Core/Permisos/Domain/SolicitudPermiso.cs`, línea 53: se elimina la verificación de solicitud propia al rechazar. | `Rechazar_PorElPropioSolicitante_SeRechazaYLaSolicitudSigueEnPendiente` | Un Administrador que rechaza su propia solicitud recibe un rechazo y la solicitud sigue Pendiente. |
+
 ---
 
 ## Guía de Verificación de Criterios de Aceptación
