@@ -50,7 +50,6 @@ public class SolicitudPermiso
     // RF-GP-04
     public void Rechazar(Guid aprobadorId, string? motivo, DateTime ahoraUtc)
     {
-        ValidarQueNoEsPropia(aprobadorId);
 
         if (string.IsNullOrWhiteSpace(motivo))
             throw new ValidacionException("El motivo del rechazo es obligatorio.");
