@@ -6,6 +6,19 @@
 @tecnicoCorreo = tecnico.prueba@itla.edu.do
 @tecnicoPassword = Tecnico12345
 
+# Usuario Estándar (cliente) para el módulo de negocio (peticiones 35 a 62).
+@clienteCorreo = cliente.prueba@itla.edu.do
+@clientePassword = Cliente12345
+
+# Componentes de ejemplo que carga la migración del módulo.
+@cpuAm5 = a1000000-0000-0000-0000-000000000001
+@cpuLga1700 = a1000000-0000-0000-0000-000000000002
+@placaAm5 = a2000000-0000-0000-0000-000000000001
+@gpuMedia = a3000000-0000-0000-0000-000000000001
+@gpuAlta = a3000000-0000-0000-0000-000000000002
+@fuente850 = a6000000-0000-0000-0000-000000000001
+@fuente450 = a6000000-0000-0000-0000-000000000002
+
 @API_HostAddress = http://localhost:5206
 @authToken = {{loginAdmin.response.body.token}}
 @nuevoUsuarioId = {{crearUsuario.response.body.id}}
@@ -171,6 +184,7 @@ Content-Type: application/json
 ###
 
 ### 17. Crear el técnico (Estándar) ya activo
+# @name crearTecnico
 POST {{API_HostAddress}}/api/usuarios
 Authorization: Bearer {{loginAdminPermisos.response.body.token}}
 Content-Type: application/json
@@ -326,5 +340,302 @@ Content-Type: application/json
 ### 34. RF-GP-07: el Administrador intenta aprobar su propia solicitud (esperar 403)
 POST {{API_HostAddress}}/api/permisos/solicitudes/{{solicitudAdmin.response.body.id}}/aprobar
 Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### ===== Módulo de negocio (Práctica 3) =====
+### Requiere haber ejecutado las peticiones 16 a 30: el técnico ya tiene OperarTaller.
+
+### 35. Crear el cliente (Estándar) ya activo
+# @name crearCliente
+POST {{API_HostAddress}}/api/usuarios
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "nombre": "Cliente de Prueba",
+  "correo": "{{clienteCorreo}}",
+  "password": "{{clientePassword}}",
+  "rol": "Estandar",
+  "activarInmediatamente": true
+}
+
+###
+
+### 36. Login del cliente
+# @name loginCliente
+POST {{API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "correo": "{{clienteCorreo}}",
+  "password": "{{clientePassword}}"
+}
+
+###
+
+### 37. RF-NEG-06: sin sesión (esperar 401)
+GET {{API_HostAddress}}/api/ordenes/mias
+
+###
+
+### 38. FN-01: catálogo de componentes
+GET {{API_HostAddress}}/api/componentes
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 39. FN-01: cotización compatible (esperar 201, Cotizada)
+# @name orden
+POST {{API_HostAddress}}/api/ordenes
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuAm5}}", "cantidad": 1 },
+    { "componenteId": "{{placaAm5}}", "cantidad": 1 },
+    { "componenteId": "{{gpuMedia}}", "cantidad": 1 },
+    { "componenteId": "{{fuente850}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 40. FN-01: socket incompatible (esperar 400)
+POST {{API_HostAddress}}/api/ordenes
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuLga1700}}", "cantidad": 1 },
+    { "componenteId": "{{placaAm5}}", "cantidad": 1 },
+    { "componenteId": "{{fuente850}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 41. FN-01: la fuente no cubre el consumo (esperar 400)
+POST {{API_HostAddress}}/api/ordenes
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuAm5}}", "cantidad": 1 },
+    { "componenteId": "{{placaAm5}}", "cantidad": 1 },
+    { "componenteId": "{{gpuAlta}}", "cantidad": 1 },
+    { "componenteId": "{{fuente450}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 42. RF-NEG-06: el Administrador no cotiza (esperar 403)
+POST {{API_HostAddress}}/api/ordenes
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuAm5}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 43. FN-05: el cliente ve su orden
+GET {{API_HostAddress}}/api/ordenes/{{orden.response.body.id}}
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 44. FN-05: otro usuario no ve la orden (esperar 404)
+GET {{API_HostAddress}}/api/ordenes/{{orden.response.body.id}}
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 45. FN-05: el cliente lista solo sus órdenes
+GET {{API_HostAddress}}/api/ordenes/mias
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 46. RF-NEG-04: Cotizada -> Entregada está prohibida (esperar 409; sigue Cotizada)
+POST {{API_HostAddress}}/api/taller/ordenes/{{orden.response.body.id}}/entregar
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 47. RF-NEG-06: un Estándar no inicia el armado (esperar 403)
+POST {{API_HostAddress}}/api/ordenes/{{orden.response.body.id}}/iniciar-armado
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "tecnicoId": "{{crearTecnico.response.body.id}}"
+}
+
+###
+
+### 48. FN-02: el usuario indicado no tiene OperarTaller (esperar 400; sigue Cotizada)
+POST {{API_HostAddress}}/api/ordenes/{{orden.response.body.id}}/iniciar-armado
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "tecnicoId": "{{crearCliente.response.body.id}}"
+}
+
+###
+
+### 49. FN-03: un Estándar sin OperarTaller no registra pruebas (esperar 403)
+POST {{API_HostAddress}}/api/taller/ordenes/{{orden.response.body.id}}/pruebas
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "tipoSoftwarePrueba": "Cinebench",
+  "temperaturaMaximaCpu": 70,
+  "temperaturaMaximaGpu": 65,
+  "puntajeBenchmark": 12000,
+  "esAprobada": true
+}
+
+###
+
+### 50. FN-02: iniciar armado con el técnico (esperar 200, EnArmado; baja el stock)
+POST {{API_HostAddress}}/api/ordenes/{{orden.response.body.id}}/iniciar-armado
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "tecnicoId": "{{crearTecnico.response.body.id}}"
+}
+
+###
+
+### 51. FN-04: pasar a pruebas (esperar 200, EnPruebas)
+POST {{API_HostAddress}}/api/taller/ordenes/{{orden.response.body.id}}/pasar-a-pruebas
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 52. FN-04: entregar sin pruebas (esperar 409; sigue EnPruebas)
+POST {{API_HostAddress}}/api/taller/ordenes/{{orden.response.body.id}}/entregar
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 53. FN-03: registrar una prueba reprobada (esperar 201)
+POST {{API_HostAddress}}/api/taller/ordenes/{{orden.response.body.id}}/pruebas
+Authorization: Bearer {{loginTecnico.response.body.token}}
+Content-Type: application/json
+
+{
+  "tipoSoftwarePrueba": "Cinebench",
+  "temperaturaMaximaCpu": 98,
+  "temperaturaMaximaGpu": 65,
+  "puntajeBenchmark": 12000,
+  "esAprobada": false
+}
+
+###
+
+### 54. FN-04: la prueba más reciente está reprobada (esperar 409; sigue EnPruebas)
+POST {{API_HostAddress}}/api/taller/ordenes/{{orden.response.body.id}}/entregar
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 55. FN-03: registrar una prueba aprobada (esperar 201)
+POST {{API_HostAddress}}/api/taller/ordenes/{{orden.response.body.id}}/pruebas
+Authorization: Bearer {{loginTecnico.response.body.token}}
+Content-Type: application/json
+
+{
+  "tipoSoftwarePrueba": "Cinebench",
+  "temperaturaMaximaCpu": 70,
+  "temperaturaMaximaGpu": 65,
+  "puntajeBenchmark": 12000,
+  "esAprobada": true
+}
+
+###
+
+### 56. FN-04: entregar (esperar 200, Entregada)
+POST {{API_HostAddress}}/api/taller/ordenes/{{orden.response.body.id}}/entregar
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 57. RF-NEG-05: de Entregada no se sale (esperar 409; sigue Entregada)
+POST {{API_HostAddress}}/api/taller/ordenes/{{orden.response.body.id}}/entregar
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 58. FN-05: el cliente ve el historial de pruebas
+GET {{API_HostAddress}}/api/ordenes/{{orden.response.body.id}}
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 59. FN-02: primera orden con la única RTX 4090 (esperar 201)
+# @name ordenGpuAlta1
+POST {{API_HostAddress}}/api/ordenes
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuAm5}}", "cantidad": 1 },
+    { "componenteId": "{{placaAm5}}", "cantidad": 1 },
+    { "componenteId": "{{gpuAlta}}", "cantidad": 1 },
+    { "componenteId": "{{fuente850}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 60. FN-02: segunda orden con la misma RTX 4090 (esperar 201)
+# @name ordenGpuAlta2
+POST {{API_HostAddress}}/api/ordenes
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuAm5}}", "cantidad": 1 },
+    { "componenteId": "{{placaAm5}}", "cantidad": 1 },
+    { "componenteId": "{{gpuAlta}}", "cantidad": 1 },
+    { "componenteId": "{{fuente850}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 61. FN-02: la primera reserva la RTX 4090 (esperar 200)
+POST {{API_HostAddress}}/api/ordenes/{{ordenGpuAlta1.response.body.id}}/iniciar-armado
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "tecnicoId": "{{crearTecnico.response.body.id}}"
+}
+
+###
+
+### 62. FN-02: la segunda se queda sin stock (esperar 409; sigue Cotizada)
+POST {{API_HostAddress}}/api/ordenes/{{ordenGpuAlta2.response.body.id}}/iniciar-armado
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "tecnicoId": "{{crearTecnico.response.body.id}}"
+}
 
 ###

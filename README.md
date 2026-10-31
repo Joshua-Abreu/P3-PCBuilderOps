@@ -45,6 +45,7 @@ flowchart TD
     DOC -.->|"audita subidas y borrados"| AUD
 
     MOD -->|"quien es y que rol tiene"| CA
+    MOD -->|"tiene el permiso OperarTaller"| GP
     MOD -->|"notificar cambio de fase"| NOTI
     MOD -->|"adjuntar benchmark"| DOC
     MOD -->|"solicita reporte de ensambles"| REP
@@ -53,9 +54,27 @@ flowchart TD
 
 ---
 
+## Requisitos previos
+
+* [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0).
+* SQL Server accesible desde la máquina. Sin `CONNECTION_STRING`, se usa la instancia local con autenticación de Windows.
+* Herramienta de migraciones de Entity Framework:
+
+```bash
+dotnet tool install --global dotnet-ef --version 10.0.12
+```
+
+---
+
 ## Variables de Entorno Requeridas
 
-Conforme a las directivas de seguridad **RF-NOT-13** y **RD-10**, ninguna credencial ni secreto se encuentra versionado en el código fuente. Configure las siguientes variables en el entorno de ejecución, consola o en su archivo local excluido de Git (`launchSettings.json`):
+Conforme a las directivas de seguridad **RF-NOT-13** y **RD-10**, ninguna credencial ni secreto se encuentra versionado en el código fuente. Configure las siguientes variables en la misma terminal donde ejecutará la API y el despachador. `launchSettings.json` es un archivo local excluido de Git, por lo que **no viene al clonar**; para ejecutar el proyecto basta con estas variables. Como mínimo se necesitan `JWT_SECRET`, `ADMIN_NOMBRE`, `ADMIN_CORREO` y `ADMIN_PASSWORD`; las `SMTP_*` solo hacen falta para que los correos lleguen a una bandeja real.
+
+### URL pública de los enlaces
+
+| Variable | Obligatoria | Propósito |
+|----------|-------------|-----------|
+| `APP_BASE_URL` | No (`http://localhost:5206`) | Base de los enlaces absolutos de activación y recuperación que se envían por correo. |
 
 ### Cadena de conexión a base de datos
 
@@ -83,7 +102,7 @@ Un valor adecuado para `JWT_SECRET` puede generarse en PowerShell con:
 [Convert]::ToBase64String((1..48 | ForEach-Object { Get-Random -Maximum 256 }))
 ```
 
-> Las migraciones (`dotnet ef`) no arrancan la API: usan `AppDbContextFactory` y solo necesitan la cadena de conexión, no `JWT_SECRET`.
+> Las migraciones (`dotnet ef`) no arrancan la API: usan `AppDbContextFactory` y `PCBuilderOpsDbContextFactory`, y solo necesitan la cadena de conexión, no `JWT_SECRET`.
 
 ### Credenciales SMTP
 
@@ -118,10 +137,10 @@ Para usar `src/API/API.http`, complete al inicio del archivo `@adminCorreo` y `@
 ```bash
 git clone https://github.com/Joshua-Abreu/P3-PCBuilderOps.git
 cd P3-PCBuilderOps
-git checkout asignacion-2
+git checkout practica-3
 ```
 
-Use la etiqueta de la entrega que se revisa (`practica-1`, `asignacion-2`, …). Gestión de permisos y la suite de pruebas existen a partir de `asignacion-2`.
+Use la etiqueta de la entrega que se revisa (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`). El módulo de negocio funcionando y su suite existen a partir de `practica-3`.
 
 ### 2. Restaurar dependencias
 
@@ -131,16 +150,26 @@ dotnet restore
 
 ### 3. Aplicar migraciones de base de datos
 
-El proyecto Core contiene el `AppDbContext` y las migraciones. No existe el proyecto `src/Infrastructure`. `dotnet ef` **no lee** `launchSettings.json`: si su base no es la local por defecto, defina `CONNECTION_STRING` en la terminal antes de ejecutar el comando (en PowerShell: `$env:CONNECTION_STRING = "..."`).
+El Core y el módulo de negocio tienen cada uno su `DbContext` y sus migraciones, en la misma base de datos. Aplique los dos comandos **en este orden**, porque las tablas del negocio referencian a `Usuarios`. `dotnet ef` **no lee** `launchSettings.json`: si su base no es la local por defecto, defina `CONNECTION_STRING` en la terminal antes de ejecutarlos (en PowerShell: `$env:CONNECTION_STRING = "..."`).
 
 ```bash
-dotnet ef database update --project src/Core --startup-project src/API
+dotnet ef database update --project src/Core --startup-project src/API --context AppDbContext
 ```
 
-Para generar una nueva migración después de cambios en el modelo:
+```bash
+dotnet ef database update --project src/Modules/PCBuilderOps --startup-project src/API --context PCBuilderOpsDbContext
+```
+
+Para generar una nueva migración después de cambios en el modelo del Core:
 
 ```bash
-dotnet ef migrations add <NombreMigracion> --project src/Core --startup-project src/API
+dotnet ef migrations add <NombreMigracion> --project src/Core --startup-project src/API --output-dir Data/Migrations --context AppDbContext
+```
+
+Y en el módulo de negocio:
+
+```bash
+dotnet ef migrations add <NombreMigracion> --project src/Modules/PCBuilderOps --startup-project src/API --output-dir Data/Migrations --context PCBuilderOpsDbContext
 ```
 
 ### 4. Compilar
@@ -153,10 +182,10 @@ dotnet build P3-PCBuilderOps.slnx
 
 **API Web:**
 ```bash
-dotnet run --project src/API
+dotnet run --project src/API --urls http://localhost:5206
 ```
 
-La API quedará escuchando en `http://localhost:5206` (o el puerto configurado en su perfil de host).
+La API quedará escuchando en `http://localhost:5206`, la dirección que usan `src/API/API.http` y los enlaces de los correos.
 
 **Despachador independiente de correos:**
 ```bash
@@ -175,7 +204,19 @@ Desde la raíz del repositorio, con el SDK de .NET 10 instalado:
 dotnet test P3-PCBuilderOps.slnx
 ```
 
-Ejecuta toda la suite de `tests/Core.Tests` (xUnit). **No requiere variables de entorno, SQL Server ni levantar la API** (RD-12): la máquina de estados se prueba en memoria y el servicio de Gestión de permisos usa una base SQLite en memoria nueva por cada prueba, por lo que las pruebas son independientes entre sí y del orden de ejecución.
+Ejecuta las dos suites (xUnit): `tests/Core.Tests` para Gestión de permisos y `tests/PCBuilderOps.Tests` para el módulo de negocio. **No requiere variables de entorno, SQL Server ni levantar la API** (RD-12): las máquinas de estados se prueban en memoria y los servicios usan una base SQLite en memoria nueva por cada prueba, por lo que las pruebas son independientes entre sí y del orden de ejecución.
+
+### Módulo de negocio
+
+| Archivo | Qué verifica |
+|---------|--------------|
+| `tests/PCBuilderOps.Tests/Domain/MaquinaEstadosOrdenEnsambleTests.cs` | Una prueba por cada fila de las tablas de [`docs/maquina-de-estados.md`](docs/maquina-de-estados.md): 3 permitidas y 13 prohibidas (rechazo y estado sin cambiar), más la prueba de que del estado terminal no se sale (RD-04, RF-NEG-03, 04, 05). |
+| `tests/PCBuilderOps.Tests/Domain/OrdenEnsambleTests.cs` | Reglas de la orden: costo, reserva de stock, regla de la prueba más reciente y datos inválidos (FN-01 a 04). |
+| `tests/PCBuilderOps.Tests/Domain/VerificadorCompatibilidadTests.cs` | Compatibilidad de socket y potencia, incluidos los límites (FN-01). |
+| `tests/PCBuilderOps.Tests/Services/OrdenesServiceTests.cs` | Cada funcionalidad por separado, verificada sobre lo **guardado** en la base (RF-NEG-02, FN-01 a 05). |
+| `tests/PCBuilderOps.Tests/Integracion/OperarTallerIntegracionTests.cs` | **Prueba de integración:** Gestión de permisos y el módulo reales, sin dobles y sin levantar la aplicación. `RegistrarPrueba_SeRechazaAntesDeAprobarLaSolicitudYSePermiteDespues` verifica las dos caras (RF-GP-05, FN-03). |
+
+### Gestión de permisos
 
 | Archivo | Qué verifica |
 |---------|--------------|
@@ -203,29 +244,29 @@ Cada prueba indica en un comentario `// RF-GP-0N` el requisito que verifica. Pru
 
 ## Defectos
 
-Práctica 2, **variante C**. Cada defecto está plantado en un commit cuyo padre es `practica-2`, que cambia una sola línea de código de Gestión de permisos (ningún archivo de pruebas), y está etiquetado como `practica-2-defecto-N`. Para comprobarlo:
+Práctica 3. Cada defecto está plantado en un commit cuyo padre es `practica-3`, que modifica solo código de producción (ningún archivo de pruebas), y está etiquetado como `practica-3-defecto-N`. Para comprobarlo:
 
 ```bash
-git checkout practica-2-defecto-N
+git checkout practica-3-defecto-N
 ```
 ```bash
 dotnet test P3-PCBuilderOps.slnx
 ```
 
-| N | Requisito | Defecto plantado (archivo y línea) | Prueba que lo detecta | Comportamiento que comprueba |
-|---|-----------|------------------------------------|-----------------------|------------------------------|
-| 1 | RF-GP-02 | `src/Core/Permisos/Services/GestionPermisosService.cs`, línea 46: el filtro de pendientes pasa a «estado no es Rechazada». | `ListarPendientes_ConSolicitudesResueltas_DevuelveSoloLasPendientes` | La consulta de pendientes devuelve solo las solicitudes Pendiente, no las ya aplicadas. |
-| 2 | RF-GP-06 | `src/Core/Permisos/Domain/MaquinaEstadosSolicitud.cs`, línea 12: se agrega la transición `Aplicada → Aprobada`. | `Aprobar_SolicitudYaAplicada_SeRechazaYElEstadoNoCambia` | Aprobar una solicitud ya aplicada se rechaza y sigue Aplicada con el mismo aprobador y fecha. |
-| 3 | RF-GP-05 | `src/Core/Permisos/Services/GestionPermisosService.cs`, línea 72: se elimina la llamada `AplicarCambioDePermiso`. | `Aprobar_SolicitudPendiente_OtorgaElPermisoAlSolicitante` | Tras aprobar, el solicitante obtiene el permiso pedido (y la solicitud llega a Aplicada). |
-| 4 | RF-GP-04 | `src/Core/Permisos/Domain/SolicitudPermiso.cs`, línea 63: la validación «solo se rechaza una Pendiente» pasa a «estado no es Aplicada». | `Rechazar_SolicitudAprobada_SeRechazaYElEstadoNoCambia` | Rechazar una solicitud ya aprobada se rechaza y sigue Aprobada, sin motivo registrado. |
-| 5 | RF-GP-01 | `src/Core/Permisos/Domain/SolicitudPermiso.cs`, línea 27: el estado inicial pasa de Pendiente a Aprobada. | `Crear_NuevaSolicitud_NaceEnPendienteSinResolucion` | Una solicitud nueva nace en estado Pendiente, sin aprobador ni fecha de resolución. |
-| 6 | RF-GP-07 | `src/Core/Permisos/Domain/SolicitudPermiso.cs`, línea 53: se elimina la verificación de solicitud propia al rechazar. | `Rechazar_PorElPropioSolicitante_SeRechazaYLaSolicitudSigueEnPendiente` | Un Administrador que rechaza su propia solicitud recibe un rechazo y la solicitud sigue Pendiente. |
+| N | Defecto plantado (archivo y línea) | Prueba que lo detecta | Comportamiento que comprueba |
+|---|------------------------------------|-----------------------|------------------------------|
+| 1 | `src/Modules/PCBuilderOps/Domain/MaquinaEstadosOrdenEnsamble.cs`, línea 10: se agrega `Cotizada → Entregada`, la primera transición de la tabla de prohibidas. | `TransicionarA_FilaProhibida_SeRechazaYElEstadoNoCambia(desde: Cotizada, hacia: Entregada)` | Pasar de Cotizada a Entregada se rechaza y la orden sigue Cotizada. |
+| 2 | `src/Modules/PCBuilderOps/Domain/MaquinaEstadosOrdenEnsamble.cs`, línea 13: se agrega `Entregada → Cotizada`, una transición que parte del estado terminal. | `EstadoTerminal_DesdeEntregadaNoSaleNingunaTransicion` | Ninguna transición parte de Entregada. |
+| 3 | `src/Modules/PCBuilderOps/Services/OrdenesService.cs`, líneas 67 y 68: se elimina la verificación de que el técnico tiene `OperarTaller`, condición de `Cotizada → EnArmado`, la primera fila que declara una. | `IniciarArmado_TecnicoSinPermiso_SeRechazaYLaOrdenSigueCotizada` | Con un técnico sin el permiso, el armado se rechaza y la orden sigue Cotizada, sin reservar stock. |
+| 4 | `src/Modules/PCBuilderOps/Services/OrdenesService.cs`, línea 92: en `RegistrarPruebaAsync` se elimina la consulta a Gestión de permisos. | `RegistrarPrueba_SeRechazaAntesDeAprobarLaSolicitudYSePermiteDespues` (prueba de integración) | Registrar una prueba se rechaza mientras la solicitud no está aprobada y se permite después de que un Administrador la aprueba. |
+
+Los defectos de la Práctica 2 se describen en el README de la etiqueta `practica-2`.
 
 ---
 
 ## Guía de Verificación de Criterios de Aceptación
 
-Para reproducir cada criterio de la Práctica 1 se provee `src/API/API.http`, que puede ejecutarse desde Visual Studio Code (extensión REST Client) o importarse en Postman. Los tokens de activación y recuperación llegan por correo; si el despachador no está configurado, pueden leerse directamente en las tablas `TokensActivacion` y `TokensRecuperacion`.
+Para reproducir los criterios se provee `src/API/API.http`, que puede ejecutarse desde Visual Studio Code (extensión REST Client) o importarse en Postman. Los tokens de activación y recuperación llegan por correo; si el despachador no está configurado, pueden leerse directamente en las tablas `TokensActivacion` y `TokensRecuperacion`.
 
 ### 1. Registro y activación (Bloque 1.1)
 
@@ -290,14 +331,14 @@ Para reproducir cada criterio de la Práctica 1 se provee `src/API/API.http`, qu
 
 | Criterio | Dónde verlo | Resultado esperado |
 |----------|-------------|--------------------|
-| **RF-NEG-03 / RD-04** | `src/Core/Ordenes/Domain/`: la entidad `OrdenServicio`, sus estados (`EstadoOrdenServicio`) y la clase `MaquinaEstadosOrden`. | Estados y transiciones declarados en un solo lugar. |
-| **RF-NEG-04 / RF-NEG-05** | `MaquinaEstadosOrden`. | Cuatro estados (Recibida, EnDiagnostico, EnProceso, Entregada); Entregada es terminal y el salto directo Recibida → Entregada se rechaza explícitamente. |
+| **RF-NEG-03 / RD-04** | `src/Modules/PCBuilderOps/Domain/`: la entidad `OrdenEnsamble`, sus estados (`EstadoOrdenEnsamble`) y la clase `MaquinaEstadosOrdenEnsamble`. | Estados y transiciones declarados en un solo lugar. |
+| **RF-NEG-04 / RF-NEG-05** | `MaquinaEstadosOrdenEnsamble`. | Cuatro estados (Cotizada, EnArmado, EnPruebas, Entregada); Entregada es terminal y el salto directo Cotizada → Entregada se rechaza. |
 
-La tabla completa de transiciones (desde, hacia, quién la ejecuta y condición) está en [`docs/maquina-de-estados.md`](docs/maquina-de-estados.md).
+Las tablas completas de transiciones permitidas y prohibidas están en [`docs/maquina-de-estados.md`](docs/maquina-de-estados.md).
 
 ### 8. Gestión de permisos (Asignación 2)
 
-**Transiciones:** `Pendiente → Aprobada → Aplicada` (aprobar aplica el permiso automáticamente) y `Pendiente → Rechazada`. Cualquier otra se rechaza con `409 Conflict` y el estado no cambia. El único permiso del catálogo es `OperarTaller`, que da acceso a `GET /api/taller/ordenes`.
+**Transiciones:** `Pendiente → Aprobada → Aplicada` (aprobar aplica el permiso automáticamente) y `Pendiente → Rechazada`. Cualquier otra se rechaza con `409 Conflict` y el estado no cambia. El único permiso del catálogo es `OperarTaller`, que da acceso a las operaciones de `/api/taller/ordenes` (sección 9).
 
 **Preparación:** iniciar sesión como Administrador (`ADMIN_CORREO` / `ADMIN_PASSWORD`) y registrar y activar un usuario Estándar (sección 1). Las peticiones 16 a 34 de `src/API/API.http` siguen este mismo orden (la 17 crea el técnico ya activo).
 
@@ -314,3 +355,42 @@ La tabla completa de transiciones (desde, hacia, quién la ejecuta y condición)
 | **RF-GP-07** (Nadie resuelve la suya) | Con el token del Administrador, crear una solicitud (`POST /api/permisos/solicitudes`) y aprobarla o rechazarla él mismo. | `403` con el mensaje "No puedes resolver una solicitud creada por ti mismo." y la solicitud sigue `Pendiente`. |
 | **RD-06** | Con el token del Estándar, `POST /api/permisos/solicitudes/{id}/aprobar`. | `403`. |
 | **RD-09** | Detener y volver a ejecutar la API; repetir `GET /api/permisos/solicitudes/mias`. | Las solicitudes y el permiso otorgado siguen ahí. |
+
+### 9. Módulo de negocio (Práctica 3)
+
+**Estados:** `Cotizada → EnArmado → EnPruebas → Entregada`. Las transiciones permitidas y prohibidas, quién las ejecuta y sus condiciones están en [`docs/maquina-de-estados.md`](docs/maquina-de-estados.md). Toda respuesta de error usa el formato `{"mensaje": "..."}`.
+
+**Preparación:** ejecutar antes las peticiones 16 a 30 de `src/API/API.http` (técnico con `OperarTaller` aprobado). Las peticiones 35 a 62 siguen el mismo orden de esta tabla. Se necesita un token de Administrador, uno de cliente (Estándar) y uno de técnico (Estándar con `OperarTaller`).
+
+**Componentes de ejemplo** (`GET /api/componentes`; se cargan con la migración del módulo):
+
+| Id | Componente | Uso en las pruebas |
+|----|------------|--------------------|
+| `a1000000-0000-0000-0000-000000000001` | CPU Ryzen 7 7700X (AM5, 105 W) | |
+| `a1000000-0000-0000-0000-000000000002` | CPU Core i5-13600K (LGA1700, 125 W) | Provoca un socket incompatible con la placa AM5. |
+| `a2000000-0000-0000-0000-000000000001` | Placa TUF Gaming B650-Plus (AM5, 40 W) | |
+| `a3000000-0000-0000-0000-000000000001` | GPU RTX 4060 (115 W) | |
+| `a3000000-0000-0000-0000-000000000002` | GPU RTX 4090 (450 W, **stock 1**) | Provoca falta de potencia y falta de stock. |
+| `a6000000-0000-0000-0000-000000000001` | Fuente RM850x (850 W) | |
+| `a6000000-0000-0000-0000-000000000002` | Fuente 450 BR (450 W) | No alcanza para la RTX 4090. |
+
+| Funcionalidad | Cómo provocarla | Resultado esperado |
+|---------------|-----------------|--------------------|
+| **RF-NEG-06** (Sin sesión) | Sin token, `GET /api/ordenes/mias`. | `401`. |
+| **FN-01** (Cotizar) | Como cliente, `POST /api/ordenes` con `{"componentes": [{"componenteId": "...", "cantidad": 1}]}`, incluyendo CPU, placa y fuente compatibles. | `201` con `"estado": "Cotizada"`, el código de seguimiento y el costo total. |
+| **FN-01** (Incompatible) | Repetir con la CPU LGA1700 y la placa AM5; luego con la RTX 4090 y la fuente de 450 W. | `400` que indica el socket o la potencia. No se crea ninguna orden. |
+| **RF-NEG-06** (Rol) | Como Administrador, `POST /api/ordenes`. Como cliente, `POST /api/ordenes/{id}/iniciar-armado`. | `403` en ambos casos. |
+| **FN-05** (Consultar) | Como cliente, `GET /api/ordenes/mias` y `GET /api/ordenes/{id}`. Con el token de otro usuario, `GET /api/ordenes/{id}`. | El cliente ve sus órdenes con componentes y pruebas. El otro usuario recibe `404`. |
+| **RF-NEG-04** (Transición prohibida) | Como Administrador, `POST /api/taller/ordenes/{id}/entregar` sobre la orden Cotizada. | `409` y la orden sigue `Cotizada`. |
+| **FN-02** (Sin permiso) | Como Administrador, `POST /api/ordenes/{id}/iniciar-armado` con `{"tecnicoId": "..."}` y el id de un usuario sin `OperarTaller`. | `400` y la orden sigue `Cotizada`, sin técnico. |
+| **FN-03** (Sin permiso) | Con el token de un Estándar sin el permiso, `POST /api/taller/ordenes/{id}/pruebas`. | `403`: la operación exige un permiso aprobado en Gestión de permisos. |
+| **FN-02** (Iniciar armado) | Como Administrador, `POST /api/ordenes/{id}/iniciar-armado` con el id del técnico. | `200` con `"estado": "EnArmado"` y el técnico asignado. El stock de sus componentes baja en `GET /api/componentes`. |
+| **FN-04** (Pasar a pruebas) | Como técnico, `POST /api/taller/ordenes/{id}/pasar-a-pruebas`. | `200` con `"estado": "EnPruebas"`. |
+| **FN-04** (Entrega sin pruebas) | Como técnico, `POST /api/taller/ordenes/{id}/entregar`. | `409` y la orden sigue `EnPruebas`. |
+| **FN-03** (Registrar prueba) | Como técnico, `POST /api/taller/ordenes/{id}/pruebas` con `{"tipoSoftwarePrueba": "Cinebench", "temperaturaMaximaCpu": 98, "temperaturaMaximaGpu": 65, "puntajeBenchmark": 12000, "esAprobada": false}`. | `201` con la prueba en la orden. Sin `esAprobada`, con temperatura fuera del rango de 0 a 150 °C o sin software: `400`. |
+| **FN-04** (Última reprobada) | Como técnico, `POST /api/taller/ordenes/{id}/entregar`. | `409` y la orden sigue `EnPruebas`. |
+| **FN-04** (Entregar) | Registrar otra prueba con `"esAprobada": true` y repetir `POST /api/taller/ordenes/{id}/entregar`. | `200` con `"estado": "Entregada"`. Decide la prueba más reciente; la reprobada queda como historial. |
+| **RF-NEG-05** (Estado terminal) | Repetir `POST /api/taller/ordenes/{id}/entregar`. | `409` y la orden sigue `Entregada`. |
+| **FN-02** (Sin stock) | Cotizar dos órdenes con la RTX 4090 e iniciar el armado de ambas. | La primera `200`; la segunda `409`, sigue `Cotizada` y no se descuenta nada. |
+| **RF-NEG-09** (Independencia) | Revisar `src/Modules/PCBuilderOps/Domain/MaquinaEstadosOrdenEnsamble.cs`. | Tiene sus propios estados y su propia excepción, sin nada de Gestión de permisos. El módulo solo le consulta si el usuario tiene el permiso, desde `OrdenesService`. |
+| **RD-09** | Detener y volver a ejecutar la API; repetir `GET /api/ordenes/mias`. | Las órdenes siguen ahí. |

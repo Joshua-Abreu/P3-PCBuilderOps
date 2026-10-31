@@ -14,18 +14,16 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 |-------|---------|--------|
 | 1. Control de acceso | 2–4 | ✅ Entregada (etiqueta `practica-1`, ya calificada), corregida en el PR #16 y con `Usuario.Nombre` desde el PR #18. |
 | Máquina de estados del negocio (estructura) | 4 | ⚠️ Entregada con desviaciones conocidas (ver abajo). |
-| 2. Gestión de permisos | 6–8 | ✅ Asignación 2 entregada (etiqueta `asignacion-2`, PR #20). ⏳ **En curso: Práctica 2, variante C** (cierra el domingo 25/10, 11:59 p. m.) en `feature/practica-2-suite`. Ver `docs/entregas/practica-2.md`. |
-| Máquina de estados del negocio (pruebas) | 8 | Pendiente. |
+| 2. Gestión de permisos | 6–8 | ✅ Asignación 2 (etiqueta `asignacion-2`, PR #20) y Práctica 2, variante C (etiqueta `practica-2`, PR #21). |
+| Máquina de estados del negocio (pruebas) | 8 | ⏳ **En curso: Práctica 3** en `feature/practica-3-negocio`. Ver `docs/entregas/practica-3.md`. |
 | 3. Manejador de documentos | 9 | Pendiente. |
 | 4. Notificaciones y cola de correos | 11–12 | Parcial: existe la cola mínima de la Práctica 1 (sin reintentos, estado fallido ni bandeja interna). |
 | 5. Reportes con agregación | 12 | Pendiente. |
 | 6. Auditoría | 14 | Pendiente. |
 
 ### Desviaciones conocidas (no corregir sin que el usuario lo pida)
-- El negocio vive en `src/Core/Ordenes/` y `AppDbContext` del Core tiene `DbSet<OrdenServicio>`. Viola RD-03; se mueve a `src/Modules/PCBuilderOps` en la semana 8.
-- Los estados implementados (`Recibida → EnDiagnostico → EnProceso → Entregada`) no son los de la propuesta aprobada. El objetivo está en `docs/requisitos/negocio.md`; se alinean en la semana 8.
-- Solo Gestión de permisos tiene pruebas automatizadas (`tests/Core.Tests`); Control de acceso y el negocio aún no (RD-12). Las del negocio llegan con la Práctica 3.
-- Las etiquetas `practica-2-defecto-N` contienen defectos plantados a propósito: nunca se fusionan a `main` ni se "corrigen".
+- Gestión de permisos (`tests/Core.Tests`) y el negocio (`tests/PCBuilderOps.Tests`) tienen pruebas automatizadas; Control de acceso aún no (RD-12).
+- Las etiquetas `practica-2-defecto-N` y `practica-3-defecto-N` contienen defectos plantados a propósito: nunca se fusionan a `main` ni se "corrigen".
 - La etiqueta `practica-1` no se mueve: la entrega ya fue calificada.
 
 ---
@@ -96,11 +94,11 @@ Actúas como un Ingeniero de Software Senior en .NET 10 y tutor técnico estrict
 6. **Auditoría (`RF-AUD-*`):** Registro inmutable de eventos (`UsuarioId`, `Accion`, `Entidad`, `FechaUtc`, `ValorPrevio`, `ValorNuevo`).
 
 ### B. Módulo de Negocio: PC Builder Ops (`RF-NEG-*`)
-Objetivo (ver `docs/requisitos/negocio.md`; el código actual aún no lo cumple, ver sección 0):
+Detalle en `docs/requisitos/negocio.md`:
 - **Entidades Base:** `OrdenEnsamble`, `Componente`, `DetalleEnsamble`, `PruebaRendimiento`.
 - **Estados de la Orden:** `Cotizada` (1) -> `EnArmado` (2) -> `EnPruebas` (3) -> `Entregada` (4, Terminal).
 - **Transición Prohibida:** Directo de `Cotizada` a `Entregada`.
-- **Regla de Validación:** Una orden no puede transicionar a `Entregada` si no tiene pruebas de rendimiento registradas con veredicto aprobado.
+- **Regla de Validación:** Una orden no puede transicionar a `Entregada` si no tiene pruebas de rendimiento registradas o si la más reciente no tiene veredicto aprobado.
 
 ---
 
@@ -126,8 +124,9 @@ Objetivo (ver `docs/requisitos/negocio.md`; el código actual aún no lo cumple,
 ## 7. Comandos Estándar de Ejecución y Validación
 - Compilar solución: `dotnet build P3-PCBuilderOps.slnx`
 - Ejecutar pruebas: `dotnet test P3-PCBuilderOps.slnx` (sin variables de entorno ni SQL Server; SQLite en memoria)
-- Migraciones EF Core (Crear): `dotnet ef migrations add <Nombre> --project src/Core --startup-project src/API --output-dir Data/Migrations`
-- Migraciones EF Core (Aplicar): `dotnet ef database update --project src/Core --startup-project src/API`. Usa `AppDbContextFactory`: no arranca la API, solo necesita la cadena de conexión y **no lee** `launchSettings.json`.
+- Migraciones del Core (Crear): `dotnet ef migrations add <Nombre> --project src/Core --startup-project src/API --output-dir Data/Migrations --context AppDbContext`
+- Migraciones del módulo (Crear): `dotnet ef migrations add <Nombre> --project src/Modules/PCBuilderOps --startup-project src/API --output-dir Data/Migrations --context PCBuilderOpsDbContext`
+- Migraciones (Aplicar, primero el Core porque el módulo referencia `Usuarios`): `dotnet ef database update --project src/Core --startup-project src/API --context AppDbContext` y `dotnet ef database update --project src/Modules/PCBuilderOps --startup-project src/API --context PCBuilderOpsDbContext`. Usan `AppDbContextFactory` y `PCBuilderOpsDbContextFactory`: no arrancan la API, solo necesitan la cadena de conexión y **no leen** `launchSettings.json`.
 - Ejecutar API: `dotnet run --project src/API`
 - Ejecutar Worker independiente: `dotnet run --project src/Workers/EmailDispatcher`
 
@@ -137,7 +136,7 @@ Objetivo (ver `docs/requisitos/negocio.md`; el código actual aún no lo cumple,
 
 ## 8. Variables de Entorno y Enlaces Externos
 - **Variables:** `CONNECTION_STRING`, `JWT_SECRET` (obligatoria, mínimo 32 bytes), `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_EXPIRACION_MINUTOS`, `APP_BASE_URL`, `ADMIN_NOMBRE`, `ADMIN_CORREO`, `ADMIN_PASSWORD` (las tres `ADMIN_*` son obligatorias para crear el Administrador inicial) y `SMTP_*`. Localmente están en `src/API/Properties/launchSettings.json`, ignorado por git.
-- **Cadena de conexión:** se obtiene únicamente con `CadenaConexion.Obtener()` (API, despachador y migraciones). Toda opción nueva de `UseSqlServer` va tanto en `src/API/Program.cs` como en `AppDbContextFactory`.
+- **Cadena de conexión:** se obtiene únicamente con `CadenaConexion.Obtener()` (API, despachador y migraciones). Toda opción nueva de `UseSqlServer` va tanto en `src/API/Program.cs` como en la fábrica del contexto (`AppDbContextFactory` o `PCBuilderOpsDbContextFactory`).
 - **JWT:** se lee únicamente mediante `ConfiguracionJwt.DesdeEntorno()`; emisión y validación comparten esa configuración.
 - **URLs en Correos:** Toda URL de activación o restablecimiento DEBE ser absoluta, usando `UrlBaseAplicacion.Obtener(configuration)`. Queda prohibido generar rutas relativas tipo `/api/...`.
 - **Negociación SMTP Dinámica:** `SmtpEmailSender` evalúa el puerto: 465 -> `SslOnConnect`, 587 -> `StartTls`, otros -> `Auto`.
