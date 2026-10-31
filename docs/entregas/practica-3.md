@@ -107,9 +107,9 @@ Desde `practica-3` y siguiendo el README al pie de la letra:
 - [x] FN-01 a FN-05 con sus endpoints, protegidos (RF-NEG-06)
 - [x] Suite con una prueba por cada fila y por el estado terminal
 - [x] Prueba de integración con las dos caras
-- [ ] README: cómo provocar cada funcionalidad, migraciones, «Pruebas», «Defectos» y `git checkout practica-3`
-- [ ] `API.http` con el flujo del negocio
-- [ ] Los 4 defectos detectados en una copia de prueba antes de etiquetar
+- [x] README: cómo provocar cada funcionalidad, migraciones, «Pruebas», «Defectos» y `git checkout practica-3`
+- [x] `API.http` con el flujo del negocio
+- [x] Los 4 defectos detectados en una copia de prueba antes de etiquetar
 - [ ] PR fusionado y etiqueta `practica-3` subida
 - [ ] Etiquetas `practica-3-defecto-1` a `4` subidas, cada una con padre `practica-3`
 - [ ] Verificación desde un clon limpio de GitHub: `practica-3` pasa; cada defecto falla y no toca pruebas

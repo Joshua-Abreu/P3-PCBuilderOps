@@ -22,7 +22,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | 6. Auditoría | 14 | Pendiente. |
 
 ### Desviaciones conocidas (no corregir sin que el usuario lo pida)
-- Solo Gestión de permisos tiene pruebas automatizadas (`tests/Core.Tests`); Control de acceso y el negocio aún no (RD-12). Las del negocio llegan con la Práctica 3.
+- Gestión de permisos (`tests/Core.Tests`) y el negocio (`tests/PCBuilderOps.Tests`) tienen pruebas automatizadas; Control de acceso aún no (RD-12).
 - Las etiquetas `practica-2-defecto-N` y `practica-3-defecto-N` contienen defectos plantados a propósito: nunca se fusionan a `main` ni se "corrigen".
 - La etiqueta `practica-1` no se mueve: la entrega ya fue calificada.
 
