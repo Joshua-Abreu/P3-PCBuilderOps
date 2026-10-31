@@ -8,7 +8,7 @@
 | Cómo se entrega | `git tag practica-2` + `git tag practica-2-defecto-N <commit>` (N = 1 a 6) + `git push origin --tags`; URL del repo y `practica-2` en Moodle. |
 | Variante | **C** (matrícula terminada en 7) |
 | Rama(s) | `feature/practica-2-suite`; los commits de defecto no van a ninguna rama, solo a sus etiquetas. |
-| Estado | ⏳ En curso |
+| Estado | ✅ Etiquetada y verificada (PR #21). |
 
 > *Una suite se mide por si falla cuando el código tiene un defecto, no por cuánto código recorre.*
 
@@ -82,9 +82,9 @@ Desde `practica-2` y siguiendo el README: registro con activación por correo, i
 - [x] Pruebas nuevas que detectan el defecto 4
 - [x] Los 6 defectos detectados en una copia de prueba antes de etiquetar
 - [x] README: sección «Defectos»
-- [ ] Revisión acumulada de los 4 frentes de Control de acceso
-- [ ] PR fusionado y etiqueta `practica-2` subida
-- [ ] Etiquetas `practica-2-defecto-1` a `6` subidas, cada una con padre `practica-2`
-- [ ] Verificación desde un clon limpio de GitHub: `practica-2` pasa; cada defecto falla y solo toca código de permisos
+- [x] Revisión acumulada de los 4 frentes de Control de acceso
+- [x] PR fusionado y etiqueta `practica-2` subida
+- [x] Etiquetas `practica-2-defecto-1` a `6` subidas, cada una con padre `practica-2`
+- [x] Verificación desde un clon limpio de GitHub: `practica-2` pasa; cada defecto falla y solo toca código de permisos
 - [ ] Entrega en Moodle
-- [ ] `AGENTS.md` sección 0 actualizada
+- [x] `AGENTS.md` sección 0 actualizada

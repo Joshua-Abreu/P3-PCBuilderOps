@@ -4,10 +4,10 @@
 |------|-------|
 | Bloque / semana | Bloque 3 · Semana 8 |
 | Puntos | 8 · Individual |
-| Fecha límite | La que indica Moodle (**por confirmar**). Tarde: hasta 24 h más con 50 % de penalidad; luego no se acepta. |
+| Fecha límite | **Domingo 1 de noviembre de 2026, 11:59 p. m.** Tarde: hasta 24 h más con 50 % de penalidad; luego no se acepta. |
 | Cómo se entrega | `git tag practica-3` + `git tag practica-3-defecto-N <commit>` (N = 1 a 4) + `git push origin --tags`; URL del repo y `practica-3` en Moodle. |
-| Rama(s) | `feature/practica-3-negocio`; los commits de defecto no van a ninguna rama, solo a sus etiquetas. |
-| Estado | ⏳ En curso |
+| Rama(s) | `feature/practica-3-negocio` (PR #22); los commits de defecto no van a ninguna rama, solo a sus etiquetas. |
+| Estado | ✅ Etiquetada y verificada; falta marcar la entrega en Moodle. |
 
 ## 1. Alcance
 
@@ -93,10 +93,11 @@ Desde `practica-3` y siguiendo el README al pie de la letra:
 
 - **Sin retrabajo:** la máquina conserva los estados de la propuesta aprobada y la entrega depende de la prueba más reciente. Ver `docs/decisiones.md`.
 - **El permiso se comprueba en el servicio del módulo, no en una política de `src/API`:** la prueba de integración corre sin HTTP y no pasaría por la política; con ella el defecto 4 tampoco permitiría la operación en la aplicación real.
-- **Punto de partida:** el módulo está vacío, el negocio vive en `src/Core/Ordenes/` con otros estados y `MaquinaEstadosOrden` no la usa ninguna operación.
+- **Punto de partida:** el módulo estaba vacío, el negocio vivía en `src/Core/Ordenes/` con otros estados y ninguna operación usaba `MaquinaEstadosOrden`.
 - **Filas sin operación propia:** ninguna operación pública lleva una orden a `Cotizada`, así que la suite ejerce todas las filas por `OrdenEnsamble.TransicionarA`, el único punto que cambia el estado. Es `internal` y solo lo ve el proyecto de pruebas.
-- **Análisis previo de defectos (copia aparte, sin etiquetas todavía):** los cuatro hacen fallar al menos una prueba; el 4 lo detecta la prueba de integración.
-- **README:** antes de etiquetar, cambiar `git checkout asignacion-2` por `git checkout practica-3`.
+- **Defectos:** los cuatro hacen fallar al menos una prueba, comprobado primero en una copia aparte y luego en sus etiquetas desde un clon de GitHub; el 4 lo detecta la prueba de integración.
+- **Auditoría final:** encontró un `415` con `traceId`, respuestas `404` y `405` sin cuerpo y un `500` con `{"componentes":[null]}`. Se corrigieron antes de etiquetar.
+- **README:** se cambió `git checkout asignacion-2` por `git checkout practica-3` antes de etiquetar.
 
 ## 5. Checklist de estado
 
@@ -110,9 +111,9 @@ Desde `practica-3` y siguiendo el README al pie de la letra:
 - [x] README: cómo provocar cada funcionalidad, migraciones, «Pruebas», «Defectos» y `git checkout practica-3`
 - [x] `API.http` con el flujo del negocio
 - [x] Los 4 defectos detectados en una copia de prueba antes de etiquetar
-- [ ] PR fusionado y etiqueta `practica-3` subida
-- [ ] Etiquetas `practica-3-defecto-1` a `4` subidas, cada una con padre `practica-3`
-- [ ] Verificación desde un clon limpio de GitHub: `practica-3` pasa; cada defecto falla y no toca pruebas
-- [ ] Revisión acumulada de los 5 frentes
+- [x] PR fusionado y etiqueta `practica-3` subida
+- [x] Etiquetas `practica-3-defecto-1` a `4` subidas, cada una con padre `practica-3`
+- [x] Verificación desde un clon limpio de GitHub: `practica-3` pasa; cada defecto falla y no toca pruebas
+- [x] Revisión acumulada de los 5 frentes
 - [ ] Entrega en Moodle
-- [ ] `AGENTS.md` sección 0 actualizada
+- [x] `AGENTS.md` sección 0 actualizada

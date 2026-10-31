@@ -13,9 +13,9 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | Pieza | Semanas | Estado |
 |-------|---------|--------|
 | 1. Control de acceso | 2–4 | ✅ Entregada (etiqueta `practica-1`, ya calificada), corregida en el PR #16 y con `Usuario.Nombre` desde el PR #18. |
-| Máquina de estados del negocio (estructura) | 4 | ⚠️ Entregada con desviaciones conocidas (ver abajo). |
+| Máquina de estados del negocio (estructura) | 4 | ✅ Entregada en `practica-1`; sus desviaciones se corrigieron en la Práctica 3. |
 | 2. Gestión de permisos | 6–8 | ✅ Asignación 2 (etiqueta `asignacion-2`, PR #20) y Práctica 2, variante C (etiqueta `practica-2`, PR #21). |
-| Máquina de estados del negocio (pruebas) | 8 | ⏳ **En curso: Práctica 3** en `feature/practica-3-negocio`. Ver `docs/entregas/practica-3.md`. |
+| Máquina de estados del negocio (pruebas) | 8 | ✅ Práctica 3 (etiqueta `practica-3`, PR #22). Ver `docs/entregas/practica-3.md`. Notificaciones y reportes del negocio (RF-NEG-07 y RF-NEG-08) siguen pendientes. |
 | 3. Manejador de documentos | 9 | Pendiente. |
 | 4. Notificaciones y cola de correos | 11–12 | Parcial: existe la cola mínima de la Práctica 1 (sin reintentos, estado fallido ni bandeja interna). |
 | 5. Reportes con agregación | 12 | Pendiente. |
@@ -24,7 +24,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 ### Desviaciones conocidas (no corregir sin que el usuario lo pida)
 - Gestión de permisos (`tests/Core.Tests`) y el negocio (`tests/PCBuilderOps.Tests`) tienen pruebas automatizadas; Control de acceso aún no (RD-12).
 - Las etiquetas `practica-2-defecto-N` y `practica-3-defecto-N` contienen defectos plantados a propósito: nunca se fusionan a `main` ni se "corrigen".
-- La etiqueta `practica-1` no se mueve: la entrega ya fue calificada.
+- Las etiquetas de entregas (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`) no se mueven: se evalúa el punto etiquetado.
 
 ---
 
