@@ -94,6 +94,8 @@ Desde `practica-3` y siguiendo el README al pie de la letra:
 - **Sin retrabajo:** la máquina conserva los estados de la propuesta aprobada y la entrega depende de la prueba más reciente. Ver `docs/decisiones.md`.
 - **El permiso se comprueba en el servicio del módulo, no en una política de `src/API`:** la prueba de integración corre sin HTTP y no pasaría por la política; con ella el defecto 4 tampoco permitiría la operación en la aplicación real.
 - **Punto de partida:** el módulo está vacío, el negocio vive en `src/Core/Ordenes/` con otros estados y `MaquinaEstadosOrden` no la usa ninguna operación.
+- **Filas sin operación propia:** ninguna operación pública lleva una orden a `Cotizada`, así que la suite ejerce todas las filas por `OrdenEnsamble.TransicionarA`, el único punto que cambia el estado. Es `internal` y solo lo ve el proyecto de pruebas.
+- **Análisis previo de defectos (copia aparte, sin etiquetas todavía):** los cuatro hacen fallar al menos una prueba; el 4 lo detecta la prueba de integración.
 - **README:** antes de etiquetar, cambiar `git checkout asignacion-2` por `git checkout practica-3`.
 
 ## 5. Checklist de estado
@@ -103,8 +105,8 @@ Desde `practica-3` y siguiendo el README al pie de la letra:
 - [x] Entidades, máquina de estados y migración en `src/Modules/PCBuilderOps`
 - [x] `src/Core/Ordenes/` eliminado; `Core.csproj` no referencia al módulo (RD-03)
 - [x] FN-01 a FN-05 con sus endpoints, protegidos (RF-NEG-06)
-- [ ] Suite con una prueba por cada fila y por el estado terminal
-- [ ] Prueba de integración con las dos caras
+- [x] Suite con una prueba por cada fila y por el estado terminal
+- [x] Prueba de integración con las dos caras
 - [ ] README: cómo provocar cada funcionalidad, migraciones, «Pruebas», «Defectos» y `git checkout practica-3`
 - [ ] `API.http` con el flujo del negocio
 - [ ] Los 4 defectos detectados en una copia de prueba antes de etiquetar

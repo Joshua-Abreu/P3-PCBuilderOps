@@ -51,22 +51,17 @@ public class OrdenEnsamble
     // FN-02, RF-NEG-04, RF-NEG-05
     public void IniciarArmado(Guid tecnicoId)
     {
-        MaquinaEstadosOrdenEnsamble.ValidarTransicion(Estado, EstadoOrdenEnsamble.EnArmado);
+        TransicionarA(EstadoOrdenEnsamble.EnArmado, () =>
+        {
+            foreach (var detalle in _detalles)
+                detalle.Componente.ReservarStock(detalle.Cantidad);
 
-        foreach (var detalle in _detalles)
-            detalle.Componente.ReservarStock(detalle.Cantidad);
-
-        TecnicoAsignadoId = tecnicoId;
-        Estado = EstadoOrdenEnsamble.EnArmado;
+            TecnicoAsignadoId = tecnicoId;
+        });
     }
 
     // FN-04
-    public void PasarAPruebas()
-    {
-        MaquinaEstadosOrdenEnsamble.ValidarTransicion(Estado, EstadoOrdenEnsamble.EnPruebas);
-
-        Estado = EstadoOrdenEnsamble.EnPruebas;
-    }
+    public void PasarAPruebas() => TransicionarA(EstadoOrdenEnsamble.EnPruebas);
 
     // FN-03
     public PruebaRendimiento RegistrarPrueba(
@@ -89,15 +84,23 @@ public class OrdenEnsamble
     }
 
     // FN-04
-    public void Entregar()
-    {
-        MaquinaEstadosOrdenEnsamble.ValidarTransicion(Estado, EstadoOrdenEnsamble.Entregada);
+    public void Entregar() => TransicionarA(EstadoOrdenEnsamble.Entregada, ExigirPruebaMasRecienteAprobada);
 
+    // RD-04: toda transición de la orden pasa por aquí.
+    internal void TransicionarA(EstadoOrdenEnsamble hacia, Action? alCumplirTransicion = null)
+    {
+        MaquinaEstadosOrdenEnsamble.ValidarTransicion(Estado, hacia);
+
+        alCumplirTransicion?.Invoke();
+
+        Estado = hacia;
+    }
+
+    private void ExigirPruebaMasRecienteAprobada()
+    {
         var pruebaMasReciente = _pruebas.MaxBy(p => p.FechaEjecucionUtc);
 
         if (pruebaMasReciente is null || !pruebaMasReciente.EsAprobada)
             throw new PruebasNoAprobadasException();
-
-        Estado = EstadoOrdenEnsamble.Entregada;
     }
 }
