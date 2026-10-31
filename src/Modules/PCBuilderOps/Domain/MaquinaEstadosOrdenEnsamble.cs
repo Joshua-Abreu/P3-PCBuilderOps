@@ -10,7 +10,7 @@ public static class MaquinaEstadosOrdenEnsamble
         [EstadoOrdenEnsamble.Cotizada] = [EstadoOrdenEnsamble.EnArmado],
         [EstadoOrdenEnsamble.EnArmado] = [EstadoOrdenEnsamble.EnPruebas],
         [EstadoOrdenEnsamble.EnPruebas] = [EstadoOrdenEnsamble.Entregada],
-        [EstadoOrdenEnsamble.Entregada] = []
+        [EstadoOrdenEnsamble.Entregada] = [EstadoOrdenEnsamble.Cotizada]
     };
 
     public static bool EsTransicionValida(EstadoOrdenEnsamble desde, EstadoOrdenEnsamble hacia) =>
