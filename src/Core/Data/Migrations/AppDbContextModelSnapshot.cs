@@ -220,38 +220,6 @@ namespace Core.Data.Migrations
                     b.ToTable("CorreosEnCola", (string)null);
                 });
 
-            modelBuilder.Entity("Core.Ordenes.Domain.OrdenServicio", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Cliente")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("FechaActualizacionUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("FechaCreacionUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("NumeroOrden")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OrdenesServicio");
-                });
-
             modelBuilder.Entity("Core.Permisos.Domain.PermisoUsuario", b =>
                 {
                     b.Property<Guid>("UsuarioId")

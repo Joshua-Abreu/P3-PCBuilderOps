@@ -6,11 +6,12 @@ using Core.Auth.Exceptions;
 using Core.Auth.Services;
 using Core.Data;
 using Core.Notifications.Services;
-using Core.Ordenes.Services;
 using Core.Permisos.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using PCBuilderOps.Data;
+using PCBuilderOps.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,12 @@ var configuracionJwt = ConfiguracionJwt.DesdeEntorno();
 // Mantener igual que Core/Data/AppDbContextFactory.cs (migraciones): toda opción nueva de UseSqlServer va en ambos.
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// Mantener igual que PCBuilderOpsDbContextFactory (migraciones): toda opción nueva de UseSqlServer va en ambos.
+builder.Services.AddDbContext<PCBuilderOpsDbContext>(options =>
+    options.UseSqlServer(
+        connectionString,
+        sql => sql.MigrationsHistoryTable(PCBuilderOpsDbContext.TablaHistorialMigraciones)));
 
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<IInputValidator, InputValidator>();

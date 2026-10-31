@@ -131,16 +131,26 @@ dotnet restore
 
 ### 3. Aplicar migraciones de base de datos
 
-El proyecto Core contiene el `AppDbContext` y las migraciones. No existe el proyecto `src/Infrastructure`. `dotnet ef` **no lee** `launchSettings.json`: si su base no es la local por defecto, defina `CONNECTION_STRING` en la terminal antes de ejecutar el comando (en PowerShell: `$env:CONNECTION_STRING = "..."`).
+El Core y el módulo de negocio tienen cada uno su `DbContext` y sus migraciones, en la misma base de datos. Aplique los dos comandos **en este orden**, porque las tablas del negocio referencian a `Usuarios`. `dotnet ef` **no lee** `launchSettings.json`: si su base no es la local por defecto, defina `CONNECTION_STRING` en la terminal antes de ejecutarlos (en PowerShell: `$env:CONNECTION_STRING = "..."`).
 
 ```bash
-dotnet ef database update --project src/Core --startup-project src/API
+dotnet ef database update --project src/Core --startup-project src/API --context AppDbContext
 ```
 
-Para generar una nueva migración después de cambios en el modelo:
+```bash
+dotnet ef database update --project src/Modules/PCBuilderOps --startup-project src/API --context PCBuilderOpsDbContext
+```
+
+Para generar una nueva migración después de cambios en el modelo del Core:
 
 ```bash
-dotnet ef migrations add <NombreMigracion> --project src/Core --startup-project src/API
+dotnet ef migrations add <NombreMigracion> --project src/Core --startup-project src/API --output-dir Data/Migrations --context AppDbContext
+```
+
+Y en el módulo de negocio:
+
+```bash
+dotnet ef migrations add <NombreMigracion> --project src/Modules/PCBuilderOps --startup-project src/API --output-dir Data/Migrations --context PCBuilderOpsDbContext
 ```
 
 ### 4. Compilar
@@ -290,10 +300,10 @@ Para reproducir cada criterio de la Práctica 1 se provee `src/API/API.http`, qu
 
 | Criterio | Dónde verlo | Resultado esperado |
 |----------|-------------|--------------------|
-| **RF-NEG-03 / RD-04** | `src/Core/Ordenes/Domain/`: la entidad `OrdenServicio`, sus estados (`EstadoOrdenServicio`) y la clase `MaquinaEstadosOrden`. | Estados y transiciones declarados en un solo lugar. |
-| **RF-NEG-04 / RF-NEG-05** | `MaquinaEstadosOrden`. | Cuatro estados (Recibida, EnDiagnostico, EnProceso, Entregada); Entregada es terminal y el salto directo Recibida → Entregada se rechaza explícitamente. |
+| **RF-NEG-03 / RD-04** | `src/Modules/PCBuilderOps/Domain/`: la entidad `OrdenEnsamble`, sus estados (`EstadoOrdenEnsamble`) y la clase `MaquinaEstadosOrdenEnsamble`. | Estados y transiciones declarados en un solo lugar. |
+| **RF-NEG-04 / RF-NEG-05** | `MaquinaEstadosOrdenEnsamble`. | Cuatro estados (Cotizada, EnArmado, EnPruebas, Entregada); Entregada es terminal y el salto directo Cotizada → Entregada se rechaza. |
 
-La tabla completa de transiciones (desde, hacia, quién la ejecuta y condición) está en [`docs/maquina-de-estados.md`](docs/maquina-de-estados.md).
+Las tablas completas de transiciones permitidas y prohibidas están en [`docs/maquina-de-estados.md`](docs/maquina-de-estados.md).
 
 ### 8. Gestión de permisos (Asignación 2)
 

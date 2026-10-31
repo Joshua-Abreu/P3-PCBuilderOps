@@ -100,8 +100,8 @@ Desde `practica-3` y siguiendo el README al pie de la letra:
 
 - [x] Ficha creada
 - [x] Tablas de transiciones permitidas y prohibidas en `docs/maquina-de-estados.md`
-- [ ] Entidades, máquina de estados y migración en `src/Modules/PCBuilderOps`
-- [ ] `src/Core/Ordenes/` eliminado y el Core compila sin el módulo (RD-03)
+- [x] Entidades, máquina de estados y migración en `src/Modules/PCBuilderOps`
+- [x] `src/Core/Ordenes/` eliminado; `Core.csproj` no referencia al módulo (RD-03)
 - [ ] FN-01 a FN-05 con sus endpoints, protegidos (RF-NEG-06)
 - [ ] Suite con una prueba por cada fila y por el estado terminal
 - [ ] Prueba de integración con las dos caras
