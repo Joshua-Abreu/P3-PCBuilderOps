@@ -89,7 +89,6 @@ public class OrdenesService : IOrdenesService
     // FN-03, RF-GP-05
     public async Task<OrdenDetalle> RegistrarPruebaAsync(ActorTaller actor, Guid ordenId, DatosPrueba datos, CancellationToken ct = default)
     {
-        await ExigirPermisoTallerAsync(actor, ct);
 
         var orden = await ObtenerAsync(ordenId, ct);
 
