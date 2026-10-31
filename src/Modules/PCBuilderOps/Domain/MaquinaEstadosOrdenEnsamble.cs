@@ -7,7 +7,7 @@ public static class MaquinaEstadosOrdenEnsamble
 {
     private static readonly Dictionary<EstadoOrdenEnsamble, HashSet<EstadoOrdenEnsamble>> TransicionesValidas = new()
     {
-        [EstadoOrdenEnsamble.Cotizada] = [EstadoOrdenEnsamble.EnArmado],
+        [EstadoOrdenEnsamble.Cotizada] = [EstadoOrdenEnsamble.EnArmado, EstadoOrdenEnsamble.Entregada],
         [EstadoOrdenEnsamble.EnArmado] = [EstadoOrdenEnsamble.EnPruebas],
         [EstadoOrdenEnsamble.EnPruebas] = [EstadoOrdenEnsamble.Entregada],
         [EstadoOrdenEnsamble.Entregada] = []
