@@ -61,7 +61,7 @@ Las operaciones que exigen un permiso consultan la tabla de permisos del usuario
 **Por qué:** si el permiso estuviera en el token, tras la aprobación el usuario tendría que cerrar sesión y volver a entrar, y eso es la "intervención manual" que RF-GP-05 prohíbe. Sigue el mismo criterio que la validación de sesiones contra la base de datos.
 
 ### 2026-10-18 · `GET /api/taller/ordenes` como operación protegida por `OperarTaller`
-Listado de solo lectura de la tabla actual `OrdenesServicio`, protegido por el permiso. Sirve para demostrar RF-GP-05: `403` antes de la aprobación y `200` después, sin volver a iniciar sesión.
+Listado de solo lectura de las órdenes (hoy `OrdenesEnsamble`; en esa fecha, `OrdenesServicio`), protegido por el permiso. Sirve para demostrar RF-GP-05: `403` antes de la aprobación y `200` después, sin volver a iniciar sesión.
 **Por qué:** es la operación mínima del dominio que un técnico necesita y no adelanta el trabajo del negocio de la semana 8; el endpoint se mueve con el negocio cuando este pase al módulo.
 
 ### 2026-10-18 · Reglas y códigos de respuesta de Gestión de permisos (RF-GP-04, RF-GP-06, RF-GP-07, RD-07)
@@ -89,6 +89,10 @@ Las operaciones del taller consultan `IVerificadorPermisos` dentro del servicio 
 ### 2026-10-31 · El módulo de negocio tiene su propio `DbContext` y migraciones (RD-03, RD-09)
 Las entidades del negocio viven en `src/Modules/PCBuilderOps`, con su `DbContext` y su historial de migraciones, en la misma base de SQL Server. `src/Core/Ordenes/` se elimina y una migración del Core borra la tabla `OrdenesServicio`.
 **Por qué:** si el `DbContext` del Core conociera las entidades del negocio, el Core dependería del módulo. Costo: aplicar las migraciones requiere un comando por contexto, y el README lo documenta.
+
+### 2026-10-31 · Errores sin cuerpo y `415` también en formato `{"mensaje"}` (RD-07, RD-08)
+`SuppressMapClientErrors` desactiva el `ProblemDetails` automático de ASP.NET y `RespuestaEstadoHttp` escribe el mensaje de `404`, `405` y `415` cuando nadie más respondió. `401` y `403` se escriben en los eventos de JWT.
+**Por qué:** la auditoría de la Práctica 3 encontró que una petición sin `Content-Type` devolvía `traceId` y el enlace de la especificación, y que las rutas inexistentes respondían sin cuerpo.
 
 ### 2026-10-31 · Códigos de respuesta del negocio (RD-07)
 Compatibilidad o datos inválidos → `400`. Sin rol o sin permiso → `403`. Orden que no existe o de otro cliente → `404`. Transición fuera de la tabla o stock insuficiente → `409`. Siempre con `{"mensaje"}`.

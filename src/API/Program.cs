@@ -111,7 +111,10 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
-        options.InvalidModelStateResponseFactory = RespuestaModeloInvalido.Crear);
+    {
+        options.InvalidModelStateResponseFactory = RespuestaModeloInvalido.Crear;
+        options.SuppressMapClientErrors = true;
+    });
 
 var app = builder.Build();
 
@@ -170,6 +173,7 @@ app.Use(async (context, next) =>
     }
 });
 
+app.UseStatusCodePages(RespuestaEstadoHttp.Escribir);
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

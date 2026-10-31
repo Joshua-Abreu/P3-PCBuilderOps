@@ -7,7 +7,7 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api")]
-[Authorize]
+[Authorize(Roles = "Estandar,Administrador")]
 public class OrdenesController : NegocioControllerBase
 {
     private readonly IOrdenesService _ordenes;
@@ -28,6 +28,9 @@ public class OrdenesController : NegocioControllerBase
     public Task<IActionResult> Cotizar([FromBody] CotizarOrdenRequest request, CancellationToken ct) =>
         Ejecutar(async () =>
         {
+            if (request.Componentes.Any(l => l is null))
+                return BadRequest(new MensajeRespuesta("La lista de componentes no puede incluir elementos vacíos."));
+
             var lineas = request.Componentes.Select(l => new LineaCotizacion(l.ComponenteId, l.Cantidad)).ToList();
             var orden = await _ordenes.CotizarAsync(UsuarioActualId(), lineas, ct);
             return StatusCode(StatusCodes.Status201Created, orden);

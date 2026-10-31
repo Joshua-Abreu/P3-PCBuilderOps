@@ -8,7 +8,7 @@ namespace API.Controllers;
 // RF-GP-05: el permiso OperarTaller lo exige IOrdenesService en cada operación.
 [ApiController]
 [Route("api/taller/ordenes")]
-[Authorize]
+[Authorize(Roles = "Estandar,Administrador")]
 public class TallerController : NegocioControllerBase
 {
     private readonly IOrdenesService _ordenes;
