@@ -14,8 +14,8 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 |-------|---------|--------|
 | 1. Control de acceso | 2–4 | ✅ Entregada (etiqueta `practica-1`, ya calificada), corregida en el PR #16 y con `Usuario.Nombre` desde el PR #18. |
 | Máquina de estados del negocio (estructura) | 4 | ⚠️ Entregada con desviaciones conocidas (ver abajo). |
-| 2. Gestión de permisos | 6–8 | ✅ Asignación 2 entregada (etiqueta `asignacion-2`, PR #20). ⏳ **En curso: Práctica 2, variante C** (cierra el domingo 25/10, 11:59 p. m.) en `feature/practica-2-suite`. Ver `docs/entregas/practica-2.md`. |
-| Máquina de estados del negocio (pruebas) | 8 | Pendiente. |
+| 2. Gestión de permisos | 6–8 | ✅ Asignación 2 (etiqueta `asignacion-2`, PR #20) y Práctica 2, variante C (etiqueta `practica-2`, PR #21). |
+| Máquina de estados del negocio (pruebas) | 8 | ⏳ **En curso: Práctica 3** en `feature/practica-3-negocio`. Ver `docs/entregas/practica-3.md`. |
 | 3. Manejador de documentos | 9 | Pendiente. |
 | 4. Notificaciones y cola de correos | 11–12 | Parcial: existe la cola mínima de la Práctica 1 (sin reintentos, estado fallido ni bandeja interna). |
 | 5. Reportes con agregación | 12 | Pendiente. |
@@ -25,7 +25,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 - El negocio vive en `src/Core/Ordenes/` y `AppDbContext` del Core tiene `DbSet<OrdenServicio>`. Viola RD-03; se mueve a `src/Modules/PCBuilderOps` en la semana 8.
 - Los estados implementados (`Recibida → EnDiagnostico → EnProceso → Entregada`) no son los de la propuesta aprobada. El objetivo está en `docs/requisitos/negocio.md`; se alinean en la semana 8.
 - Solo Gestión de permisos tiene pruebas automatizadas (`tests/Core.Tests`); Control de acceso y el negocio aún no (RD-12). Las del negocio llegan con la Práctica 3.
-- Las etiquetas `practica-2-defecto-N` contienen defectos plantados a propósito: nunca se fusionan a `main` ni se "corrigen".
+- Las etiquetas `practica-2-defecto-N` y `practica-3-defecto-N` contienen defectos plantados a propósito: nunca se fusionan a `main` ni se "corrigen".
 - La etiqueta `practica-1` no se mueve: la entrega ya fue calificada.
 
 ---
@@ -100,7 +100,7 @@ Objetivo (ver `docs/requisitos/negocio.md`; el código actual aún no lo cumple,
 - **Entidades Base:** `OrdenEnsamble`, `Componente`, `DetalleEnsamble`, `PruebaRendimiento`.
 - **Estados de la Orden:** `Cotizada` (1) -> `EnArmado` (2) -> `EnPruebas` (3) -> `Entregada` (4, Terminal).
 - **Transición Prohibida:** Directo de `Cotizada` a `Entregada`.
-- **Regla de Validación:** Una orden no puede transicionar a `Entregada` si no tiene pruebas de rendimiento registradas con veredicto aprobado.
+- **Regla de Validación:** Una orden no puede transicionar a `Entregada` si no tiene pruebas de rendimiento registradas o si la más reciente no tiene veredicto aprobado.
 
 ---
 

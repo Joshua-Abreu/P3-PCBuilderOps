@@ -78,7 +78,22 @@ Proyecto de pruebas en `tests/`, incluido en la solución, ejecutable con `dotne
 Cada prueba marca sus tres fases con esos comentarios, como excepción a la regla de no comentar el código.
 **Por qué:** la rúbrica de la Asignación 2 exige que cada prueba tenga "tres fases identificables (preparar, actuar, verificar)". Los marcadores lo hacen explícito sin depender de la lectura de quien califica.
 
+### 2026-10-31 · Sin retrabajo: la entrega depende de la prueba más reciente (RF-NEG-03, FN-04)
+No existe `EnPruebas → EnArmado`. Una prueba reprobada deja la orden en `EnPruebas`; el técnico corrige y registra otra. Se entrega si hay al menos una prueba y la más reciente está aprobada. Las anteriores se conservan como historial.
+**Por qué:** con la regla anterior («todas aprobadas»), una sola prueba reprobada bloqueaba la orden para siempre. Este cambio lo resuelve sin alterar los estados ni las transiciones de la propuesta aprobada. Costo aceptado: mientras se corrige, la orden aparece en `EnPruebas`.
+
+### 2026-10-31 · El permiso del negocio se consulta en el servicio del módulo (RF-GP-05, RF-NEG-06)
+Las operaciones del taller consultan `IVerificadorPermisos` dentro del servicio del módulo y rechazan con `403`. Reemplaza a la política `OperarTaller` de `src/API`.
+**Por qué:** la Práctica 3 exige detectar la falta de la consulta con una prueba de integración sin HTTP, y esa prueba nunca pasaría por una política. Con la política activa, quitar la consulta tampoco permitiría la operación en la aplicación real. Sigue comprobándose contra la base de datos en cada petición.
+
+### 2026-10-31 · El módulo de negocio tiene su propio `DbContext` y migraciones (RD-03, RD-09)
+Las entidades del negocio viven en `src/Modules/PCBuilderOps`, con su `DbContext` y su historial de migraciones, en la misma base de SQL Server. `src/Core/Ordenes/` se elimina y una migración del Core borra la tabla `OrdenesServicio`.
+**Por qué:** si el `DbContext` del Core conociera las entidades del negocio, el Core dependería del módulo. Costo: aplicar las migraciones requiere un comando por contexto, y el README lo documenta.
+
+### 2026-10-31 · Códigos de respuesta del negocio (RD-07)
+Compatibilidad o datos inválidos → `400`. Sin rol o sin permiso → `403`. Orden que no existe o de otro cliente → `404`. Transición fuera de la tabla o stock insuficiente → `409`. Siempre con `{"mensaje"}`.
+**Por qué:** mantiene el criterio de Gestión de permisos, y `404` en órdenes ajenas no revela que existen.
+
 ## Pendientes
 
-- **Retrabajo `EnPruebas → EnArmado`.** Más realista cuando una prueba falla y da más casos a la suite de la semana 8. Decidir antes de la semana 8.
 - **Fechas leídas de la base sin `Z` (RD-11).** `fechaCreacionUtc` sale con `Z` al crearse pero sin ella al leerse de SQL Server (`DateTimeKind.Unspecified`). Unificar marcando las fechas como UTC al leerlas.
