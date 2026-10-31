@@ -64,8 +64,6 @@ public class OrdenesService : IOrdenesService
     {
         var orden = await ObtenerAsync(ordenId, ct);
 
-        if (!await _verificadorPermisos.TienePermisoAsync(tecnicoId, TipoPermiso.OperarTaller, ct))
-            throw new ValidacionException("El técnico indicado no tiene el permiso OperarTaller.");
 
         orden.IniciarArmado(tecnicoId);
         await _dbContext.SaveChangesAsync(ct);
