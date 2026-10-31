@@ -1,13 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using API.Autorizacion;
 using API.Validacion;
 using Core.Auth.Exceptions;
 using Core.Auth.Services;
 using Core.Data;
 using Core.Notifications.Services;
 using Core.Permisos.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using PCBuilderOps.Data;
@@ -39,8 +37,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<GestionPermisosService>();
 builder.Services.AddScoped<IGestionPermisosService>(sp => sp.GetRequiredService<GestionPermisosService>());
 builder.Services.AddScoped<IVerificadorPermisos>(sp => sp.GetRequiredService<GestionPermisosService>());
-builder.Services.AddScoped<IAuthorizationHandler, PermisoAuthorizationHandler>();
-builder.Services.AddScoped<IConsultaOrdenesService, ConsultaOrdenesService>();
+builder.Services.AddScoped<IOrdenesService, OrdenesService>();
 builder.Services.AddSingleton(configuracionJwt);
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddSingleton<ISmtpEmailSender, SmtpEmailSender>();
@@ -53,6 +50,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
         options.Events = new JwtBearerEvents
         {
+            // RD-07
+            OnChallenge = async context =>
+            {
+                context.HandleResponse();
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.Headers.WWWAuthenticate = JwtBearerDefaults.AuthenticationScheme;
+                await context.Response.WriteAsJsonAsync(new { mensaje = "Necesitas iniciar sesión." });
+            },
+            // RD-07
+            OnForbidden = context =>
+                context.Response.WriteAsJsonAsync(new { mensaje = "No tienes permiso para esta operación." }),
             OnTokenValidated = async context =>
             {
                 var dbContext = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
@@ -99,7 +107,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization(PoliticasPermiso.Registrar);
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>

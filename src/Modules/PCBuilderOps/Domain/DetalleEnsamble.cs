@@ -5,6 +5,8 @@ namespace PCBuilderOps.Domain;
 // RF-NEG-01
 public class DetalleEnsamble
 {
+    public const int CantidadMaxima = 16;
+
     private DetalleEnsamble() { }
 
     public Guid Id { get; private set; }
@@ -18,8 +20,8 @@ public class DetalleEnsamble
 
     internal static DetalleEnsamble Crear(Guid ordenEnsambleId, Componente componente, int cantidad)
     {
-        if (cantidad <= 0)
-            throw new ValidacionException("La cantidad de cada componente debe ser mayor que cero.");
+        if (cantidad is <= 0 or > CantidadMaxima)
+            throw new ValidacionException($"La cantidad de cada componente debe estar entre 1 y {CantidadMaxima}.");
 
         return new DetalleEnsamble
         {

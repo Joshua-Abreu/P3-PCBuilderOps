@@ -22,8 +22,8 @@ PC Builder Ops gestiona el ciclo de computadoras personalizadas a pedido: cotiza
 | Desde | Hacia | Quién la ejecuta | Condición |
 |-------|-------|------------------|-----------|
 | Cotizada (1) | EnArmado (2) | Administrador | El técnico indicado tiene `OperarTaller`. Reserva stock. |
-| EnArmado (2) | EnPruebas (3) | Estándar con `OperarTaller` | Ensamble físico terminado. |
-| EnPruebas (3) | Entregada (4) | Estándar con `OperarTaller` | Existe al menos una `PruebaRendimiento` y la más reciente está aprobada. |
+| EnArmado (2) | EnPruebas (3) | Estándar con `OperarTaller`, o Administrador | Ensamble físico terminado. |
+| EnPruebas (3) | Entregada (4) | Estándar con `OperarTaller`, o Administrador | Existe al menos una `PruebaRendimiento` y la más reciente está aprobada. |
 | Entregada (4) | — | — | **Estado terminal** (RF-NEG-05): ninguna transición sale de aquí. |
 | Cotizada (1) | Entregada (4) | — | **Prohibida explícitamente** (RF-NEG-04): se rechaza y el estado no cambia. |
 | Cualquier otra combinación | — | — | Rechazada; el estado no cambia. |

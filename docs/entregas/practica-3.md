@@ -32,8 +32,8 @@ Al menos una operación requiere un permiso de Gestión de permisos: el Estánda
 |----|-----------|-------|-------|
 | FN-01 | Cotizar una orden | Estándar (cliente) | Socket de CPU y placa coincide y la fuente cubre el consumo; si no, `400`. |
 | FN-02 | Asignar técnico e iniciar armado | Administrador | El técnico tiene `OperarTaller`; se reserva stock. |
-| FN-03 | Registrar una prueba de rendimiento | Estándar con `OperarTaller` | La orden está en `EnPruebas`. |
-| FN-04 | Pasar a pruebas y aprobar la entrega | Estándar con `OperarTaller` | Para entregar: al menos una prueba y la más reciente aprobada. |
+| FN-03 | Registrar una prueba de rendimiento | Estándar con `OperarTaller`, o Administrador | La orden está en `EnPruebas`. |
+| FN-04 | Pasar a pruebas y aprobar la entrega | Estándar con `OperarTaller`, o Administrador | Para entregar: al menos una prueba y la más reciente aprobada. |
 | FN-05 | Consultar órdenes | Cliente | Solo ve las suyas. |
 
 ### 1.2 Suite de la máquina de estados
@@ -102,7 +102,7 @@ Desde `practica-3` y siguiendo el README al pie de la letra:
 - [x] Tablas de transiciones permitidas y prohibidas en `docs/maquina-de-estados.md`
 - [x] Entidades, máquina de estados y migración en `src/Modules/PCBuilderOps`
 - [x] `src/Core/Ordenes/` eliminado; `Core.csproj` no referencia al módulo (RD-03)
-- [ ] FN-01 a FN-05 con sus endpoints, protegidos (RF-NEG-06)
+- [x] FN-01 a FN-05 con sus endpoints, protegidos (RF-NEG-06)
 - [ ] Suite con una prueba por cada fila y por el estado terminal
 - [ ] Prueba de integración con las dos caras
 - [ ] README: cómo provocar cada funcionalidad, migraciones, «Pruebas», «Defectos» y `git checkout practica-3`

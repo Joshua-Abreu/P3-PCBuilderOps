@@ -6,6 +6,7 @@ namespace PCBuilderOps.Domain;
 public class PruebaRendimiento
 {
     public const int TipoSoftwarePruebaMaximo = 100;
+    public const decimal TemperaturaMaximaValida = 150m;
 
     private PruebaRendimiento() { }
 
@@ -35,8 +36,8 @@ public class PruebaRendimiento
         if (tipoLimpio.Length > TipoSoftwarePruebaMaximo)
             throw new ValidacionException($"El software de la prueba no puede superar {TipoSoftwarePruebaMaximo} caracteres.");
 
-        if (temperaturaMaximaCpu <= 0 || temperaturaMaximaGpu <= 0)
-            throw new ValidacionException("Las temperaturas máximas deben ser mayores que cero.");
+        if (temperaturaMaximaCpu is <= 0 or > TemperaturaMaximaValida || temperaturaMaximaGpu is <= 0 or > TemperaturaMaximaValida)
+            throw new ValidacionException($"Las temperaturas máximas deben estar entre 0 y {TemperaturaMaximaValida} °C.");
 
         if (puntajeBenchmark < 0)
             throw new ValidacionException("El puntaje del benchmark no puede ser negativo.");

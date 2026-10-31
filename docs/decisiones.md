@@ -83,7 +83,7 @@ No existe `EnPruebas → EnArmado`. Una prueba reprobada deja la orden en `EnPru
 **Por qué:** con la regla anterior («todas aprobadas»), una sola prueba reprobada bloqueaba la orden para siempre. Este cambio lo resuelve sin alterar los estados ni las transiciones de la propuesta aprobada. Costo aceptado: mientras se corrige, la orden aparece en `EnPruebas`.
 
 ### 2026-10-31 · El permiso del negocio se consulta en el servicio del módulo (RF-GP-05, RF-NEG-06)
-Las operaciones del taller consultan `IVerificadorPermisos` dentro del servicio del módulo y rechazan con `403`. Reemplaza a la política `OperarTaller` de `src/API`.
+Las operaciones del taller consultan `IVerificadorPermisos` dentro del servicio del módulo y rechazan con `403`. Reemplaza a la política `OperarTaller` de `src/API`. El Administrador pasa sin el permiso, igual que con la política.
 **Por qué:** la Práctica 3 exige detectar la falta de la consulta con una prueba de integración sin HTTP, y esa prueba nunca pasaría por una política. Con la política activa, quitar la consulta tampoco permitiría la operación en la aplicación real. Sigue comprobándose contra la base de datos en cada petición.
 
 ### 2026-10-31 · El módulo de negocio tiene su propio `DbContext` y migraciones (RD-03, RD-09)

@@ -11,8 +11,8 @@ Cotizada (1) → EnArmado (2) → EnPruebas (3) → Entregada (4)
 | Estado Origen | Estado Destino | Quién la ejecuta | Condición / Regla |
 |---------------|----------------|------------------|-------------------|
 | Cotizada (1) | EnArmado (2) | Administrador | El técnico indicado tiene el permiso `OperarTaller`. |
-| EnArmado (2) | EnPruebas (3) | Estándar con `OperarTaller` | Ensamble físico terminado. |
-| EnPruebas (3) | Entregada (4) | Estándar con `OperarTaller` | Existe al menos una prueba de rendimiento y la más reciente está aprobada. |
+| EnArmado (2) | EnPruebas (3) | Estándar con `OperarTaller`, o Administrador | Ensamble físico terminado. |
+| EnPruebas (3) | Entregada (4) | Estándar con `OperarTaller`, o Administrador | Existe al menos una prueba de rendimiento y la más reciente está aprobada. |
 
 Al pasar a `EnArmado` se asigna el técnico y se reserva el stock; si no alcanza, la operación se rechaza y nada cambia.
 
