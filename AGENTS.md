@@ -94,7 +94,7 @@ Actúas como un Ingeniero de Software Senior en .NET 10 y tutor técnico estrict
 6. **Auditoría (`RF-AUD-*`):** Registro inmutable de eventos (`UsuarioId`, `Accion`, `Entidad`, `FechaUtc`, `ValorPrevio`, `ValorNuevo`).
 
 ### B. Módulo de Negocio: PC Builder Ops (`RF-NEG-*`)
-Objetivo (ver `docs/requisitos/negocio.md`; el código actual aún no lo cumple, ver sección 0):
+Detalle en `docs/requisitos/negocio.md`:
 - **Entidades Base:** `OrdenEnsamble`, `Componente`, `DetalleEnsamble`, `PruebaRendimiento`.
 - **Estados de la Orden:** `Cotizada` (1) -> `EnArmado` (2) -> `EnPruebas` (3) -> `Entregada` (4, Terminal).
 - **Transición Prohibida:** Directo de `Cotizada` a `Entregada`.

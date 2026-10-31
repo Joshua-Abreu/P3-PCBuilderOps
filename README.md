@@ -54,9 +54,27 @@ flowchart TD
 
 ---
 
+## Requisitos previos
+
+* [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0).
+* SQL Server accesible desde la máquina. Sin `CONNECTION_STRING`, se usa la instancia local con autenticación de Windows.
+* Herramienta de migraciones de Entity Framework:
+
+```bash
+dotnet tool install --global dotnet-ef --version 10.0.12
+```
+
+---
+
 ## Variables de Entorno Requeridas
 
-Conforme a las directivas de seguridad **RF-NOT-13** y **RD-10**, ninguna credencial ni secreto se encuentra versionado en el código fuente. Configure las siguientes variables en el entorno de ejecución, consola o en su archivo local excluido de Git (`launchSettings.json`):
+Conforme a las directivas de seguridad **RF-NOT-13** y **RD-10**, ninguna credencial ni secreto se encuentra versionado en el código fuente. Configure las siguientes variables en la misma terminal donde ejecutará la API y el despachador. `launchSettings.json` es un archivo local excluido de Git, por lo que **no viene al clonar**; para ejecutar el proyecto basta con estas variables. Como mínimo se necesitan `JWT_SECRET`, `ADMIN_NOMBRE`, `ADMIN_CORREO` y `ADMIN_PASSWORD`; las `SMTP_*` solo hacen falta para que los correos lleguen a una bandeja real.
+
+### URL pública de los enlaces
+
+| Variable | Obligatoria | Propósito |
+|----------|-------------|-----------|
+| `APP_BASE_URL` | No (`http://localhost:5206`) | Base de los enlaces absolutos de activación y recuperación que se envían por correo. |
 
 ### Cadena de conexión a base de datos
 
@@ -164,10 +182,10 @@ dotnet build P3-PCBuilderOps.slnx
 
 **API Web:**
 ```bash
-dotnet run --project src/API
+dotnet run --project src/API --urls http://localhost:5206
 ```
 
-La API quedará escuchando en `http://localhost:5206` (o el puerto configurado en su perfil de host).
+La API quedará escuchando en `http://localhost:5206`, la dirección que usan `src/API/API.http` y los enlaces de los correos.
 
 **Despachador independiente de correos:**
 ```bash
@@ -248,7 +266,7 @@ Los defectos de la Práctica 2 se describen en el README de la etiqueta `practic
 
 ## Guía de Verificación de Criterios de Aceptación
 
-Para reproducir cada criterio de la Práctica 1 se provee `src/API/API.http`, que puede ejecutarse desde Visual Studio Code (extensión REST Client) o importarse en Postman. Los tokens de activación y recuperación llegan por correo; si el despachador no está configurado, pueden leerse directamente en las tablas `TokensActivacion` y `TokensRecuperacion`.
+Para reproducir los criterios se provee `src/API/API.http`, que puede ejecutarse desde Visual Studio Code (extensión REST Client) o importarse en Postman. Los tokens de activación y recuperación llegan por correo; si el despachador no está configurado, pueden leerse directamente en las tablas `TokensActivacion` y `TokensRecuperacion`.
 
 ### 1. Registro y activación (Bloque 1.1)
 
@@ -320,7 +338,7 @@ Las tablas completas de transiciones permitidas y prohibidas están en [`docs/ma
 
 ### 8. Gestión de permisos (Asignación 2)
 
-**Transiciones:** `Pendiente → Aprobada → Aplicada` (aprobar aplica el permiso automáticamente) y `Pendiente → Rechazada`. Cualquier otra se rechaza con `409 Conflict` y el estado no cambia. El único permiso del catálogo es `OperarTaller`, que da acceso a `GET /api/taller/ordenes`.
+**Transiciones:** `Pendiente → Aprobada → Aplicada` (aprobar aplica el permiso automáticamente) y `Pendiente → Rechazada`. Cualquier otra se rechaza con `409 Conflict` y el estado no cambia. El único permiso del catálogo es `OperarTaller`, que da acceso a las operaciones de `/api/taller/ordenes` (sección 9).
 
 **Preparación:** iniciar sesión como Administrador (`ADMIN_CORREO` / `ADMIN_PASSWORD`) y registrar y activar un usuario Estándar (sección 1). Las peticiones 16 a 34 de `src/API/API.http` siguen este mismo orden (la 17 crea el técnico ya activo).
 
