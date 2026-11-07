@@ -99,11 +99,11 @@ Desde `practica-4`, copiando `.env.example` a `.env` y siguiendo el README al pi
 - [x] Ficha creada
 - [x] Manejador de documentos (RF-DOC-01 a 04) con pruebas
 - [x] Errores de subida (sin archivo, vacío, demasiado grande) con `{"mensaje"}`
-- [ ] Migraciones automáticas al arrancar
-- [ ] `EmailQueueWorker` registrado en la API
-- [ ] `Dockerfile`, `.dockerignore`, `docker-compose.yml` y `.env.example`
+- [x] Migraciones automáticas al arrancar
+- [x] `EmailQueueWorker` registrado en la API
+- [x] `Dockerfile`, `.dockerignore`, `docker-compose.yml` y `.env.example`
 - [ ] `docker compose up --build` desde un clon limpio responde en `http://localhost:5206`
-- [ ] Volúmenes `documentos` y `sqldata`; el documento y el usuario sobreviven a `down` y `up`
+- [x] Volúmenes `documentos` y `sqldata`; el documento y el usuario sobreviven a `down` y `up`
 - [ ] Operación con la API de tasa de cambio y rechazo controlado sin clave o con la API caída
 - [ ] Ningún commit contiene la clave ni un `.env`
 - [ ] README: secciones «Contenedor» y «API externa», y cómo leer los enlaces de correo

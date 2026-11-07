@@ -1,11 +1,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using API.Arranque;
 using API.Validacion;
 using Core.Auth.Exceptions;
 using Core.Auth.Services;
 using Core.Data;
 using Core.Documentos.Services;
 using Core.Notifications.Services;
+using Core.Notifications.Workers;
 using Core.Permisos.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +50,8 @@ builder.Services.AddSingleton(configuracionJwt);
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddSingleton<ISmtpEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IColaCorreoService, ColaCorreoService>();
+// RF-NOT-08: la cola se envía en segundo plano, sin bloquear las operaciones.
+builder.Services.AddHostedService<EmailQueueWorker>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -123,6 +127,8 @@ builder.Services.AddControllers()
     });
 
 var app = builder.Build();
+
+await MigracionesIniciales.AplicarAsync(app.Services, app.Services.GetRequiredService<ILogger<Program>>());
 
 using (var scope = app.Services.CreateScope())
 {
