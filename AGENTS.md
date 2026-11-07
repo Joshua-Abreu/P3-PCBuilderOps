@@ -16,15 +16,15 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | Máquina de estados del negocio (estructura) | 4 | ✅ Entregada en `practica-1`; sus desviaciones se corrigieron en la Práctica 3. |
 | 2. Gestión de permisos | 6–8 | ✅ Asignación 2 (etiqueta `asignacion-2`, PR #20) y Práctica 2, variante C (etiqueta `practica-2`, PR #21). |
 | Máquina de estados del negocio (pruebas) | 8 | ✅ Práctica 3 (etiqueta `practica-3`, PR #22). Ver `docs/entregas/practica-3.md`. Notificaciones y reportes del negocio (RF-NEG-07 y RF-NEG-08) siguen pendientes. |
-| 3. Manejador de documentos | 9 | ⏳ **En curso: Práctica 4** (documentos, contenedores y API externa) en `feature/practica-4-contenedor`. Ver `docs/entregas/practica-4.md`. |
-| 4. Notificaciones y cola de correos | 11–12 | Parcial: existe la cola mínima de la Práctica 1 (sin reintentos, estado fallido ni bandeja interna). |
+| 3. Manejador de documentos | 9 | ✅ Práctica 4 (etiqueta `practica-4`, PR #24): documentos RF-DOC-01 a 05, proyecto en contenedores con `docker compose up --build` (puerto 5206, volúmenes `documentos` y `sqldata`) y API externa de tasa de cambio. Ver `docs/entregas/practica-4.md`. Auditoría de documentos (RF-DOC-06) pendiente con la Pieza 6. |
+| 4. Notificaciones y cola de correos | 11–12 | Parcial: existe la cola mínima de la Práctica 1, enviada por la API cada 30 s desde la Práctica 4 (sin reintentos, estado fallido ni bandeja interna). |
 | 5. Reportes con agregación | 12 | Pendiente. |
 | 6. Auditoría | 14 | Pendiente. |
 
 ### Desviaciones conocidas (no corregir sin que el usuario lo pida)
 - Gestión de permisos (`tests/Core.Tests`) y el negocio (`tests/PCBuilderOps.Tests`) tienen pruebas automatizadas; Control de acceso aún no (RD-12).
 - Las etiquetas `practica-2-defecto-N` y `practica-3-defecto-N` contienen defectos plantados a propósito: nunca se fusionan a `main` ni se "corrigen".
-- Las etiquetas de entregas (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`) no se mueven: se evalúa el punto etiquetado.
+- Las etiquetas de entregas (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`, `practica-4`) no se mueven: se evalúa el punto etiquetado.
 
 ---
 
