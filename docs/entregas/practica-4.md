@@ -102,13 +102,13 @@ Desde `practica-4`, copiando `.env.example` a `.env` y siguiendo el README al pi
 - [x] Migraciones automáticas al arrancar
 - [x] `EmailQueueWorker` registrado en la API
 - [x] `Dockerfile`, `.dockerignore`, `docker-compose.yml` y `.env.example`
-- [ ] `docker compose up --build` desde un clon limpio responde en `http://localhost:5206`
+- [x] `docker compose up --build` desde un clon limpio responde en `http://localhost:5206`
 - [x] Volúmenes `documentos` y `sqldata`; el documento y el usuario sobreviven a `down` y `up`
 - [x] Operación con la API de tasa de cambio y rechazo controlado sin clave o con la API caída
-- [ ] Ningún commit contiene la clave ni un `.env`
+- [x] Ningún commit contiene la clave ni un `.env` (el `launchSettings.json` temprano se explica en `docs/decisiones.md`)
 - [x] README: secciones «Contenedor» y «API externa», y cómo leer los enlaces de correo
 - [x] `API.http`: peticiones de documentos y de la conversión, y credenciales del Administrador de `.env.example`
-- [ ] Revisión acumulada de los seis frentes desde el contenedor
+- [x] Revisión acumulada de los seis frentes desde el contenedor
 - [ ] PR fusionado, etiqueta `practica-4` subida y verificada desde un clon de GitHub
 - [ ] Entrega en Moodle
 - [ ] `AGENTS.md` sección 0 actualizada

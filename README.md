@@ -111,6 +111,8 @@ La API responde en **`http://localhost:5206`**. Por ejemplo, `POST http://localh
 | `api` | Construida con el `Dockerfile` (.NET 10, usuario sin privilegios) | `5206` en la máquina → `8080` en el contenedor | `documentos` → `/app/documentos` (archivos subidos) |
 | `db` | `mcr.microsoft.com/mssql/server:2022-latest` | Ninguno: solo la API lo alcanza, por el nombre `db` | `sqldata` → `/var/opt/mssql` (base de datos) |
 
+> **Windows con Docker Desktop:** si `http://localhost:5206` se queda cargando sin responder (suele pasar tras recrear el contenedor varias veces), use `http://127.0.0.1:5206`. Es un fallo conocido del reenvío de puertos de WSL. Para corregirlo, cierre Docker Desktop, ejecute `wsl --shutdown` y vuelva a abrirlo.
+
 ### 3. Detener el proyecto
 
 `Ctrl+C` en la terminal donde corre, o desde otra terminal en la carpeta del proyecto:

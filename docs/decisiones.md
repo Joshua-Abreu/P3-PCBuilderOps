@@ -110,6 +110,10 @@ La aplicación publica el puerto 5206 (el mismo de `API.http` y `APP_BASE_URL`);
 El archivo se guarda con un nombre generado en la carpeta del volumen; el nombre original solo vive en el registro. Se acepta cualquier tipo hasta 10 MB y la descarga se entrega como adjunto. Descargar o eliminar un documento ajeno responde `403`; uno inexistente o eliminado, `404`.
 **Por qué:** el nombre generado impide escribir fuera de la carpeta. No limitar el tipo evita rechazar el archivo con el que se pruebe. `403` deja claro el rechazo que revisa la rúbrica.
 
+### 2026-11-07 · `launchSettings.json` en el historial temprano, sin reescribirlo (RD-10)
+El commit `6b7f304` (2 de octubre) versionó `src/API/Properties/launchSettings.json` con un `JWT_SECRET` de desarrollo y una cadena de conexión con autenticación de Windows, sin contraseña. El commit `554480a` lo retiró y lo excluyó con `.gitignore`. Ese `JWT_SECRET` ya no se usa en ningún entorno; ningún commit contiene un `.env`, la clave de la API externa ni las contraseñas actuales.
+**Por qué:** reescribir el historial cambiaría los commits de las etiquetas ya evaluadas (`practica-1` a `practica-3`). El secreto expuesto se retiró de uso, que es lo que lo deja sin efecto.
+
 ## Pendientes
 
 - **Fechas leídas de la base sin `Z` (RD-11).** `fechaCreacionUtc` sale con `Z` al crearse pero sin ella al leerse de SQL Server (`DateTimeKind.Unspecified`). Unificar marcando las fechas como UTC al leerlas.
