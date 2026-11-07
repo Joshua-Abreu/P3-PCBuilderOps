@@ -13,7 +13,8 @@ public static class RespuestaEstadoHttp
         {
             StatusCodes.Status404NotFound => "El recurso solicitado no existe.",
             StatusCodes.Status405MethodNotAllowed => "Este método no está permitido en esta ruta.",
-            StatusCodes.Status415UnsupportedMediaType => "El cuerpo de la petición debe enviarse como JSON.",
+            StatusCodes.Status413PayloadTooLarge => "La petición supera el tamaño máximo permitido.",
+            StatusCodes.Status415UnsupportedMediaType => "Tipo de contenido no admitido: usa JSON, o multipart/form-data para subir archivos.",
             _ => "La petición no se pudo procesar."
         };
 

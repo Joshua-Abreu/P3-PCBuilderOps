@@ -97,8 +97,8 @@ Desde `practica-4`, copiando `.env.example` a `.env` y siguiendo el README al pi
 ## 5. Checklist de estado
 
 - [x] Ficha creada
-- [ ] Manejador de documentos (RF-DOC-01 a 04) con pruebas
-- [ ] Errores de subida (sin archivo, vacío, demasiado grande) con `{"mensaje"}`
+- [x] Manejador de documentos (RF-DOC-01 a 04) con pruebas
+- [x] Errores de subida (sin archivo, vacío, demasiado grande) con `{"mensaje"}`
 - [ ] Migraciones automáticas al arrancar
 - [ ] `EmailQueueWorker` registrado en la API
 - [ ] `Dockerfile`, `.dockerignore`, `docker-compose.yml` y `.env.example`

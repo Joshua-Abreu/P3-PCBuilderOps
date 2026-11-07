@@ -4,6 +4,7 @@ using API.Validacion;
 using Core.Auth.Exceptions;
 using Core.Auth.Services;
 using Core.Data;
+using Core.Documentos.Services;
 using Core.Notifications.Services;
 using Core.Permisos.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -38,6 +39,11 @@ builder.Services.AddScoped<GestionPermisosService>();
 builder.Services.AddScoped<IGestionPermisosService>(sp => sp.GetRequiredService<GestionPermisosService>());
 builder.Services.AddScoped<IVerificadorPermisos>(sp => sp.GetRequiredService<GestionPermisosService>());
 builder.Services.AddScoped<IOrdenesService, OrdenesService>();
+// RF-DOC-05: en el contenedor, DOCUMENTOS_RUTA apunta al volumen con nombre.
+builder.Services.AddSingleton<IAlmacenamientoArchivos>(new AlmacenamientoArchivosLocal(
+    Environment.GetEnvironmentVariable("DOCUMENTOS_RUTA")
+        ?? Path.Combine(builder.Environment.ContentRootPath, "almacenamiento", "documentos")));
+builder.Services.AddScoped<IDocumentosService, DocumentosService>();
 builder.Services.AddSingleton(configuracionJwt);
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddSingleton<ISmtpEmailSender, SmtpEmailSender>();
@@ -160,6 +166,16 @@ app.Use(async (context, next) =>
     {
         context.Response.StatusCode = 400;
         await context.Response.WriteAsJsonAsync(new { mensaje = ex.Message });
+    }
+    catch (BadHttpRequestException ex)
+    {
+        context.Response.StatusCode = ex.StatusCode;
+        await context.Response.WriteAsJsonAsync(new
+        {
+            mensaje = ex.StatusCode == StatusCodes.Status413PayloadTooLarge
+                ? "La petición supera el tamaño máximo permitido."
+                : "La petición no es válida."
+        });
     }
     catch (ReglaNegocioException ex)
     {

@@ -179,6 +179,60 @@ namespace Core.Data.Migrations
                     b.ToTable("Usuarios", (string)null);
                 });
 
+            modelBuilder.Entity("Core.Documentos.Domain.Documento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("EliminadoPorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("EstaEliminado")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("FechaEliminacionUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaSubidaUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NombreAlmacenado")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("NombreOriginal")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("SubidoPorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("TamanoBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("TipoContenido")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EliminadoPorId");
+
+                    b.HasIndex("NombreAlmacenado")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Documentos_NombreAlmacenado");
+
+                    b.HasIndex("SubidoPorId", "EstaEliminado")
+                        .HasDatabaseName("IX_Documentos_SubidoPorId_EstaEliminado");
+
+                    b.ToTable("Documentos", (string)null);
+                });
+
             modelBuilder.Entity("Core.Notifications.Domain.CorreoEnCola", b =>
                 {
                     b.Property<Guid>("Id")
@@ -279,6 +333,20 @@ namespace Core.Data.Migrations
                     b.HasIndex("SolicitanteId");
 
                     b.ToTable("SolicitudesPermiso", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Documentos.Domain.Documento", b =>
+                {
+                    b.HasOne("Core.Auth.Domain.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("EliminadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Core.Auth.Domain.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("SubidoPorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Core.Permisos.Domain.PermisoUsuario", b =>
