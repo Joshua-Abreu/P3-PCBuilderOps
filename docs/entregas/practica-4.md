@@ -106,7 +106,8 @@ Desde `practica-4`, copiando `.env.example` a `.env` y siguiendo el README al pi
 - [x] Volúmenes `documentos` y `sqldata`; el documento y el usuario sobreviven a `down` y `up`
 - [x] Operación con la API de tasa de cambio y rechazo controlado sin clave o con la API caída
 - [ ] Ningún commit contiene la clave ni un `.env`
-- [ ] README: secciones «Contenedor» y «API externa», y cómo leer los enlaces de correo
+- [x] README: secciones «Contenedor» y «API externa», y cómo leer los enlaces de correo
+- [x] `API.http`: peticiones de documentos y de la conversión, y credenciales del Administrador de `.env.example`
 - [ ] Revisión acumulada de los seis frentes desde el contenedor
 - [ ] PR fusionado, etiqueta `practica-4` subida y verificada desde un clon de GitHub
 - [ ] Entrega en Moodle

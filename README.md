@@ -13,6 +13,8 @@ Plataforma orientada a talleres técnicos y tiendas especializadas de hardware p
 * **Persistencia:** Entity Framework Core con base de datos relacional (SQL Server)
 * **Autenticación & Seguridad:** JWT (JSON Web Tokens) con BCrypt y hashing salado
 * **Arquitectura:** Diseño modular basado en componentes (C4 Nivel 3) con desacoplamiento estricto del Core
+* **Contenedores:** Docker y Docker Compose (API y SQL Server con volúmenes persistentes)
+* **API externa:** ExchangeRate-API para convertir el costo de una orden a otra moneda
 
 ---
 
@@ -56,9 +58,13 @@ flowchart TD
 
 ## Requisitos previos
 
+**Con contenedor (recomendado):** solo [Docker Desktop](https://www.docker.com/products/docker-desktop/) (o Docker Engine con Compose), en ejecución y con al menos 2 GB de memoria disponibles para SQL Server. No hace falta instalar .NET ni SQL Server. Ver [Contenedor](#contenedor).
+
+**Sin contenedor:**
+
 * [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0).
 * SQL Server accesible desde la máquina. Sin `CONNECTION_STRING`, se usa la instancia local con autenticación de Windows.
-* Herramienta de migraciones de Entity Framework:
+* Herramienta de migraciones de Entity Framework (opcional: la API aplica las migraciones al arrancar):
 
 ```bash
 dotnet tool install --global dotnet-ef --version 10.0.12
@@ -66,9 +72,140 @@ dotnet tool install --global dotnet-ef --version 10.0.12
 
 ---
 
+## Contenedor
+
+El proyecto completo (API y SQL Server) se levanta con un solo comando. Desde un clon limpio:
+
+```bash
+git clone https://github.com/Joshua-Abreu/P3-PCBuilderOps.git
+```
+```bash
+cd P3-PCBuilderOps
+```
+```bash
+git checkout practica-4
+```
+
+### 1. Copiar el archivo de variables
+
+`.env.example` trae todas las variables con un valor de ejemplo que funciona tal cual. Cópielo a `.env` (este archivo está excluido de Git y nunca se versiona):
+
+```bash
+cp .env.example .env
+```
+
+En PowerShell: `Copy-Item .env.example .env`. Para usar la API externa con una clave real, o enviar correos a una bandeja real, edite esos valores en `.env` (ver [API externa](#api-externa) y [Credenciales SMTP](#credenciales-smtp)).
+
+### 2. Levantar el proyecto
+
+```bash
+docker compose up --build
+```
+
+La primera vez descarga las imágenes de .NET y SQL Server (unos 2 GB) y tarda unos minutos. El proyecto está listo cuando la consola muestra `Now listening on: http://[::]:8080`. Al arrancar, la API espera a que SQL Server esté sano, **aplica las migraciones** del Core y del módulo, y crea el Administrador inicial con `ADMIN_CORREO` y `ADMIN_PASSWORD` del `.env` (con el ejemplo: `admin@pcbuilderops.com` / `Admin12345`). No hay pasos manuales.
+
+La API responde en **`http://localhost:5206`**. Por ejemplo, `POST http://localhost:5206/api/auth/login`. `src/API/API.http` ya apunta a esa dirección y trae las credenciales del Administrador de `.env.example`.
+
+| Servicio | Imagen | Puerto | Volumen |
+|----------|--------|--------|---------|
+| `api` | Construida con el `Dockerfile` (.NET 10, usuario sin privilegios) | `5206` en la máquina → `8080` en el contenedor | `documentos` → `/app/documentos` (archivos subidos) |
+| `db` | `mcr.microsoft.com/mssql/server:2022-latest` | Ninguno: solo la API lo alcanza, por el nombre `db` | `sqldata` → `/var/opt/mssql` (base de datos) |
+
+### 3. Detener el proyecto
+
+`Ctrl+C` en la terminal donde corre, o desde otra terminal en la carpeta del proyecto:
+
+```bash
+docker compose down
+```
+
+`docker compose down` elimina los contenedores pero **conserva los volúmenes**: al volver a ejecutar `docker compose up`, los usuarios, órdenes, solicitudes y documentos siguen ahí. Para borrar también todos los datos y empezar de cero:
+
+```bash
+docker compose down -v
+```
+
+### Correos dentro del contenedor
+
+La API envía la cola de correos por sí sola cada 30 segundos (`EMAIL_WORKER_INTERVALO_SEGUNDOS`). Con el SMTP de ejemplo (`smtp.ejemplo.invalid`) el envío falla de forma controlada: la operación que generó el correo responde con normalidad (RF-NOT-08) y el correo queda en `CorreosEnCola`. Para leer el enlace de activación o de recuperación sin SMTP real, con el proyecto levantado:
+
+```bash
+docker compose exec db bash /scripts/ver-correos.sh
+```
+
+Muestra los últimos 10 correos con su destinatario, asunto, estado y enlace. Para filtrar por destinatario, agregue el correo al final del comando: `docker compose exec db bash /scripts/ver-correos.sh usuario@correo.com`. El enlace es absoluto (`http://localhost:5206/api/auth/...`) y puede abrirse en el navegador.
+
+---
+
+## API externa
+
+| Dato | Valor |
+|------|-------|
+| API | [ExchangeRate-API](https://www.exchangerate-api.com/) (tasas de cambio, plan gratuito con clave) |
+| Operación que la usa | `GET /api/ordenes/{id}/costo?moneda=DOP` |
+| Variable de la clave | `TASA_CAMBIO_API_KEY` |
+| Quién puede usarla | El cliente dueño de la orden o un Administrador |
+
+La operación toma el costo total de la orden, guardado en dólares, consulta la tasa del día de USD a la moneda indicada (código ISO de tres letras: `DOP`, `EUR`, `MXN`...) y devuelve el costo convertido, redondeado a dos decimales. Es una operación aparte de cotizar: si la API externa falla, el resto del negocio sigue funcionando.
+
+**La clave es un secreto.** Se lee únicamente de la variable de entorno `TASA_CAMBIO_API_KEY`, que llega al contenedor desde `.env` (excluido de Git). No aparece en el código, el `Dockerfile`, `docker-compose.yml`, la imagen ni ningún commit. Se envía a ExchangeRate-API en la cabecera `Authorization: Bearer`, no en la URL, para que no quede escrita en los registros. Para obtener una clave, regístrese gratis en exchangerate-api.com y colóquela en `.env`:
+
+```text
+TASA_CAMBIO_API_KEY=su-clave
+```
+
+Después de cambiar `.env`, vuelva a crear el contenedor de la API con `docker compose up -d`.
+
+**Ejemplo real de respuesta** (`200 OK`, orden de 627 USD convertida a pesos dominicanos):
+
+```json
+{
+  "ordenId": "43c7dc38-c620-4d8a-832d-d3484892689e",
+  "codigoSeguimiento": "ORD-43C7DC38",
+  "monedaOrigen": "USD",
+  "costoOriginal": 627,
+  "monedaDestino": "DOP",
+  "tasa": 60.5238,
+  "costoEnMonedaDestino": 37948.42,
+  "tasaActualizadaUtc": "2026-11-07T00:00:01Z",
+  "fuente": "ExchangeRate-API"
+}
+```
+
+**Rechazos controlados.** Siempre con el formato `{"mensaje": "..."}`, sin detalles internos ni la clave:
+
+| Situación | Respuesta |
+|-----------|-----------|
+| Clave de ejemplo de `.env.example` o clave inválida | `503`: "El servicio de tasa de cambio rechazó la clave configurada en TASA_CAMBIO_API_KEY." |
+| `TASA_CAMBIO_API_KEY` vacía o ausente | `503`: "La conversión de moneda no está configurada: define TASA_CAMBIO_API_KEY en el archivo .env." No se llama a la API. |
+| La API externa no responde (caída, sin red, más de 8 s) | `503`: "El servicio de tasa de cambio no responde. Intenta más tarde." |
+| Cuota del plan agotada | `503` con un mensaje que lo indica. |
+| Moneda ausente o mal escrita (`?moneda=DO`) | `400`: "Indica la moneda con su código de tres letras, por ejemplo ?moneda=DOP." |
+| Moneda que ExchangeRate-API no admite (`?moneda=XYZ`) | `400` |
+| Orden de otro cliente o inexistente | `404` |
+
+En los casos `503`, la API sigue en pie y el resto de las operaciones (cotizar, avanzar órdenes, documentos, permisos) funciona con normalidad. `TASA_CAMBIO_URL_BASE` (opcional, por defecto `https://v6.exchangerate-api.com/v6/`) permite apuntar a otra dirección, por ejemplo para simular la API caída.
+
+---
+
 ## Variables de Entorno Requeridas
 
-Conforme a las directivas de seguridad **RF-NOT-13** y **RD-10**, ninguna credencial ni secreto se encuentra versionado en el código fuente. Configure las siguientes variables en la misma terminal donde ejecutará la API y el despachador. `launchSettings.json` es un archivo local excluido de Git, por lo que **no viene al clonar**; para ejecutar el proyecto basta con estas variables. Como mínimo se necesitan `JWT_SECRET`, `ADMIN_NOMBRE`, `ADMIN_CORREO` y `ADMIN_PASSWORD`; las `SMTP_*` solo hacen falta para que los correos lleguen a una bandeja real.
+Conforme a las directivas de seguridad **RF-NOT-13** y **RD-10**, ninguna credencial ni secreto se encuentra versionado en el código fuente.
+
+* **Con contenedor:** todas las variables se definen en `.env`, copiado de `.env.example` (ver [Contenedor](#contenedor)). `docker-compose.yml` arma `CONNECTION_STRING` a partir de `SQL_SA_PASSWORD`.
+* **Sin contenedor:** configure las variables en la misma terminal donde ejecutará la API y el despachador. `launchSettings.json` es un archivo local excluido de Git, por lo que **no viene al clonar**. Como mínimo se necesitan `JWT_SECRET`, `ADMIN_NOMBRE`, `ADMIN_CORREO` y `ADMIN_PASSWORD`.
+
+Las `SMTP_*` solo hacen falta para que los correos lleguen a una bandeja real, y `TASA_CAMBIO_API_KEY` solo para la conversión de moneda.
+
+### Contenedor, documentos y API externa
+
+| Variable | Obligatoria | Propósito |
+|----------|-------------|-----------|
+| `SQL_SA_PASSWORD` | Sí, con contenedor | Contraseña del usuario `sa` de SQL Server dentro de la composición (mínimo 8 caracteres con mayúsculas, minúsculas y números). Sin ella, `docker compose up` se detiene y pide copiar `.env.example`. |
+| `TASA_CAMBIO_API_KEY` | No | Clave de ExchangeRate-API. Sin ella, la conversión de moneda responde `503` controlado (ver [API externa](#api-externa)). |
+| `TASA_CAMBIO_URL_BASE` | No (`https://v6.exchangerate-api.com/v6/`) | Dirección base de ExchangeRate-API. |
+| `DOCUMENTOS_RUTA` | No | Carpeta donde se guardan los archivos subidos. En el contenedor es `/app/documentos` (volumen `documentos`); sin contenedor, `src/API/almacenamiento/documentos`. |
+| `EMAIL_WORKER_INTERVALO_SEGUNDOS` | No (`30`) | Cada cuántos segundos la API envía los correos pendientes de la cola. |
 
 ### URL pública de los enlaces
 
@@ -130,17 +267,19 @@ Para usar `src/API/API.http`, complete al inicio del archivo `@adminCorreo` y `@
 
 ---
 
-## Cómo ejecutar el proyecto
+## Cómo ejecutar el proyecto sin contenedor
+
+La forma recomendada es la de [Contenedor](#contenedor). Estos pasos sirven para ejecutar la API directamente con el SDK de .NET y un SQL Server propio.
 
 ### 1. Clonar y preparar
 
 ```bash
 git clone https://github.com/Joshua-Abreu/P3-PCBuilderOps.git
 cd P3-PCBuilderOps
-git checkout practica-3
+git checkout practica-4
 ```
 
-Use la etiqueta de la entrega que se revisa (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`). El módulo de negocio funcionando y su suite existen a partir de `practica-3`.
+Use la etiqueta de la entrega que se revisa (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`, `practica-4`). El módulo de negocio funcionando y su suite existen a partir de `practica-3`; el contenedor, los documentos y la API externa, a partir de `practica-4`.
 
 ### 2. Restaurar dependencias
 
@@ -150,7 +289,7 @@ dotnet restore
 
 ### 3. Aplicar migraciones de base de datos
 
-El Core y el módulo de negocio tienen cada uno su `DbContext` y sus migraciones, en la misma base de datos. Aplique los dos comandos **en este orden**, porque las tablas del negocio referencian a `Usuarios`. `dotnet ef` **no lee** `launchSettings.json`: si su base no es la local por defecto, defina `CONNECTION_STRING` en la terminal antes de ejecutarlos (en PowerShell: `$env:CONNECTION_STRING = "..."`).
+La API aplica las migraciones pendientes al arrancar, así que este paso es opcional. Para aplicarlas a mano: el Core y el módulo de negocio tienen cada uno su `DbContext` y sus migraciones, en la misma base de datos. Aplique los dos comandos **en este orden**, porque las tablas del negocio referencian a `Usuarios`. `dotnet ef` **no lee** `launchSettings.json`: si su base no es la local por defecto, defina `CONNECTION_STRING` en la terminal antes de ejecutarlos (en PowerShell: `$env:CONNECTION_STRING = "..."`).
 
 ```bash
 dotnet ef database update --project src/Core --startup-project src/API --context AppDbContext
@@ -185,14 +324,14 @@ dotnet build P3-PCBuilderOps.slnx
 dotnet run --project src/API --urls http://localhost:5206
 ```
 
-La API quedará escuchando en `http://localhost:5206`, la dirección que usan `src/API/API.http` y los enlaces de los correos.
+La API quedará escuchando en `http://localhost:5206`, la dirección que usan `src/API/API.http` y los enlaces de los correos. Mientras corre, envía los correos pendientes de la cola cada 30 segundos.
 
 **Despachador independiente de correos:**
 ```bash
 dotnet run --project src/Workers/EmailDispatcher
 ```
 
-Este proceso independiente lee los correos pendientes de la cola, los envía vía SMTP y termina su ejecución limpiamente.
+Este proceso independiente lee los correos pendientes de la cola, los envía vía SMTP y termina su ejecución limpiamente. Sirve para vaciar la cola sin tener la API levantada.
 
 ---
 
@@ -204,7 +343,20 @@ Desde la raíz del repositorio, con el SDK de .NET 10 instalado:
 dotnet test P3-PCBuilderOps.slnx
 ```
 
-Ejecuta las dos suites (xUnit): `tests/Core.Tests` para Gestión de permisos y `tests/PCBuilderOps.Tests` para el módulo de negocio. **No requiere variables de entorno, SQL Server ni levantar la API** (RD-12): las máquinas de estados se prueban en memoria y los servicios usan una base SQLite en memoria nueva por cada prueba, por lo que las pruebas son independientes entre sí y del orden de ejecución.
+Ejecuta las dos suites (xUnit): `tests/Core.Tests` para Gestión de permisos y el Manejador de documentos, y `tests/PCBuilderOps.Tests` para el módulo de negocio y la API externa. **No requiere variables de entorno, SQL Server, Docker, red ni levantar la API** (RD-12): las máquinas de estados se prueban en memoria, los servicios usan una base SQLite en memoria nueva por cada prueba, los documentos se guardan en una carpeta temporal y ExchangeRate-API se reemplaza por respuestas fijas. Las pruebas son independientes entre sí y del orden de ejecución.
+
+### API externa
+
+| Archivo | Qué verifica |
+|---------|--------------|
+| `tests/PCBuilderOps.Tests/TasaCambio/ExchangeRateApiProveedorTests.cs` | Cómo se interpreta ExchangeRate-API: respuesta correcta, la clave viaja en la cabecera y nunca en la URL, sin clave no se llama a la API, errores de la API sin mostrar la clave, moneda no admitida, red caída, tiempo agotado y respuesta que no es JSON (RD-07, RD-08, RD-10). |
+| `tests/PCBuilderOps.Tests/Services/ConversionCostoServiceTests.cs` | El cálculo con la tasa y el redondeo a dos decimales, el acceso del dueño y del Administrador, el rechazo de una orden ajena o una moneda inválida sin consultar la API, y que con la API caída la orden no cambia (FN-01, RF-NEG-06). |
+
+### Manejador de documentos
+
+| Archivo | Qué verifica |
+|---------|--------------|
+| `tests/Core.Tests/Documentos/DocumentosServiceTests.cs` | Subir guarda nombre, tipo, tamaño, fecha y quién lo subió, con el archivo bajo un nombre generado (RF-DOC-01); sin archivo, vacío o mayor de 10 MB se rechaza sin guardar nada (RD-07); el listado excluye eliminados y ajenos salvo para el Administrador (RF-DOC-02); solo el dueño o un Administrador consulta, descarga o elimina (RF-DOC-03, RD-06); eliminar marca el registro y conserva registro y archivo (RF-DOC-04). |
 
 ### Módulo de negocio
 
@@ -244,7 +396,7 @@ Cada prueba indica en un comentario `// RF-GP-0N` el requisito que verifica. Pru
 
 ## Defectos
 
-Práctica 3. Cada defecto está plantado en un commit cuyo padre es `practica-3`, que modifica solo código de producción (ningún archivo de pruebas), y está etiquetado como `practica-3-defecto-N`. Para comprobarlo:
+Práctica 3. Las líneas indicadas corresponden a la etiqueta `practica-3`. Cada defecto está plantado en un commit cuyo padre es `practica-3`, que modifica solo código de producción (ningún archivo de pruebas), y está etiquetado como `practica-3-defecto-N`. Para comprobarlo:
 
 ```bash
 git checkout practica-3-defecto-N
@@ -266,7 +418,7 @@ Los defectos de la Práctica 2 se describen en el README de la etiqueta `practic
 
 ## Guía de Verificación de Criterios de Aceptación
 
-Para reproducir los criterios se provee `src/API/API.http`, que puede ejecutarse desde Visual Studio Code (extensión REST Client) o importarse en Postman. Los tokens de activación y recuperación llegan por correo; si el despachador no está configurado, pueden leerse directamente en las tablas `TokensActivacion` y `TokensRecuperacion`.
+Para reproducir los criterios se provee `src/API/API.http`, que puede ejecutarse desde Visual Studio Code (extensión REST Client) o importarse en Postman. Sirve igual con el contenedor que sin él: en ambos casos la API responde en `http://localhost:5206`. Los enlaces de activación y recuperación llegan por correo; sin SMTP real, en el contenedor se leen con `docker compose exec db bash /scripts/ver-correos.sh` (ver [Correos dentro del contenedor](#correos-dentro-del-contenedor)) y, sin contenedor, en la tabla `CorreosEnCola`.
 
 ### 1. Registro y activación (Bloque 1.1)
 
@@ -325,7 +477,7 @@ Para reproducir los criterios se provee `src/API/API.http`, que puede ejecutarse
 
 | Criterio | Cómo provocarlo | Resultado esperado |
 |----------|-----------------|--------------------|
-| **RD-09** (Los datos sobreviven al reinicio) | Registrar un usuario, detener la API con `Ctrl+C`, volver a ejecutarla e iniciar sesión con ese usuario. | El usuario sigue existiendo: la información vive en SQL Server, fuera del proceso. |
+| **RD-09** (Los datos sobreviven al reinicio) | Registrar un usuario, detener la API con `Ctrl+C`, volver a ejecutarla e iniciar sesión con ese usuario. Con contenedor, ver la sección 11. | El usuario sigue existiendo: la información vive en SQL Server, fuera del proceso. |
 
 ### 7. Estructura de la máquina de estados de negocio (Bloque 1.6)
 
@@ -394,3 +546,37 @@ Las tablas completas de transiciones permitidas y prohibidas están en [`docs/ma
 | **FN-02** (Sin stock) | Cotizar dos órdenes con la RTX 4090 e iniciar el armado de ambas. | La primera `200`; la segunda `409`, sigue `Cotizada` y no se descuenta nada. |
 | **RF-NEG-09** (Independencia) | Revisar `src/Modules/PCBuilderOps/Domain/MaquinaEstadosOrdenEnsamble.cs`. | Tiene sus propios estados y su propia excepción, sin nada de Gestión de permisos. El módulo solo le consulta si el usuario tiene el permiso, desde `OrdenesService`. |
 | **RD-09** | Detener y volver a ejecutar la API; repetir `GET /api/ordenes/mias`. | Las órdenes siguen ahí. |
+
+### 10. Manejador de documentos (Práctica 4)
+
+**Preparación:** iniciar sesión como Administrador y crear dos usuarios Estándar: el dueño de los documentos y "otro Estándar". Las peticiones 16 a 18 y 35 a 36 de `src/API/API.http` lo hacen (cliente y técnico); las peticiones 63 a 77 siguen el orden de esta tabla. Todas las operaciones exigen sesión.
+
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **RF-DOC-01** (Subir) | Como cliente, `POST /api/documentos` con un formulario `multipart/form-data` y el archivo en el campo `archivo`. En Postman: Body → form-data, clave `archivo` de tipo File. Luego `GET /api/documentos/{id}`. | `201` con `id`, `nombre`, `tipoContenido`, `tamanoBytes`, `fechaSubidaUtc` (UTC), `subidoPorId` y `subidoPor`. El mismo registro se consulta después. |
+| **RD-07** (Subida inválida) | Subir sin el campo `archivo`, con un archivo vacío y con uno de más de 10 MB. | `400` con mensaje controlado en los tres casos; no se guarda nada. |
+| **RF-DOC-02** (Listar) | `GET /api/documentos` como el dueño, como otro Estándar y como Administrador. | El dueño ve los suyos; el otro Estándar no ve los ajenos; el Administrador ve los de todos. |
+| **RF-DOC-03** (Descargar) | `GET /api/documentos/{id}/descarga` como el dueño, como Administrador y como otro Estándar. | Dueño y Administrador: `200` con el archivo y su nombre original. Otro Estándar: `403`. |
+| **RF-DOC-04** (Eliminar) | `DELETE /api/documentos/{id}` como otro Estándar y luego como el dueño. Después, listar y descargar. | Otro Estándar: `403`. Dueño: `200`. El documento deja de aparecer en el listado y la descarga responde `404`, pero el registro sigue en la tabla `Documentos` (`EstaEliminado = 1`, con fecha y quién lo eliminó) y el archivo sigue en disco. |
+| **Sin sesión** | `GET /api/documentos` sin token. | `401`. |
+
+### 11. Contenedor y volúmenes persistentes (Práctica 4)
+
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **Un solo comando** | Desde un clon limpio, `cp .env.example .env` y `docker compose up --build` (sección [Contenedor](#contenedor)). | El proyecto arranca sin pasos manuales: migraciones aplicadas y Administrador creado. `POST http://localhost:5206/api/auth/login` con `admin@pcbuilderops.com` / `Admin12345` responde `200`. |
+| **Base no expuesta** | `docker compose ps`. | Solo `api` publica un puerto (`5206`); `db` no publica ninguno. |
+| **RF-DOC-05** y **RD-09** (Los datos sobreviven) | Subir un documento, `docker compose down` (sin `-v`) y `docker compose up`. Iniciar sesión con el usuario, listar y descargar el documento. | El usuario inicia sesión y el documento se lista y se descarga con el mismo contenido. Los archivos viven en el volumen `documentos` y la base en `sqldata`, no en la imagen (`docker volume ls`). |
+| **RD-10** (Secretos fuera del repositorio) | `git log --all -p` en busca de un `.env` o de la clave; revisar `Dockerfile`, `docker-compose.yml` y `.dockerignore`. | `.env` está en `.gitignore` y no existe en ningún commit. Ni el código, ni el `Dockerfile`, ni `docker-compose.yml` contienen secretos: todo llega desde `.env`. `.dockerignore` deja fuera `.env`, `launchSettings.json`, `bin/`, `obj/` y `.git/`. |
+
+### 12. API externa (Práctica 4)
+
+Ver la sección [API externa](#api-externa). Las peticiones 78 a 80 de `src/API/API.http` usan la orden cotizada en la petición 39.
+
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **Con la clave de ejemplo** | Como cliente, `GET /api/ordenes/{id}/costo?moneda=DOP` con el `.env` copiado tal cual de `.env.example`. | `503` "El servicio de tasa de cambio rechazó la clave configurada en TASA_CAMBIO_API_KEY." La API sigue en pie y cotizar u operar órdenes funciona igual. |
+| **Sin clave** | Dejar `TASA_CAMBIO_API_KEY=` vacía en `.env`, `docker compose up -d` y repetir. | `503` "La conversión de moneda no está configurada: define TASA_CAMBIO_API_KEY en el archivo .env." |
+| **API caída** | Poner `TASA_CAMBIO_URL_BASE=http://127.0.0.1:9/` en `.env`, `docker compose up -d` y repetir. | `503` "El servicio de tasa de cambio no responde. Intenta más tarde." |
+| **Con una clave real** | Colocar una clave propia en `TASA_CAMBIO_API_KEY`, `docker compose up -d` y repetir. | `200` con el costo convertido, como el ejemplo real de la sección API externa. |
+| **Validación y acceso** | Sin `?moneda`, con `?moneda=DO`, y con el token de otro Estándar. | `400`, `400` y `404`. |
