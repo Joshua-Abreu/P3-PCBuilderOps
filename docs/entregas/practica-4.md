@@ -104,7 +104,7 @@ Desde `practica-4`, copiando `.env.example` a `.env` y siguiendo el README al pi
 - [x] `Dockerfile`, `.dockerignore`, `docker-compose.yml` y `.env.example`
 - [ ] `docker compose up --build` desde un clon limpio responde en `http://localhost:5206`
 - [x] Volúmenes `documentos` y `sqldata`; el documento y el usuario sobreviven a `down` y `up`
-- [ ] Operación con la API de tasa de cambio y rechazo controlado sin clave o con la API caída
+- [x] Operación con la API de tasa de cambio y rechazo controlado sin clave o con la API caída
 - [ ] Ningún commit contiene la clave ni un `.env`
 - [ ] README: secciones «Contenedor» y «API externa», y cómo leer los enlaces de correo
 - [ ] Revisión acumulada de los seis frentes desde el contenedor

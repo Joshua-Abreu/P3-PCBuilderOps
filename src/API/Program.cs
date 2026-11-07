@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using PCBuilderOps.Data;
 using PCBuilderOps.Services;
+using PCBuilderOps.TasaCambio;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,10 @@ builder.Services.AddScoped<GestionPermisosService>();
 builder.Services.AddScoped<IGestionPermisosService>(sp => sp.GetRequiredService<GestionPermisosService>());
 builder.Services.AddScoped<IVerificadorPermisos>(sp => sp.GetRequiredService<GestionPermisosService>());
 builder.Services.AddScoped<IOrdenesService, OrdenesService>();
+// RD-10: TASA_CAMBIO_API_KEY llega desde .env; sin ella, la conversión responde 503 y el resto sigue funcionando.
+builder.Services.AddSingleton(ConfiguracionTasaCambio.DesdeEntorno());
+builder.Services.AddHttpClient<IProveedorTasaCambio, ExchangeRateApiProveedor>(cliente => cliente.Timeout = TimeSpan.FromSeconds(8));
+builder.Services.AddScoped<IConversionCostoService, ConversionCostoService>();
 // RF-DOC-05: en el contenedor, DOCUMENTOS_RUTA apunta al volumen con nombre.
 builder.Services.AddSingleton<IAlmacenamientoArchivos>(new AlmacenamientoArchivosLocal(
     Environment.GetEnvironmentVariable("DOCUMENTOS_RUTA")

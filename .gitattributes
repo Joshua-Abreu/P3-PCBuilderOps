@@ -1,2 +1,5 @@
 # Los scripts que se ejecutan dentro de los contenedores necesitan finales de línea LF.
 *.sh text eol=lf
+
+# .env.example se copia tal cual a .env; con LF se lee igual en cualquier sistema.
+.env.example text eol=lf
