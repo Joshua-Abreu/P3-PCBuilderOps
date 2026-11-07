@@ -1,15 +1,19 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using API.Arranque;
 using API.Validacion;
 using Core.Auth.Exceptions;
 using Core.Auth.Services;
 using Core.Data;
+using Core.Documentos.Services;
 using Core.Notifications.Services;
+using Core.Notifications.Workers;
 using Core.Permisos.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using PCBuilderOps.Data;
 using PCBuilderOps.Services;
+using PCBuilderOps.TasaCambio;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,10 +42,21 @@ builder.Services.AddScoped<GestionPermisosService>();
 builder.Services.AddScoped<IGestionPermisosService>(sp => sp.GetRequiredService<GestionPermisosService>());
 builder.Services.AddScoped<IVerificadorPermisos>(sp => sp.GetRequiredService<GestionPermisosService>());
 builder.Services.AddScoped<IOrdenesService, OrdenesService>();
+// RD-10: TASA_CAMBIO_API_KEY llega desde .env; sin ella, la conversión responde 503 y el resto sigue funcionando.
+builder.Services.AddSingleton(ConfiguracionTasaCambio.DesdeEntorno());
+builder.Services.AddHttpClient<IProveedorTasaCambio, ExchangeRateApiProveedor>(cliente => cliente.Timeout = TimeSpan.FromSeconds(8));
+builder.Services.AddScoped<IConversionCostoService, ConversionCostoService>();
+// RF-DOC-05: en el contenedor, DOCUMENTOS_RUTA apunta al volumen con nombre.
+builder.Services.AddSingleton<IAlmacenamientoArchivos>(new AlmacenamientoArchivosLocal(
+    Environment.GetEnvironmentVariable("DOCUMENTOS_RUTA")
+        ?? Path.Combine(builder.Environment.ContentRootPath, "almacenamiento", "documentos")));
+builder.Services.AddScoped<IDocumentosService, DocumentosService>();
 builder.Services.AddSingleton(configuracionJwt);
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddSingleton<ISmtpEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IColaCorreoService, ColaCorreoService>();
+// RF-NOT-08: la cola se envía en segundo plano, sin bloquear las operaciones.
+builder.Services.AddHostedService<EmailQueueWorker>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -118,6 +133,8 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
+await MigracionesIniciales.AplicarAsync(app.Services, app.Services.GetRequiredService<ILogger<Program>>());
+
 using (var scope = app.Services.CreateScope())
 {
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
@@ -160,6 +177,16 @@ app.Use(async (context, next) =>
     {
         context.Response.StatusCode = 400;
         await context.Response.WriteAsJsonAsync(new { mensaje = ex.Message });
+    }
+    catch (BadHttpRequestException ex)
+    {
+        context.Response.StatusCode = ex.StatusCode;
+        await context.Response.WriteAsJsonAsync(new
+        {
+            mensaje = ex.StatusCode == StatusCodes.Status413PayloadTooLarge
+                ? "La petición supera el tamaño máximo permitido."
+                : "La petición no es válida."
+        });
     }
     catch (ReglaNegocioException ex)
     {

@@ -11,10 +11,12 @@ namespace API.Controllers;
 public class OrdenesController : NegocioControllerBase
 {
     private readonly IOrdenesService _ordenes;
+    private readonly IConversionCostoService _conversion;
 
-    public OrdenesController(IOrdenesService ordenes)
+    public OrdenesController(IOrdenesService ordenes, IConversionCostoService conversion)
     {
         _ordenes = ordenes;
+        _conversion = conversion;
     }
 
     // FN-01
@@ -45,6 +47,11 @@ public class OrdenesController : NegocioControllerBase
     [HttpGet("ordenes/{id:guid}")]
     public Task<IActionResult> ObtenerMia(Guid id, CancellationToken ct) =>
         Ejecutar(async () => Ok(await _ordenes.ObtenerDelClienteAsync(UsuarioActualId(), id, ct)));
+
+    // FN-01, RF-NEG-06: el dueño de la orden o un Administrador.
+    [HttpGet("ordenes/{id:guid}/costo")]
+    public Task<IActionResult> ConvertirCosto(Guid id, [FromQuery] string? moneda, CancellationToken ct) =>
+        Ejecutar(async () => Ok(await _conversion.ConvertirAsync(ActorActual(), id, moneda, ct)));
 
     // FN-02, RF-NEG-06
     [HttpPost("ordenes/{id:guid}/iniciar-armado")]

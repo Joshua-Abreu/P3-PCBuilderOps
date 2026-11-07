@@ -1,5 +1,6 @@
 using Core.Auth.Domain;
 using Core.Data.Configurations;
+using Core.Documentos.Domain;
 using Core.Notifications.Domain;
 using Core.Permisos.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<TokenRecuperacion> TokensRecuperacion => Set<TokenRecuperacion>();
     public DbSet<SolicitudPermiso> SolicitudesPermiso => Set<SolicitudPermiso>();
     public DbSet<PermisoUsuario> PermisosUsuario => Set<PermisoUsuario>();
+    public DbSet<Documento> Documentos => Set<Documento>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

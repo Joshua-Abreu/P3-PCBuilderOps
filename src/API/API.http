@@ -1,6 +1,6 @@
-# Completa estas dos variables con los mismos valores de ADMIN_CORREO y ADMIN_PASSWORD que usa la API.
-@adminCorreo = admin@ejemplo.com
-@adminPassword = CambiaEsto123
+# Mismos valores de ADMIN_CORREO y ADMIN_PASSWORD que usa la API (aquí, los de .env.example).
+@adminCorreo = admin@pcbuilderops.com
+@adminPassword = Admin12345
 
 # Usuario Estándar (técnico) para Gestión de permisos (peticiones 16 a 32).
 @tecnicoCorreo = tecnico.prueba@itla.edu.do
@@ -637,5 +637,142 @@ Content-Type: application/json
 {
   "tecnicoId": "{{crearTecnico.response.body.id}}"
 }
+
+###
+
+### ===== Manejador de documentos (Práctica 4) =====
+### Requiere las peticiones 16 a 18 (Administrador y técnico) y 35 a 36 (cliente). El técnico hace de "otro Estándar".
+
+### 63. RF-DOC-01: el cliente sube un documento (esperar 201 con nombre, tipo, tamaño, fecha y quién lo subió)
+# @name documento
+POST {{API_HostAddress}}/api/documentos
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: multipart/form-data; boundary=LimiteDocumento
+
+--LimiteDocumento
+Content-Disposition: form-data; name="archivo"; filename="factura-ensamble.txt"
+Content-Type: text/plain
+
+Factura de prueba de PC Builder Ops.
+--LimiteDocumento--
+
+###
+
+### 64. RD-07: subir sin archivo (esperar 400)
+POST {{API_HostAddress}}/api/documentos
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: multipart/form-data; boundary=LimiteDocumento
+
+--LimiteDocumento
+Content-Disposition: form-data; name="otroCampo"
+
+sin archivo
+--LimiteDocumento--
+
+###
+
+### 65. RD-07: subir un archivo vacío (esperar 400)
+POST {{API_HostAddress}}/api/documentos
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: multipart/form-data; boundary=LimiteDocumento
+
+--LimiteDocumento
+Content-Disposition: form-data; name="archivo"; filename="vacio.txt"
+Content-Type: text/plain
+
+
+--LimiteDocumento--
+
+###
+
+### 66. Sin sesión (esperar 401)
+GET {{API_HostAddress}}/api/documentos
+
+###
+
+### 67. RF-DOC-01: consultar el documento con todos sus datos
+GET {{API_HostAddress}}/api/documentos/{{documento.response.body.id}}
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 68. RF-DOC-02: el cliente lista sus documentos
+GET {{API_HostAddress}}/api/documentos
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 69. RF-DOC-02: otro Estándar no ve documentos ajenos (esperar lista sin el documento del cliente)
+GET {{API_HostAddress}}/api/documentos
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 70. RF-DOC-02: el Administrador ve los de todos
+GET {{API_HostAddress}}/api/documentos
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 71. RF-DOC-03: el dueño descarga el documento (esperar 200 con el archivo)
+GET {{API_HostAddress}}/api/documentos/{{documento.response.body.id}}/descarga
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 72. RF-DOC-03: otro Estándar no puede descargarlo (esperar 403)
+GET {{API_HostAddress}}/api/documentos/{{documento.response.body.id}}/descarga
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 73. RF-DOC-03: el Administrador sí puede descargarlo (esperar 200)
+GET {{API_HostAddress}}/api/documentos/{{documento.response.body.id}}/descarga
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 74. RF-DOC-04: otro Estándar no puede eliminarlo (esperar 403)
+DELETE {{API_HostAddress}}/api/documentos/{{documento.response.body.id}}
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 75. RF-DOC-04: el dueño lo elimina de forma lógica (esperar 200)
+DELETE {{API_HostAddress}}/api/documentos/{{documento.response.body.id}}
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 76. RF-DOC-04: ya no aparece en el listado (esperar lista sin el documento)
+GET {{API_HostAddress}}/api/documentos
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 77. RF-DOC-04: descargar un documento eliminado (esperar 404)
+GET {{API_HostAddress}}/api/documentos/{{documento.response.body.id}}/descarga
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### ===== API externa: tasa de cambio (Práctica 4) =====
+### Usa la orden de la petición 39. Con la clave de ejemplo de .env.example se espera 503; con una clave real, 200.
+
+### 78. FN-01: costo de la orden en pesos dominicanos (esperar 200 con clave real, o 503 controlado)
+GET {{API_HostAddress}}/api/ordenes/{{orden.response.body.id}}/costo?moneda=DOP
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 79. RD-07: sin moneda (esperar 400)
+GET {{API_HostAddress}}/api/ordenes/{{orden.response.body.id}}/costo
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 80. RF-NEG-06: otro Estándar no ve el costo de una orden ajena (esperar 404)
+GET {{API_HostAddress}}/api/ordenes/{{orden.response.body.id}}/costo?moneda=DOP
+Authorization: Bearer {{loginTecnico.response.body.token}}
 
 ###

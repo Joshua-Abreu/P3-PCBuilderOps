@@ -5,6 +5,7 @@ using Core.Auth.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using PCBuilderOps.Exceptions;
 using PCBuilderOps.Services;
+using PCBuilderOps.TasaCambio;
 
 namespace API.Controllers;
 
@@ -50,6 +51,10 @@ public abstract class NegocioControllerBase : ControllerBase
         catch (StockInsuficienteException ex)
         {
             return Conflict(new MensajeRespuesta(ex.Message));
+        }
+        catch (TasaCambioNoDisponibleException ex)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new MensajeRespuesta(ex.Message));
         }
     }
 }

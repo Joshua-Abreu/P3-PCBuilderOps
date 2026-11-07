@@ -1,0 +1,21 @@
+# Historial de git y configuración del editor
+.git
+.gitignore
+.vs
+.vscode
+.idea
+
+# Dependencias restauradas y carpetas de compilación
+**/bin
+**/obj
+
+# Secretos y configuración local: nunca entran a la imagen (RD-10)
+.env
+*.env
+**/launchSettings.json
+
+# Datos locales y lo que la imagen no necesita
+**/almacenamiento
+tests
+docs
+*.md

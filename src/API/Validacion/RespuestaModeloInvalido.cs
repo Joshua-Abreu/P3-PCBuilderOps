@@ -9,6 +9,9 @@ public static class RespuestaModeloInvalido
 {
     private const string MensajeBase = "Datos de entrada inválidos.";
     private const string PrefijoRutaJson = "$.";
+    private const string MensajeJsonInvalido = "El cuerpo de la petición no es un JSON válido.";
+    private const string RaizJson = "$";
+    private const string MensajeFormulario = "No se pudo leer el formulario. Revisa que el archivo no supere el tamaño máximo de 10 MB.";
 
     public static IActionResult Crear(ActionContext context)
     {
@@ -16,12 +19,21 @@ public static class RespuestaModeloInvalido
             .Where(p => p.BindingInfo?.BindingSource == BindingSource.Body)
             .Select(p => p.Name);
 
-        return new BadRequestObjectResult(new MensajeRespuesta(ConstruirMensaje(context.ModelState, parametrosDeCuerpo)));
+        var mensaje = ConstruirMensaje(context.ModelState, parametrosDeCuerpo);
+
+        // RF-DOC-01: un formulario que no se puede leer (por ejemplo, demasiado grande) no indica ningún campo.
+        if (mensaje == MensajeBase && context.HttpContext.Request.HasFormContentType)
+            mensaje = MensajeFormulario;
+
+        return new BadRequestObjectResult(new MensajeRespuesta(mensaje));
     }
 
     public static string ConstruirMensaje(ModelStateDictionary modelState, IEnumerable<string> parametrosDeCuerpo)
     {
         var cuerpos = new HashSet<string>(parametrosDeCuerpo, StringComparer.OrdinalIgnoreCase);
+
+        if (modelState.Any(entrada => entrada.Key == RaizJson && entrada.Value is { Errors.Count: > 0 }))
+            return MensajeJsonInvalido;
 
         var campos = modelState
             .Where(entrada => entrada.Value is { Errors.Count: > 0 })

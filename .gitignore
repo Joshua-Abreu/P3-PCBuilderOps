@@ -438,3 +438,6 @@ appsettings.Production.json
 secrets.json
 *.env
 .env.local
+
+# Documentos subidos en ejecución local (RF-DOC-05)
+**/almacenamiento/
