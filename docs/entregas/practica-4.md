@@ -7,7 +7,7 @@
 | Fecha límite | **Martes 10 de noviembre de 2026, 11:59 p. m.** Tarde: hasta 24 h más con 50 % de penalidad; luego no se acepta. |
 | Cómo se entrega | `git tag practica-4` + `git push origin --tags`; URL del repo y `practica-4` en Moodle. |
 | Rama(s) | `feature/practica-4-contenedor` |
-| Estado | ⏳ En curso |
+| Estado | ✅ Etiqueta `practica-4` (PR #24, commit `af48796`); falta la entrega en Moodle |
 
 > *Quien clone el repositorio, copie un archivo de ejemplo y ejecute un comando tiene el proyecto corriendo, con sus documentos guardados, sin instalar nada más que Docker.*
 
@@ -109,6 +109,6 @@ Desde `practica-4`, copiando `.env.example` a `.env` y siguiendo el README al pi
 - [x] README: secciones «Contenedor» y «API externa», y cómo leer los enlaces de correo
 - [x] `API.http`: peticiones de documentos y de la conversión, y credenciales del Administrador de `.env.example`
 - [x] Revisión acumulada de los seis frentes desde el contenedor
-- [ ] PR fusionado, etiqueta `practica-4` subida y verificada desde un clon de GitHub
+- [x] PR fusionado, etiqueta `practica-4` subida y verificada desde un clon de GitHub
 - [ ] Entrega en Moodle
-- [ ] `AGENTS.md` sección 0 actualizada
+- [x] `AGENTS.md` sección 0 actualizada
