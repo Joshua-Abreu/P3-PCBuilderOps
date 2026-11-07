@@ -16,7 +16,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | Máquina de estados del negocio (estructura) | 4 | ✅ Entregada en `practica-1`; sus desviaciones se corrigieron en la Práctica 3. |
 | 2. Gestión de permisos | 6–8 | ✅ Asignación 2 (etiqueta `asignacion-2`, PR #20) y Práctica 2, variante C (etiqueta `practica-2`, PR #21). |
 | Máquina de estados del negocio (pruebas) | 8 | ✅ Práctica 3 (etiqueta `practica-3`, PR #22). Ver `docs/entregas/practica-3.md`. Notificaciones y reportes del negocio (RF-NEG-07 y RF-NEG-08) siguen pendientes. |
-| 3. Manejador de documentos | 9 | Pendiente. |
+| 3. Manejador de documentos | 9 | ⏳ **En curso: Práctica 4** (documentos, contenedores y API externa) en `feature/practica-4-contenedor`. Ver `docs/entregas/practica-4.md`. |
 | 4. Notificaciones y cola de correos | 11–12 | Parcial: existe la cola mínima de la Práctica 1 (sin reintentos, estado fallido ni bandeja interna). |
 | 5. Reportes con agregación | 12 | Pendiente. |
 | 6. Auditoría | 14 | Pendiente. |

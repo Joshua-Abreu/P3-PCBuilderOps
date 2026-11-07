@@ -98,6 +98,18 @@ Las entidades del negocio viven en `src/Modules/PCBuilderOps`, con su `DbContext
 Compatibilidad o datos inválidos → `400`. Sin rol o sin permiso → `403`. Orden que no existe o de otro cliente → `404`. Transición fuera de la tabla o stock insuficiente → `409`. Siempre con `{"mensaje"}`.
 **Por qué:** mantiene el criterio de Gestión de permisos, y `404` en órdenes ajenas no revela que existen.
 
+### 2026-11-07 · Tasa de cambio como API externa, en una operación aparte (RD-07, RD-10)
+`GET /api/ordenes/{id}/costo?moneda=XXX` convierte el costo total de una orden con la tasa de ExchangeRate-API. La clave se lee de `TASA_CAMBIO_API_KEY`, que llega desde `.env`. Sin clave o con la API caída responde un rechazo controlado.
+**Por qué:** encaja con la cotización (FN-01) y calcula con datos del negocio en lugar de reenviar la respuesta. Va aparte de cotizar para que el negocio siga funcionando si la API externa falla.
+
+### 2026-11-07 · Contenedores: puerto 5206, migraciones al arrancar y envío automático de correos (RD-09)
+La aplicación publica el puerto 5206 (el mismo de `API.http` y `APP_BASE_URL`); SQL Server no publica ninguno. La API aplica las migraciones de los dos contextos al arrancar, con reintentos, y registra el `EmailQueueWorker` existente para enviar la cola cada 30 s.
+**Por qué:** la Práctica 4 exige levantar el proyecto con `docker compose up --build` sin pasos manuales. Sin SMTP real, el README explica cómo leer los enlaces con `docker compose exec`, porque la base no es accesible desde fuera.
+
+### 2026-11-07 · Documentos: nombre generado, cualquier tipo, 10 MB y `403` a otros usuarios (RF-DOC-01 a 05, RD-06, RD-07)
+El archivo se guarda con un nombre generado en la carpeta del volumen; el nombre original solo vive en el registro. Se acepta cualquier tipo hasta 10 MB y la descarga se entrega como adjunto. Descargar o eliminar un documento ajeno responde `403`; uno inexistente o eliminado, `404`.
+**Por qué:** el nombre generado impide escribir fuera de la carpeta. No limitar el tipo evita rechazar el archivo con el que se pruebe. `403` deja claro el rechazo que revisa la rúbrica.
+
 ## Pendientes
 
 - **Fechas leídas de la base sin `Z` (RD-11).** `fechaCreacionUtc` sale con `Z` al crearse pero sin ella al leerse de SQL Server (`DateTimeKind.Unspecified`). Unificar marcando las fechas como UTC al leerlas.
