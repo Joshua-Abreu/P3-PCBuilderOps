@@ -1,4 +1,4 @@
-const CLAVE = 'pcbuilderops.token'
+export const CLAVE_TOKEN = 'pcbuilderops.token'
 
 type Oyente = () => void
 
@@ -7,7 +7,7 @@ let tokenSinAlmacen: string | null = null
 
 export function leerToken(): string | null {
   try {
-    return localStorage.getItem(CLAVE)
+    return localStorage.getItem(CLAVE_TOKEN)
   } catch {
     return tokenSinAlmacen
   }
@@ -15,7 +15,7 @@ export function leerToken(): string | null {
 
 export function guardarToken(token: string): void {
   try {
-    localStorage.setItem(CLAVE, token)
+    localStorage.setItem(CLAVE_TOKEN, token)
   } catch {
     tokenSinAlmacen = token
   }
@@ -25,7 +25,7 @@ export function guardarToken(token: string): void {
 export function cerrarSesionLocal(): void {
   tokenSinAlmacen = null
   try {
-    localStorage.removeItem(CLAVE)
+    localStorage.removeItem(CLAVE_TOKEN)
   } catch {
     tokenSinAlmacen = null
   }

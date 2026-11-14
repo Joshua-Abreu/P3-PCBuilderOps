@@ -150,7 +150,7 @@ Opcional, más adelante: descripción e imagen de cada componente para un catál
 
 - [x] Ficha creada
 - [x] Fase 1: base del proyecto
-- [ ] Fase 2: sesión (con B3 y B4)
+- [x] Fase 2: sesión (con B3 y B4)
 - [ ] Fase 3: catálogo (con B1)
 - [ ] Fase 4: armador de PC (con B2)
 - [ ] Fase 5: pantallas del cliente (con B7)

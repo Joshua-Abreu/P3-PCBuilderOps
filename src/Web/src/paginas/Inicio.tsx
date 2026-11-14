@@ -1,4 +1,6 @@
 import { Link } from 'react-router'
+import { esAdministrador } from '../sesion/acceso'
+import { useSesion } from '../sesion/contexto'
 
 const ventajas = [
   {
@@ -25,6 +27,12 @@ const etapas = [
 ]
 
 export function Inicio() {
+  const { usuario } = useSesion()
+  const principal =
+    usuario && esAdministrador(usuario)
+      ? { ruta: '/taller', texto: 'Ir al taller' }
+      : { ruta: '/armar', texto: 'Armar mi PC' }
+
   return (
     <div className="space-y-16">
       <section className="max-w-3xl">
@@ -38,10 +46,10 @@ export function Inicio() {
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            to="/armar"
+            to={principal.ruta}
             className="rounded-md bg-teal-700 px-5 py-2.5 font-medium text-white hover:bg-teal-800"
           >
-            Armar mi PC
+            {principal.texto}
           </Link>
           <Link
             to="/catalogo"
