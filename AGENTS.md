@@ -20,6 +20,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | 4. Notificaciones y cola de correos | 11–12 | Parcial: existe la cola mínima de la Práctica 1, enviada por la API cada 30 s desde la Práctica 4 (sin reintentos, estado fallido ni bandeja interna). |
 | 5. Reportes con agregación | 12 | Pendiente. |
 | 6. Auditoría | 14 | Pendiente. |
+| Frontend web (extra, no calificado) | — | ⏳ En diseño: ver `docs/frontend.md`. Cede ante cualquier entrega del curso. |
 
 ### Desviaciones conocidas (no corregir sin que el usuario lo pida)
 - Gestión de permisos (`tests/Core.Tests`) y el negocio (`tests/PCBuilderOps.Tests`) tienen pruebas automatizadas; Control de acceso aún no (RD-12).
@@ -38,6 +39,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | `docs/entregas/_plantilla.md` | Plantilla para crear el archivo de una entrega nueva. |
 | `docs/decisiones.md` | Decisiones de diseño tomadas y por qué. Consultar antes de cambiar algo que parezca "raro". |
 | `docs/maquina-de-estados.md` | Tabla de transiciones exigida por el maestro (refleja el código actual). |
+| `docs/frontend.md` | Frontend web: tecnologías, pantallas por rol, endpoints que usa, cambios que pide al backend y fases. |
 | `docs/bitacora-*.md` | Bitácoras de sesión con el agente exigidas por el maestro. |
 | `README.md` | Ejecución, variables de entorno y guía de verificación de criterios para el maestro. |
 
@@ -61,7 +63,7 @@ Actúas como un Ingeniero de Software Senior en .NET 10 y tutor técnico estrict
 - **Directo al grano:** Omite introducciones largas, saludos o despedidas de cortesía. Entrega código listo para producción.
 - **Trazabilidad por IDs:** Cada clase, método crítico, prueba o commit sugerido DEBE incluir en su comentario o descripción el ID del requisito que atiende (ej. `// RF-CA-01`, `// RD-05`).
 - **Modificaciones incrementales:** No reescribas archivos gigantes innecesariamente; prioriza diffs o bloques específicos.
-- **Cero código en la raíz:** Todo el código pertenece a `src/Core`, `src/Modules/PCBuilderOps`, `src/API` o `src/Workers`.
+- **Cero código en la raíz:** Todo el código pertenece a `src/Core`, `src/Modules/PCBuilderOps`, `src/API`, `src/Workers` o `src/Web` (frontend React con TypeScript; no contiene reglas de negocio).
 
 ---
 

@@ -114,6 +114,10 @@ El archivo se guarda con un nombre generado en la carpeta del volumen; el nombre
 El commit `6b7f304` (2 de octubre) versionó `src/API/Properties/launchSettings.json` con un `JWT_SECRET` de desarrollo y una cadena de conexión con autenticación de Windows, sin contraseña. El commit `554480a` lo retiró y lo excluyó con `.gitignore`. Ese `JWT_SECRET` ya no se usa en ningún entorno; ningún commit contiene un `.env`, la clave de la API externa ni las contraseñas actuales.
 **Por qué:** reescribir el historial cambiaría los commits de las etiquetas ya evaluadas (`practica-1` a `practica-3`). El secreto expuesto se retiró de uso, que es lo que lo deja sin efecto.
 
+### 2026-11-14 · Frontend en React con TypeScript, como proyecto aparte en `src/Web` (RD-02, RD-06)
+Se agrega un frontend web con Vite, React, TypeScript, React Router, TanStack Query, Tailwind CSS y React Hook Form con Zod. Vive en `src/Web`, fuera de la solución de .NET, y solo consume la API: en desarrollo por el proxy de Vite y en Docker por nginx, ambos en el mismo origen, sin CORS. El diseño, las pantallas y los cambios que pide al backend están en `docs/frontend.md`.
+**Por qué:** el proyecto debe poder usarse como un sistema completo, no solo por Postman. React con TypeScript se elige para aprender ese lenguaje en vez de Blazor. Ser un proyecto aparte demuestra RD-02 (cambiar la interfaz no toca las reglas) y mantiene RD-06 (la autorización sigue en el servidor). No lo califica ninguna rúbrica, así que se trabaja en ramas propias y cede ante cualquier entrega.
+
 ## Pendientes
 
 - **Fechas leídas de la base sin `Z` (RD-11).** `fechaCreacionUtc` sale con `Z` al crearse pero sin ella al leerse de SQL Server (`DateTimeKind.Unspecified`). Unificar marcando las fechas como UTC al leerlas.
