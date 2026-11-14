@@ -101,6 +101,7 @@ public class PasswordService : IPasswordService
         tokenRecuperacion.FueUsado = true;
         usuario.DebeCambiarPassword = false;
         usuario.IntentosFallidos = 0;
+        usuario.BloqueadoHastaUtc = null; // RF-CA-11, RF-CA-19
 
         var sesionesActivas = await _dbContext.SesionesUsuario
             .Where(s => s.UsuarioId == usuario.Id && !s.EstaRevocada)
@@ -170,6 +171,7 @@ public class PasswordService : IPasswordService
         usuario.PasswordHash = _passwordHasher.Hash(nuevaPassword);
         usuario.DebeCambiarPassword = false;
         usuario.IntentosFallidos = 0;
+        usuario.BloqueadoHastaUtc = null; // RF-CA-19, RF-CA-22
 
         var sesionesActivas = await _dbContext.SesionesUsuario
             .Where(s => s.UsuarioId == usuarioId && !s.EstaRevocada)

@@ -200,8 +200,8 @@ public class AuthService : IAuthService
         if (!usuario.EstaActivo)
             throw new AutenticacionException("La cuenta no está activa.");
 
-        if (usuario.BloqueadoHastaUtc.HasValue && usuario.BloqueadoHastaUtc.Value > DateTime.UtcNow)
-            throw new AutenticacionException("La cuenta está bloqueada temporalmente.");
+        if (usuario.BloqueadoHastaUtc is { } bloqueadoHasta && bloqueadoHasta > DateTime.UtcNow)
+            throw new AutenticacionException(MensajeBloqueo(bloqueadoHasta));
 
         if (!_passwordHasher.Verificar(password, usuario.PasswordHash))
         {
@@ -237,6 +237,13 @@ public class AuthService : IAuthService
         await _dbContext.SaveChangesAsync(ct);
 
         return new LoginResultado(tokenJwt, sesion.ExpiracionUtc, usuario.DebeCambiarPassword);
+    }
+
+    // RF-CA-19
+    private static string MensajeBloqueo(DateTime bloqueadoHastaUtc)
+    {
+        var minutos = Math.Max(1, (int)Math.Ceiling((bloqueadoHastaUtc - DateTime.UtcNow).TotalMinutes));
+        return $"La cuenta está bloqueada temporalmente. Intenta de nuevo en {minutos} {(minutos == 1 ? "minuto" : "minutos")}.";
     }
 
     public async Task LogoutAsync(string tokenJwt, CancellationToken ct = default)
