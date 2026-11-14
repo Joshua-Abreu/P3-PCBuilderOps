@@ -25,8 +25,6 @@ public class PasswordService : IPasswordService
         _configuration = configuration;
     }
 
-    private string ObtenerBaseUrl() => UrlBaseAplicacion.Obtener(_configuration);
-
     public async Task OlvidePasswordAsync(string correo, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(correo))
@@ -198,7 +196,7 @@ public class PasswordService : IPasswordService
             FueUsado = false
         };
 
-        var enlaceRecuperacion = $"{ObtenerBaseUrl()}/api/auth/restablecer-password?token={tokenRecuperacion.Token}";
+        var enlaceRecuperacion = UrlBaseAplicacion.EnlaceRecuperacion(_configuration, tokenRecuperacion.Token);
         var correoEnCola = new CorreoEnCola
         {
             Id = Guid.NewGuid(),

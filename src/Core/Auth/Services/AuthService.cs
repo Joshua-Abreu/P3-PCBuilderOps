@@ -32,8 +32,6 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    private string ObtenerBaseUrl() => UrlBaseAplicacion.Obtener(_configuration);
-
     public async Task RegistrarAsync(string nombre, string correo, string password, CancellationToken ct = default)
     {
         _inputValidator.ValidarNombre(nombre);
@@ -69,7 +67,7 @@ public class AuthService : IAuthService
             FueUsado = false
         };
 
-        var enlaceActivacion = $"{ObtenerBaseUrl()}/api/auth/activar?token={tokenActivacion.Token}";
+        var enlaceActivacion = UrlBaseAplicacion.EnlaceActivacion(_configuration, tokenActivacion.Token);
         var correoEnCola = new CorreoEnCola
         {
             Id = Guid.NewGuid(),
@@ -159,7 +157,7 @@ public class AuthService : IAuthService
             FueUsado = false
         };
 
-        var enlaceActivacion = $"{ObtenerBaseUrl()}/api/auth/activar?token={nuevoToken.Token}";
+        var enlaceActivacion = UrlBaseAplicacion.EnlaceActivacion(_configuration, nuevoToken.Token);
         var correoEnCola = new CorreoEnCola
         {
             Id = Guid.NewGuid(),

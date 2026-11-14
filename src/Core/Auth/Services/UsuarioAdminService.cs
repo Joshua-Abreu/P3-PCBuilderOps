@@ -106,7 +106,7 @@ public class UsuarioAdminService : IUsuarioAdminService
                     FueUsado = false
                 };
 
-                var enlaceActivacion = $"{UrlBaseAplicacion.Obtener(_configuration)}/api/auth/activar?token={tokenActivacion.Token}";
+                var enlaceActivacion = UrlBaseAplicacion.EnlaceActivacion(_configuration, tokenActivacion.Token);
                 var correoEnCola = new CorreoEnCola
                 {
                     Id = Guid.NewGuid(),
