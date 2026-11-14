@@ -118,6 +118,10 @@ El commit `6b7f304` (2 de octubre) versionó `src/API/Properties/launchSettings.
 Se agrega un frontend web con Vite, React, TypeScript, React Router, TanStack Query, Tailwind CSS y React Hook Form con Zod. Vive en `src/Web`, fuera de la solución de .NET, y solo consume la API: en desarrollo por el proxy de Vite y en Docker por nginx, ambos en el mismo origen, sin CORS. El diseño, las pantallas y los cambios que pide al backend están en `docs/frontend.md`.
 **Por qué:** el proyecto debe poder usarse como un sistema completo, no solo por Postman. React con TypeScript se elige para aprender ese lenguaje en vez de Blazor. Ser un proyecto aparte demuestra RD-02 (cambiar la interfaz no toca las reglas) y mantiene RD-06 (la autorización sigue en el servidor). No lo califica ninguna rúbrica, así que se trabaja en ramas propias y cede ante cualquier entrega.
 
+### 2026-11-14 · Enlaces de correo hacia el frontend con `WEB_BASE_URL` opcional y permisos en `GET /api/auth/yo` (RF-CA-07, RF-CA-10, RF-CA-16, RF-GP-05)
+Los enlaces de activación y recuperación se generan solo en `UrlBaseAplicacion`. Si existe `WEB_BASE_URL`, abren las pantallas `/activar` y `/restablecer` del frontend, que llaman a la API; si no, apuntan a la API como antes y los `GET` siguen funcionando. `GET /api/auth/yo` agrega `permisos` con los permisos aprobados como texto (`["OperarTaller"]`); al Administrador no se le agregan permisos implícitos: el frontend decide el menú del taller con el rol o el permiso.
+**Por qué:** sin el frontend levantado, el enlace del correo debe seguir sirviendo (revisión acumulada y guía del README), por eso la variable es opcional y no está en `.env.example` hasta que el frontend entre en Docker. Los permisos en `yo` evitan que el frontend tenga que provocar un `403` para saber si muestra el taller.
+
 ## Pendientes
 
 - **Fechas leídas de la base sin `Z` (RD-11).** `fechaCreacionUtc` sale con `Z` al crearse pero sin ella al leerse de SQL Server (`DateTimeKind.Unspecified`). Unificar marcando las fechas como UTC al leerlas.

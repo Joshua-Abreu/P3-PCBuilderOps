@@ -99,6 +99,14 @@ public class GestionPermisosService : IGestionPermisosService, IVerificadorPermi
     public Task<bool> TienePermisoAsync(Guid usuarioId, TipoPermiso permiso, CancellationToken ct = default) =>
         _dbContext.PermisosUsuario.AnyAsync(p => p.UsuarioId == usuarioId && p.Permiso == permiso, ct);
 
+    // RF-GP-05
+    public async Task<IReadOnlyList<TipoPermiso>> ListarDelUsuarioAsync(Guid usuarioId, CancellationToken ct = default) =>
+        await _dbContext.PermisosUsuario
+            .Where(p => p.UsuarioId == usuarioId)
+            .Select(p => p.Permiso)
+            .OrderBy(p => p)
+            .ToListAsync(ct);
+
     private async Task<SolicitudPermiso> ObtenerAsync(Guid solicitudId, CancellationToken ct) =>
         await _dbContext.SolicitudesPermiso.FirstOrDefaultAsync(s => s.Id == solicitudId, ct)
             ?? throw new SolicitudNoEncontradaException();

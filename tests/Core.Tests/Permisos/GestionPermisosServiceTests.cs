@@ -142,6 +142,38 @@ public sealed class GestionPermisosServiceTests : IDisposable
         Assert.False(tienePermiso);
     }
 
+    // RF-GP-05
+    [Fact]
+    public async Task ListarDelUsuario_ConSolicitudAprobada_DevuelveElPermiso()
+    {
+        // Preparar
+        var solicitudId = await CrearSolicitudPendienteAsync(_estandarId);
+        await NuevoServicio().AprobarAsync(solicitudId, _administradorId);
+
+        // Actuar
+        var permisos = await NuevoServicio().ListarDelUsuarioAsync(_estandarId);
+
+        // Verificar
+        Assert.Equal([TipoPermiso.OperarTaller], permisos);
+    }
+
+    // RF-GP-05
+    [Fact]
+    public async Task ListarDelUsuario_SolicitudPendienteOPermisoDeOtro_DevuelveVacio()
+    {
+        // Preparar
+        await CrearSolicitudPendienteAsync(_estandarId);
+        var otroId = _baseDeDatos.CrearUsuario(RolUsuario.Estandar);
+        var solicitudOtro = await CrearSolicitudPendienteAsync(otroId);
+        await NuevoServicio().AprobarAsync(solicitudOtro, _administradorId);
+
+        // Actuar
+        var permisos = await NuevoServicio().ListarDelUsuarioAsync(_estandarId);
+
+        // Verificar
+        Assert.Empty(permisos);
+    }
+
     // RF-GP-04
     [Fact]
     public async Task Rechazar_SolicitudPendienteConMotivo_QuedaRechazadaYGuardaMotivoAprobadorYFecha()

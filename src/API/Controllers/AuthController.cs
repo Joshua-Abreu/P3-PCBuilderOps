@@ -2,6 +2,7 @@ using System.Security.Claims;
 using API.DTOs;
 using Core.Auth.Exceptions;
 using Core.Auth.Services;
+using Core.Permisos.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,11 +14,13 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly IPasswordService _passwordService;
+    private readonly IVerificadorPermisos _verificadorPermisos;
 
-    public AuthController(IAuthService authService, IPasswordService passwordService)
+    public AuthController(IAuthService authService, IPasswordService passwordService, IVerificadorPermisos verificadorPermisos)
     {
         _authService = authService;
         _passwordService = passwordService;
+        _verificadorPermisos = verificadorPermisos;
     }
 
     [HttpPost("registro")]
@@ -109,7 +112,15 @@ public class AuthController : ControllerBase
         if (usuario is null)
             return Unauthorized(new MensajeRespuesta("No autenticado."));
 
-        return Ok(new UsuarioAutenticadoRespuesta(usuario.Id, usuario.Nombre, usuario.Correo, usuario.Rol.ToString()));
+        var permisos = await _verificadorPermisos.ListarDelUsuarioAsync(usuario.Id, ct);
+
+        // RF-CA-07, RF-GP-05
+        return Ok(new UsuarioAutenticadoRespuesta(
+            usuario.Id,
+            usuario.Nombre,
+            usuario.Correo,
+            usuario.Rol.ToString(),
+            permisos.Select(p => p.ToString()).ToList()));
     }
 
     [Authorize]

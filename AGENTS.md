@@ -138,10 +138,10 @@ Detalle en `docs/requisitos/negocio.md`:
 - Ejecutar la API de prueba en un puerto distinto (ej. `--urls http://localhost:5299`) y detenerla por su PID al terminar: lanzada con `dotnet API.dll`, el proceso se llama `dotnet`, no `API`, y si queda vivo bloquea `dotnet build`.
 
 ## 8. Variables de Entorno y Enlaces Externos
-- **Variables:** `CONNECTION_STRING`, `JWT_SECRET` (obligatoria, mínimo 32 bytes), `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_EXPIRACION_MINUTOS`, `APP_BASE_URL`, `ADMIN_NOMBRE`, `ADMIN_CORREO`, `ADMIN_PASSWORD` (las tres `ADMIN_*` son obligatorias para crear el Administrador inicial) y `SMTP_*`. Localmente están en `src/API/Properties/launchSettings.json`, ignorado por git.
+- **Variables:** `CONNECTION_STRING`, `JWT_SECRET` (obligatoria, mínimo 32 bytes), `JWT_ISSUER`, `JWT_AUDIENCE`, `JWT_EXPIRACION_MINUTOS`, `APP_BASE_URL`, `WEB_BASE_URL` (opcional, dirección del frontend), `ADMIN_NOMBRE`, `ADMIN_CORREO`, `ADMIN_PASSWORD` (las tres `ADMIN_*` son obligatorias para crear el Administrador inicial) y `SMTP_*`. Localmente están en `src/API/Properties/launchSettings.json`, ignorado por git.
 - **Cadena de conexión:** se obtiene únicamente con `CadenaConexion.Obtener()` (API, despachador y migraciones). Toda opción nueva de `UseSqlServer` va tanto en `src/API/Program.cs` como en la fábrica del contexto (`AppDbContextFactory` o `PCBuilderOpsDbContextFactory`).
 - **JWT:** se lee únicamente mediante `ConfiguracionJwt.DesdeEntorno()`; emisión y validación comparten esa configuración.
-- **URLs en Correos:** Toda URL de activación o restablecimiento DEBE ser absoluta, usando `UrlBaseAplicacion.Obtener(configuration)`. Queda prohibido generar rutas relativas tipo `/api/...`.
+- **URLs en Correos:** Toda URL de activación o restablecimiento DEBE ser absoluta y se genera solo con `UrlBaseAplicacion.EnlaceActivacion` o `UrlBaseAplicacion.EnlaceRecuperacion`: apuntan al frontend si hay `WEB_BASE_URL` y a la API (`APP_BASE_URL`) si no. Queda prohibido generar rutas relativas tipo `/api/...`.
 - **Negociación SMTP Dinámica:** `SmtpEmailSender` evalúa el puerto: 465 -> `SslOnConnect`, 587 -> `StartTls`, otros -> `Auto`.
 
 ## 9. Seguridad de Sesiones y Endpoints
