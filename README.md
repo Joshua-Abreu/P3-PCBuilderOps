@@ -214,6 +214,7 @@ Las `SMTP_*` solo hacen falta para que los correos lleguen a una bandeja real, y
 | Variable | Obligatoria | Propósito |
 |----------|-------------|-----------|
 | `APP_BASE_URL` | No (`http://localhost:5206`) | Base de los enlaces absolutos de activación y recuperación que se envían por correo. |
+| `WEB_BASE_URL` | No | Dirección del frontend (`src/Web`), por ejemplo `http://localhost:5173`. Si se define, los enlaces de los correos abren sus pantallas (`/activar?token=...` y `/restablecer?token=...`); si no, apuntan a la API (`/api/auth/activar` y `/api/auth/restablecer-password`) como siempre. |
 
 ### Cadena de conexión a base de datos
 
@@ -438,7 +439,7 @@ Para reproducir los criterios se provee `src/API/API.http`, que puede ejecutarse
 | Criterio | Cómo provocarlo | Resultado esperado |
 |----------|-----------------|--------------------|
 | **RF-CA-03** (Inicio de sesión) | `POST /api/auth/login` con credenciales correctas, con contraseña incorrecta y con un correo inexistente. | Correctas: `200 OK` con token. Los dos rechazos son idénticos: `401` "Credenciales incorrectas." |
-| **RF-CA-07** (Usuario autenticado) | `GET /api/auth/yo` con y sin cabecera `Authorization: Bearer <TOKEN>`. | Con token: identificador, correo y rol. Sin token: `401`. |
+| **RF-CA-07** (Usuario autenticado) | `GET /api/auth/yo` con y sin cabecera `Authorization: Bearer <TOKEN>`. | Con token: identificador, nombre, correo, rol y permisos aprobados (por ejemplo `["OperarTaller"]`). Sin token: `401`. |
 | **RF-CA-18** (Cierre de sesión) | `POST /api/auth/logout` y volver a usar el mismo token en `GET /api/auth/yo`. | El token cerrado se rechaza con `401`. |
 | **RF-CA-19** (Bloqueo por intentos) | Fallar la contraseña cinco veces seguidas y en el sexto intento usar la correcta. | El sexto intento se rechaza indicando el bloqueo durante 15 minutos. Un inicio de sesión correcto antes del bloqueo pone el contador en cero. |
 
