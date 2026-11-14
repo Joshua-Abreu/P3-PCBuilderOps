@@ -5,6 +5,7 @@ import { RouterProvider } from 'react-router/dom'
 import { ErrorApi } from './api/errores'
 import './index.css'
 import { enrutador } from './rutas'
+import { ProveedorSesion } from './sesion/ProveedorSesion'
 
 const clienteConsultas = new QueryClient({
   defaultOptions: {
@@ -19,7 +20,9 @@ const clienteConsultas = new QueryClient({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={clienteConsultas}>
-      <RouterProvider router={enrutador} />
+      <ProveedorSesion>
+        <RouterProvider router={enrutador} />
+      </ProveedorSesion>
     </QueryClientProvider>
   </StrictMode>,
 )
