@@ -28,7 +28,7 @@
 | Estilos | Tailwind CSS |
 | Formularios y validación | React Hook Form + Zod |
 | Pruebas | Vitest (cuando haya lógica que probar) |
-| Calidad | ESLint y Prettier |
+| Calidad | oxlint (el revisor que trae la plantilla oficial de Vite) y Prettier |
 
 Las peticiones se hacen con `fetch` envuelto en un cliente propio (`api/cliente.ts`) que agrega el token, convierte `{"mensaje"}` en un error tipado y cierra la sesión ante un `401`. Las versiones se fijan al crear el proyecto, con las estables de ese momento.
 
@@ -131,7 +131,7 @@ Opcional, más adelante: descripción e imagen de cada componente para un catál
 
 | Fase | Contenido | Depende de |
 |------|-----------|------------|
-| 1 | Crear `src/Web` con Vite, TypeScript, Tailwind, ESLint, Prettier y el proxy; cliente HTTP con manejo de `{"mensaje"}` y `401`; diseño base (cabecera, menú, mensajes). | — |
+| 1 | Crear `src/Web` con Vite, TypeScript, Tailwind, oxlint, Prettier y el proxy; cliente HTTP con manejo de `{"mensaje"}` y `401`; diseño base (cabecera, menú, mensajes). | — |
 | 2 | Sesión: login, registro, activación, reenvío, recuperación, cambio de contraseña, cierre de sesión y rutas protegidas por rol. | B3, B4 |
 | 3 | Catálogo con filtros. | B1 |
 | 4 | Armador de PC y cotización. | B2 |
@@ -149,7 +149,7 @@ Opcional, más adelante: descripción e imagen de cada componente para un catál
 ## 12. Checklist
 
 - [x] Ficha creada
-- [ ] Fase 1: base del proyecto
+- [x] Fase 1: base del proyecto
 - [ ] Fase 2: sesión (con B3 y B4)
 - [ ] Fase 3: catálogo (con B1)
 - [ ] Fase 4: armador de PC (con B2)

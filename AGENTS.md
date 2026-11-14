@@ -20,7 +20,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | 4. Notificaciones y cola de correos | 11–12 | Parcial: existe la cola mínima de la Práctica 1, enviada por la API cada 30 s desde la Práctica 4 (sin reintentos, estado fallido ni bandeja interna). |
 | 5. Reportes con agregación | 12 | Pendiente. |
 | 6. Auditoría | 14 | Pendiente. |
-| Frontend web (extra, no calificado) | — | ⏳ En diseño: ver `docs/frontend.md`. Cede ante cualquier entrega del curso. |
+| Frontend web (extra, no calificado) | — | ⏳ Fase 1 (base del proyecto) en `feature/web-base`: ver `docs/frontend.md`. Cede ante cualquier entrega del curso. |
 
 ### Desviaciones conocidas (no corregir sin que el usuario lo pida)
 - Gestión de permisos (`tests/Core.Tests`) y el negocio (`tests/PCBuilderOps.Tests`) tienen pruebas automatizadas; Control de acceso aún no (RD-12).
@@ -131,6 +131,7 @@ Detalle en `docs/requisitos/negocio.md`:
 - Migraciones (Aplicar, primero el Core porque el módulo referencia `Usuarios`): `dotnet ef database update --project src/Core --startup-project src/API --context AppDbContext` y `dotnet ef database update --project src/Modules/PCBuilderOps --startup-project src/API --context PCBuilderOpsDbContext`. Usan `AppDbContextFactory` y `PCBuilderOpsDbContextFactory`: no arrancan la API, solo necesitan la cadena de conexión y **no leen** `launchSettings.json`.
 - Ejecutar API: `dotnet run --project src/API`
 - Ejecutar Worker independiente: `dotnet run --project src/Workers/EmailDispatcher`
+- Frontend (desde `src/Web`): `npm install`, `npm run dev` (puerto 5173, reenvía `/api` a `http://localhost:5206`), `npm test`, `npm run lint`, `npm run format:check` y `npm run build`. Antes de dar por terminado un cambio del frontend, los cuatro últimos deben pasar sin errores.
 
 ### Pruebas manuales del agente
 - Usar siempre una base de datos temporal (`PCBuilderOps_Prueba...`) apuntando `CONNECTION_STRING` a ella; **nunca** la base `PCBuilderOps` del usuario. Borrarla al terminar.
