@@ -3,3 +3,6 @@
 
 # .env.example se copia tal cual a .env; con LF se lee igual en cualquier sistema.
 .env.example text eol=lf
+
+# El frontend usa finales LF, como exige Prettier, en cualquier sistema.
+src/Web/** text=auto eol=lf
