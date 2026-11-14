@@ -23,7 +23,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | Frontend web (extra, no calificado) | — | ⏳ Fases 1 (base) y 2 (sesión) hechas; sigue la fase 3 (catálogo): ver `docs/frontend.md`. Cede ante cualquier entrega del curso. |
 
 ### Desviaciones conocidas (no corregir sin que el usuario lo pida)
-- Gestión de permisos (`tests/Core.Tests`) y el negocio (`tests/PCBuilderOps.Tests`) tienen pruebas automatizadas; Control de acceso aún no (RD-12).
+- Gestión de permisos (`tests/Core.Tests`) y el negocio (`tests/PCBuilderOps.Tests`) tienen pruebas automatizadas; Control de acceso solo las tiene para los enlaces de correo y el bloqueo por intentos (`tests/Core.Tests/Auth`), no para registro, activación ni sesiones (RD-12).
 - Las etiquetas `practica-2-defecto-N` y `practica-3-defecto-N` contienen defectos plantados a propósito: nunca se fusionan a `main` ni se "corrigen".
 - Las etiquetas de entregas (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`, `practica-4`) no se mueven: se evalúa el punto etiquetado.
 
