@@ -4,6 +4,7 @@ public interface IOrdenesService
 {
     Task<IReadOnlyList<ComponenteResumen>> ListarComponentesAsync(CancellationToken ct = default);
     Task<OrdenDetalle> CotizarAsync(Guid clienteId, IReadOnlyCollection<LineaCotizacion> lineas, CancellationToken ct = default);
+    Task<ValidacionArmado> ValidarArmadoAsync(IReadOnlyCollection<LineaCotizacion> lineas, CancellationToken ct = default);
     Task<OrdenDetalle> IniciarArmadoAsync(Guid ordenId, Guid tecnicoId, CancellationToken ct = default);
     Task<OrdenDetalle> PasarAPruebasAsync(ActorTaller actor, Guid ordenId, CancellationToken ct = default);
     Task<OrdenDetalle> RegistrarPruebaAsync(ActorTaller actor, Guid ordenId, DatosPrueba datos, CancellationToken ct = default);
@@ -16,6 +17,14 @@ public interface IOrdenesService
 public record ActorTaller(Guid UsuarioId, bool EsAdministrador);
 
 public record LineaCotizacion(Guid ComponenteId, int Cantidad);
+
+public record ValidacionArmado(
+    bool EsCompatible,
+    IReadOnlyList<string> Faltantes,
+    IReadOnlyList<string> Problemas,
+    long ConsumoWatts,
+    int? PotenciaWatts,
+    decimal Total);
 
 public record DatosPrueba(
     string? TipoSoftwarePrueba,

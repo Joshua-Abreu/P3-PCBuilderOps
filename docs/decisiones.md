@@ -130,6 +130,10 @@ El rechazo por bloqueo dice cuántos minutos faltan («Intenta de nuevo en 15 mi
 `GET /api/componentes` sigue respondiendo `401` sin sesión y la pantalla `/catalogo` del frontend lleva al inicio de sesión. La portada invita al visitante a crear una cuenta para ver el catálogo.
 **Por qué:** RF-NEG-06 exige que ninguna operación del módulo de negocio se ejecute sin sesión válida, y el catálogo es parte de FN-01. Un catálogo público, como el de una tienda, podría leerse como incumplimiento en la revisión acumulada o el proyecto final. Si el profesor confirma que un catálogo público no rompe RF-NEG-06, basta con `[AllowAnonymous]` en ese endpoint y quitar la ruta protegida en el frontend.
 
+### 2026-11-16 · Validar un armado sin cotizar con `VerificadorCompatibilidad.Evaluar` (FN-01, RD-02, RF-NEG-06)
+`VerificadorCompatibilidad.Evaluar` devuelve un diagnóstico completo (faltantes, todos los problemas, consumo y potencia) sin lanzar excepción, y `Validar` lo usa para lanzar el primer error con el mismo mensaje y en el mismo orden que antes. `POST /api/componentes/validar` expone ese diagnóstico más el total, exige sesión como el resto del negocio y no crea órdenes ni reserva existencias. Un armado incompleto se informa en `faltantes`, no como error.
+**Por qué:** el armador del frontend necesita avisar mientras el usuario elige piezas sin duplicar la regla de compatibilidad en el navegador (RD-02). Una sola fuente de la regla evita que la validación previa y la cotización digan cosas distintas; una prueba de caracterización fija los mensajes de `Validar` para que la cotización no cambie.
+
 ## Pendientes
 
 - **Fechas leídas de la base sin `Z` (RD-11).** `fechaCreacionUtc` sale con `Z` al crearse pero sin ella al leerse de SQL Server (`DateTimeKind.Unspecified`). Unificar marcando las fechas como UTC al leerlas.

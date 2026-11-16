@@ -776,3 +776,61 @@ GET {{API_HostAddress}}/api/ordenes/{{orden.response.body.id}}/costo?moneda=DOP
 Authorization: Bearer {{loginTecnico.response.body.token}}
 
 ###
+
+### ===== Validar un armado sin cotizar (frontend, cambio B2) =====
+### Usa el cliente de la petición 36. No crea órdenes ni reserva existencias.
+
+### 81. FN-01: armado compatible (esperar 200, esCompatible: true, consumo, potencia y total)
+POST {{API_HostAddress}}/api/componentes/validar
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuAm5}}", "cantidad": 1 },
+    { "componenteId": "{{placaAm5}}", "cantidad": 1 },
+    { "componenteId": "{{gpuMedia}}", "cantidad": 1 },
+    { "componenteId": "{{fuente850}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 82. FN-01: socket y potencia incompatibles (esperar 200 con los dos problemas)
+POST {{API_HostAddress}}/api/componentes/validar
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuLga1700}}", "cantidad": 1 },
+    { "componenteId": "{{placaAm5}}", "cantidad": 1 },
+    { "componenteId": "{{gpuAlta}}", "cantidad": 1 },
+    { "componenteId": "{{fuente450}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 83. FN-01: armado incompleto (esperar 200 con faltantes PlacaBase y Fuente)
+POST {{API_HostAddress}}/api/componentes/validar
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuAm5}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 84. RF-NEG-06: validar sin sesión (esperar 401)
+POST {{API_HostAddress}}/api/componentes/validar
+Content-Type: application/json
+
+{
+  "componentes": []
+}
+
+###

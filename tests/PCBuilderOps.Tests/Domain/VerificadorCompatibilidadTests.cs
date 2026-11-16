@@ -102,6 +102,106 @@ public class VerificadorCompatibilidadTests
         Assert.Throws<ValidacionException>(accion);
     }
 
+    public static TheoryData<string, (Componente, int)[], string> PrimerErrorPorCaso => new()
+    {
+        { "sin CPU, sockets y potencia mal", [(OrdenesDePrueba.Placa(socket: "AM5"), 1), (OrdenesDePrueba.Fuente(potenciaWatts: 1), 1)], "La cotización debe incluir exactamente una CPU." },
+        { "sin placa", [(OrdenesDePrueba.Cpu(), 1), (OrdenesDePrueba.Fuente(), 1)], "La cotización debe incluir exactamente una placa base." },
+        { "sin fuente y sockets distintos", [(OrdenesDePrueba.Cpu(socket: "LGA1700"), 1), (OrdenesDePrueba.Placa(socket: "AM5"), 1)], "La cotización debe incluir exactamente una fuente de poder." },
+        { "dos CPU", [(OrdenesDePrueba.Cpu(), 2), (OrdenesDePrueba.Placa(), 1), (OrdenesDePrueba.Fuente(), 1)], "La cotización debe incluir exactamente una CPU." },
+        { "sockets distintos y sin potencia", [(OrdenesDePrueba.Cpu(socket: "LGA1700", consumoWatts: 500), 1), (OrdenesDePrueba.Placa(socket: "AM5"), 1), (OrdenesDePrueba.Fuente(potenciaWatts: 100), 1)], "La CPU usa LGA1700 y la placa base usa AM5." },
+        { "potencia insuficiente", [(OrdenesDePrueba.Cpu(consumoWatts: 100), 1), (OrdenesDePrueba.Placa(consumoWatts: 51), 1), (OrdenesDePrueba.Fuente(potenciaWatts: 150), 1)], "La fuente entrega 150 W y los componentes consumen 151 W." }
+    };
+
+    [Theory]
+    [MemberData(nameof(PrimerErrorPorCaso))]
+    public void Validar_ConVariosProblemas_InformaElPrimeroConSuMensajeExacto(
+        string caso,
+        (Componente, int)[] componentes,
+        string mensajeEsperado)
+    {
+        // Actuar
+        var error = Assert.Throws<ValidacionException>(() => VerificadorCompatibilidad.Validar(componentes));
+
+        // Verificar
+        Assert.True(error.Message == mensajeEsperado, $"{caso}: {error.Message}");
+    }
+
+    [Fact]
+    public void Evaluar_ArmadoVacio_ListaLosTresObligatoriosComoFaltantesSinProblemas()
+    {
+        // Actuar
+        var resultado = VerificadorCompatibilidad.Evaluar([]);
+
+        // Verificar
+        Assert.False(resultado.EsCompatible);
+        Assert.Equal([CategoriaComponente.Cpu, CategoriaComponente.PlacaBase, CategoriaComponente.Fuente], resultado.Faltantes);
+        Assert.Empty(resultado.Problemas);
+        Assert.Equal(0, resultado.ConsumoWatts);
+        Assert.Null(resultado.PotenciaWatts);
+    }
+
+    [Fact]
+    public void Evaluar_ArmadoCompatible_DevuelveConsumoYPotencia()
+    {
+        // Preparar
+        (Componente, int)[] componentes =
+        [
+            (OrdenesDePrueba.Cpu(consumoWatts: 100), 1),
+            (OrdenesDePrueba.Placa(consumoWatts: 50), 1),
+            (OrdenesDePrueba.Gpu(consumoWatts: 200), 1),
+            (OrdenesDePrueba.Fuente(potenciaWatts: 500), 1)
+        ];
+
+        // Actuar
+        var resultado = VerificadorCompatibilidad.Evaluar(componentes);
+
+        // Verificar
+        Assert.True(resultado.EsCompatible);
+        Assert.Equal(350, resultado.ConsumoWatts);
+        Assert.Equal(500, resultado.PotenciaWatts);
+    }
+
+    [Fact]
+    public void Evaluar_VariosProblemas_LosInformaTodosALaVez()
+    {
+        // Preparar
+        (Componente, int)[] componentes =
+        [
+            (OrdenesDePrueba.Cpu(socket: "LGA1700", consumoWatts: 300), 1),
+            (OrdenesDePrueba.Placa(socket: "AM5"), 1),
+            (OrdenesDePrueba.Fuente(potenciaWatts: 100), 1)
+        ];
+
+        // Actuar
+        var resultado = VerificadorCompatibilidad.Evaluar(componentes);
+
+        // Verificar
+        Assert.Empty(resultado.Faltantes);
+        Assert.Equal(
+            ["La CPU usa LGA1700 y la placa base usa AM5.", "La fuente entrega 100 W y los componentes consumen 350 W."],
+            resultado.Problemas);
+    }
+
+    [Fact]
+    public void Evaluar_SinFuente_IndicaElConsumoSinComparar()
+    {
+        // Preparar
+        (Componente, int)[] componentes =
+        [
+            (OrdenesDePrueba.Cpu(consumoWatts: 100), 1),
+            (OrdenesDePrueba.Placa(consumoWatts: 50), 1)
+        ];
+
+        // Actuar
+        var resultado = VerificadorCompatibilidad.Evaluar(componentes);
+
+        // Verificar
+        Assert.Equal([CategoriaComponente.Fuente], resultado.Faltantes);
+        Assert.Empty(resultado.Problemas);
+        Assert.Equal(150, resultado.ConsumoWatts);
+        Assert.Null(resultado.PotenciaWatts);
+    }
+
     [Fact]
     public void Validar_DosCpu_SeRechaza()
     {

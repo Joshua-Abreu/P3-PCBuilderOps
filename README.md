@@ -534,6 +534,7 @@ Las tablas completas de transiciones permitidas y prohibidas están en [`docs/ma
 | **RF-NEG-06** (Sin sesión) | Sin token, `GET /api/ordenes/mias`. | `401`. |
 | **FN-01** (Cotizar) | Como cliente, `POST /api/ordenes` con `{"componentes": [{"componenteId": "...", "cantidad": 1}]}`, incluyendo CPU, placa y fuente compatibles. | `201` con `"estado": "Cotizada"`, el código de seguimiento y el costo total. |
 | **FN-01** (Incompatible) | Repetir con la CPU LGA1700 y la placa AM5; luego con la RTX 4090 y la fuente de 450 W. | `400` que indica el socket o la potencia. No se crea ninguna orden. |
+| **FN-01** (Validar sin cotizar) | Como cliente, `POST /api/componentes/validar` con el mismo cuerpo que la cotización (peticiones 81 a 84 de `API.http`). | `200` con `esCompatible`, `faltantes` (por ejemplo `["PlacaBase","Fuente"]`), todos los `problemas` a la vez, `consumoWatts`, `potenciaWatts` y `total`. No crea órdenes ni reserva existencias. Sin sesión: `401`. |
 | **RF-NEG-06** (Rol) | Como Administrador, `POST /api/ordenes`. Como cliente, `POST /api/ordenes/{id}/iniciar-armado`. | `403` en ambos casos. |
 | **FN-05** (Consultar) | Como cliente, `GET /api/ordenes/mias` y `GET /api/ordenes/{id}`. Con el token de otro usuario, `GET /api/ordenes/{id}`. | El cliente ve sus órdenes con componentes y pruebas. El otro usuario recibe `404`. |
 | **RF-NEG-04** (Transición prohibida) | Como Administrador, `POST /api/taller/ordenes/{id}/entregar` sobre la orden Cotizada. | `409` y la orden sigue `Cotizada`. |
