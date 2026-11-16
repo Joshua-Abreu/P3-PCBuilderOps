@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router'
 import { Plantilla } from './componentes/Plantilla'
 import { Activar } from './paginas/Activar'
+import { Catalogo } from './paginas/Catalogo'
 import { Cuenta } from './paginas/Cuenta'
 import { Inicio } from './paginas/Inicio'
 import { Login } from './paginas/Login'
@@ -19,7 +20,6 @@ export const enrutador = createBrowserRouter([
     errorElement: <PaginaError />,
     children: [
       { index: true, element: <Inicio /> },
-      { path: 'catalogo', element: <Proximamente titulo="Catálogo" fase={3} /> },
       { path: 'activar', element: <Activar /> },
       { path: 'restablecer', element: <Restablecer /> },
       {
@@ -33,7 +33,10 @@ export const enrutador = createBrowserRouter([
       },
       {
         element: <RutaProtegida />,
-        children: [{ path: 'cuenta', element: <Cuenta /> }],
+        children: [
+          { path: 'cuenta', element: <Cuenta /> },
+          { path: 'catalogo', element: <Catalogo /> },
+        ],
       },
       {
         element: <RutaProtegida requisito="cliente" />,
