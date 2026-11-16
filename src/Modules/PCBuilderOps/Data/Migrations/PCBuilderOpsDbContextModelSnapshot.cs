@@ -94,6 +94,9 @@ namespace PCBuilderOps.Data.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("RanurasMemoria")
+                        .HasColumnType("int");
+
                     b.Property<string>("SocketOInterfaz")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -101,6 +104,10 @@ namespace PCBuilderOps.Data.Migrations
 
                     b.Property<int>("StockDisponible")
                         .HasColumnType("int");
+
+                    b.Property<string>("TipoMemoria")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
@@ -137,8 +144,10 @@ namespace PCBuilderOps.Data.Migrations
                             Fabricante = "ASUS",
                             Nombre = "TUF Gaming B650-Plus",
                             Precio = 189.00m,
+                            RanurasMemoria = 4,
                             SocketOInterfaz = "AM5",
-                            StockDisponible = 10
+                            StockDisponible = 10,
+                            TipoMemoria = "DDR5"
                         },
                         new
                         {
@@ -148,8 +157,10 @@ namespace PCBuilderOps.Data.Migrations
                             Fabricante = "MSI",
                             Nombre = "PRO Z790-P",
                             Precio = 199.00m,
+                            RanurasMemoria = 4,
                             SocketOInterfaz = "LGA1700",
-                            StockDisponible = 10
+                            StockDisponible = 10,
+                            TipoMemoria = "DDR5"
                         },
                         new
                         {
@@ -218,6 +229,41 @@ namespace PCBuilderOps.Data.Migrations
                             Precio = 49.00m,
                             SocketOInterfaz = "ATX",
                             StockDisponible = 10
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000003"),
+                            Categoria = 1,
+                            ConsumoWatts = 65,
+                            Fabricante = "AMD",
+                            Nombre = "Ryzen 5 5600",
+                            Precio = 129.00m,
+                            SocketOInterfaz = "AM4",
+                            StockDisponible = 10
+                        },
+                        new
+                        {
+                            Id = new Guid("a2000000-0000-0000-0000-000000000003"),
+                            Categoria = 2,
+                            ConsumoWatts = 35,
+                            Fabricante = "Gigabyte",
+                            Nombre = "B550M DS3H",
+                            Precio = 99.00m,
+                            RanurasMemoria = 4,
+                            SocketOInterfaz = "AM4",
+                            StockDisponible = 10,
+                            TipoMemoria = "DDR4"
+                        },
+                        new
+                        {
+                            Id = new Guid("a4000000-0000-0000-0000-000000000002"),
+                            Categoria = 4,
+                            ConsumoWatts = 8,
+                            Fabricante = "Kingston",
+                            Nombre = "Fury Beast 16 GB DDR4",
+                            Precio = 45.00m,
+                            SocketOInterfaz = "DDR4",
+                            StockDisponible = 20
                         });
                 });
 

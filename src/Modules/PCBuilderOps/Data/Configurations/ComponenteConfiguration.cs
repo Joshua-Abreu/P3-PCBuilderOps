@@ -30,6 +30,9 @@ public class ComponenteConfiguration : IEntityTypeConfiguration<Componente>
             .IsRequired()
             .HasMaxLength(Componente.SocketOInterfazMaximo);
 
+        builder.Property(c => c.TipoMemoria)
+            .HasMaxLength(Componente.TipoMemoriaMaximo);
+
         builder.Property(c => c.Precio)
             .HasPrecision(18, 2)
             .IsRequired();

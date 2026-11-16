@@ -53,6 +53,57 @@ public sealed class ValidarArmadoTests : IDisposable
     }
 
     [Fact]
+    public async Task Validar_MemoriaDdr4EnPlacaDdr5_InformaElProblema()
+    {
+        // Actuar
+        var resultado = await ValidarAsync(
+            new(ComponentesIniciales.CpuAm5, 1),
+            new(ComponentesIniciales.PlacaAm5, 1),
+            new(ComponentesIniciales.Ram16GbDdr4, 1),
+            new(ComponentesIniciales.Fuente850W, 1));
+
+        // Verificar
+        Assert.False(resultado.EsCompatible);
+        Assert.Equal(
+            ["La memoria Fury Beast 16 GB DDR4 es DDR4 y la placa base usa DDR5."],
+            resultado.Problemas);
+    }
+
+    [Fact]
+    public async Task Validar_PlataformaAm4ConDdr4_EsCompatibleSinAdvertencias()
+    {
+        // Actuar
+        var resultado = await ValidarAsync(
+            new(ComponentesIniciales.CpuAm4, 1),
+            new(ComponentesIniciales.PlacaAm4, 1),
+            new(ComponentesIniciales.Ram16GbDdr4, 2),
+            new(ComponentesIniciales.Fuente450W, 1));
+
+        // Verificar
+        Assert.True(resultado.EsCompatible);
+        Assert.Empty(resultado.Advertencias);
+        Assert.Equal(116, resultado.ConsumoWatts);
+    }
+
+    [Fact]
+    public async Task Validar_FuenteConPocoMargen_EsCompatiblePeroAdvierte()
+    {
+        // Actuar
+        var resultado = await ValidarAsync(
+            new(ComponentesIniciales.CpuLga1700, 1),
+            new(ComponentesIniciales.PlacaLga1700, 1),
+            new(ComponentesIniciales.GpuMedia, 2),
+            new(ComponentesIniciales.Ram32Gb, 1),
+            new(ComponentesIniciales.Fuente450W, 1));
+
+        // Verificar
+        Assert.True(resultado.EsCompatible);
+        Assert.Equal(
+            ["La fuente queda con menos del 20 % de margen: entrega 450 W y los componentes consumen 405 W."],
+            resultado.Advertencias);
+    }
+
+    [Fact]
     public async Task Validar_ArmadoVacio_IndicaLosObligatoriosQueFaltan()
     {
         // Actuar

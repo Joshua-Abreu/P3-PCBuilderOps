@@ -18,6 +18,11 @@
 @gpuAlta = a3000000-0000-0000-0000-000000000002
 @fuente850 = a6000000-0000-0000-0000-000000000001
 @fuente450 = a6000000-0000-0000-0000-000000000002
+@cpuAm4 = a1000000-0000-0000-0000-000000000003
+@placaLga1700 = a2000000-0000-0000-0000-000000000002
+@placaAm4 = a2000000-0000-0000-0000-000000000003
+@ramDdr5 = a4000000-0000-0000-0000-000000000001
+@ramDdr4 = a4000000-0000-0000-0000-000000000002
 
 @API_HostAddress = http://localhost:5206
 @authToken = {{loginAdmin.response.body.token}}
@@ -831,6 +836,71 @@ Content-Type: application/json
 
 {
   "componentes": []
+}
+
+###
+
+### 85. FN-01: memoria DDR4 en placa DDR5 (esperar 200 con el problema de memoria)
+POST {{API_HostAddress}}/api/componentes/validar
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuAm5}}", "cantidad": 1 },
+    { "componenteId": "{{placaAm5}}", "cantidad": 1 },
+    { "componenteId": "{{ramDdr4}}", "cantidad": 1 },
+    { "componenteId": "{{fuente850}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 86. FN-01: más módulos de memoria que ranuras (esperar 200 con el problema de ranuras)
+POST {{API_HostAddress}}/api/componentes/validar
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuAm4}}", "cantidad": 1 },
+    { "componenteId": "{{placaAm4}}", "cantidad": 1 },
+    { "componenteId": "{{ramDdr4}}", "cantidad": 5 },
+    { "componenteId": "{{fuente450}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 87. FN-01: fuente con poco margen (esperar 200, esCompatible: true y una advertencia)
+POST {{API_HostAddress}}/api/componentes/validar
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuLga1700}}", "cantidad": 1 },
+    { "componenteId": "{{placaLga1700}}", "cantidad": 1 },
+    { "componenteId": "{{gpuMedia}}", "cantidad": 2 },
+    { "componenteId": "{{ramDdr5}}", "cantidad": 1 },
+    { "componenteId": "{{fuente450}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 88. FN-01: cotizar memoria DDR5 en placa DDR4 (esperar 400 y ninguna orden nueva)
+POST {{API_HostAddress}}/api/ordenes
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{cpuAm4}}", "cantidad": 1 },
+    { "componenteId": "{{placaAm4}}", "cantidad": 1 },
+    { "componenteId": "{{ramDdr5}}", "cantidad": 1 },
+    { "componenteId": "{{fuente450}}", "cantidad": 1 }
+  ]
 }
 
 ###

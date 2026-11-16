@@ -8,6 +8,7 @@ public class Componente
     public const int NombreMaximo = 150;
     public const int FabricanteMaximo = 100;
     public const int SocketOInterfazMaximo = 50;
+    public const int TipoMemoriaMaximo = 20;
 
     private Componente() { }
 
@@ -20,6 +21,8 @@ public class Componente
     public int? PotenciaWatts { get; private set; }
     public decimal Precio { get; private set; }
     public int StockDisponible { get; private set; }
+    public string? TipoMemoria { get; private set; }
+    public int? RanurasMemoria { get; private set; }
 
     public static Componente Crear(
         Guid id,
@@ -30,7 +33,9 @@ public class Componente
         int consumoWatts,
         int? potenciaWatts,
         decimal precio,
-        int stockDisponible) => new()
+        int stockDisponible,
+        string? tipoMemoria = null,
+        int? ranurasMemoria = null) => new()
     {
         Id = id,
         Nombre = nombre,
@@ -40,7 +45,9 @@ public class Componente
         ConsumoWatts = consumoWatts,
         PotenciaWatts = potenciaWatts,
         Precio = precio,
-        StockDisponible = stockDisponible
+        StockDisponible = stockDisponible,
+        TipoMemoria = tipoMemoria,
+        RanurasMemoria = ranurasMemoria
     };
 
     // FN-02

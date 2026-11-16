@@ -11,8 +11,17 @@ public static class OrdenesDePrueba
     public static Componente Cpu(string socket = "AM5", int consumoWatts = 100, int stock = 5) =>
         Componente.Crear(Guid.NewGuid(), "CPU", CategoriaComponente.Cpu, "AMD", socket, consumoWatts, null, 300m, stock);
 
-    public static Componente Placa(string socket = "AM5", int consumoWatts = 50) =>
-        Componente.Crear(Guid.NewGuid(), "Placa", CategoriaComponente.PlacaBase, "ASUS", socket, consumoWatts, null, 200m, 5);
+    public static Componente Placa(
+        string socket = "AM5",
+        int consumoWatts = 50,
+        string? tipoMemoria = null,
+        int? ranurasMemoria = null) =>
+        Componente.Crear(
+            Guid.NewGuid(), "Placa", CategoriaComponente.PlacaBase, "ASUS", socket, consumoWatts, null, 200m, 5,
+            tipoMemoria, ranurasMemoria);
+
+    public static Componente Ram(string tipo = "DDR5", int consumoWatts = 10) =>
+        Componente.Crear(Guid.NewGuid(), $"RAM {tipo}", CategoriaComponente.Ram, "Corsair", tipo, consumoWatts, null, 100m, 10);
 
     public static Componente Fuente(int potenciaWatts = 500) =>
         Componente.Crear(Guid.NewGuid(), "Fuente", CategoriaComponente.Fuente, "Corsair", "ATX", 0, potenciaWatts, 100m, 5);

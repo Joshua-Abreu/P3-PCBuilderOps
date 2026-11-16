@@ -49,6 +49,15 @@ export function TarjetaComponente({ componente }: { componente: Componente }) {
           <dt className="text-xs text-texto-suave">{energia.titulo}</dt>
           <dd className="mt-0.5 font-mono text-sm font-medium">{energia.valor}</dd>
         </div>
+        {componente.tipoMemoria && (
+          <div className="col-span-2 rounded-lg bg-superficie-2 px-3 py-2.5">
+            <dt className="text-xs text-texto-suave">Memoria</dt>
+            <dd className="mt-0.5 font-mono text-sm font-medium">
+              {componente.tipoMemoria}
+              {componente.ranurasMemoria !== null && ` · ${componente.ranurasMemoria} ranuras`}
+            </dd>
+          </div>
+        )}
       </dl>
 
       <p className="mt-auto font-mono text-2xl font-semibold">
