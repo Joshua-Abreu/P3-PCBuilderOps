@@ -25,6 +25,18 @@ public class OrdenesController : NegocioControllerBase
         Ok(await _ordenes.ListarComponentesAsync(ct));
 
     // FN-01, RF-NEG-06
+    [HttpPost("componentes/validar")]
+    public Task<IActionResult> ValidarArmado([FromBody] CotizarOrdenRequest request, CancellationToken ct) =>
+        Ejecutar(async () =>
+        {
+            if (request.Componentes.Any(l => l is null))
+                return BadRequest(new MensajeRespuesta("La lista de componentes no puede incluir elementos vacíos."));
+
+            var lineas = request.Componentes.Select(l => new LineaCotizacion(l.ComponenteId, l.Cantidad)).ToList();
+            return Ok(await _ordenes.ValidarArmadoAsync(lineas, ct));
+        });
+
+    // FN-01, RF-NEG-06
     [HttpPost("ordenes")]
     [Authorize(Roles = "Estandar")]
     public Task<IActionResult> Cotizar([FromBody] CotizarOrdenRequest request, CancellationToken ct) =>

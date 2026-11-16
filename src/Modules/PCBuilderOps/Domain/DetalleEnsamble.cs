@@ -7,6 +7,11 @@ public class DetalleEnsamble
 {
     public const int CantidadMaxima = 16;
 
+    public static readonly string MensajeCantidadInvalida =
+        $"La cantidad de cada componente debe estar entre 1 y {CantidadMaxima}.";
+
+    public static bool CantidadValida(int cantidad) => cantidad is > 0 and <= CantidadMaxima;
+
     private DetalleEnsamble() { }
 
     public Guid Id { get; private set; }
@@ -20,8 +25,8 @@ public class DetalleEnsamble
 
     internal static DetalleEnsamble Crear(Guid ordenEnsambleId, Componente componente, int cantidad)
     {
-        if (cantidad is <= 0 or > CantidadMaxima)
-            throw new ValidacionException($"La cantidad de cada componente debe estar entre 1 y {CantidadMaxima}.");
+        if (!CantidadValida(cantidad))
+            throw new ValidacionException(MensajeCantidadInvalida);
 
         return new DetalleEnsamble
         {

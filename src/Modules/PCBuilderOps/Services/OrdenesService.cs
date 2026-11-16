@@ -59,6 +59,25 @@ public class OrdenesService : IOrdenesService
         return ADetalle(orden);
     }
 
+    // FN-01
+    public async Task<ValidacionArmado> ValidarArmadoAsync(IReadOnlyCollection<LineaCotizacion> lineas, CancellationToken ct = default)
+    {
+        var componentes = await ResolverComponentesAsync(lineas, ct);
+        var resultado = VerificadorCompatibilidad.Evaluar(componentes);
+        var problemas = resultado.Problemas.ToList();
+
+        if (componentes.Any(c => !DetalleEnsamble.CantidadValida(c.Cantidad)))
+            problemas.Add(DetalleEnsamble.MensajeCantidadInvalida);
+
+        return new ValidacionArmado(
+            resultado.Faltantes.Count == 0 && problemas.Count == 0,
+            resultado.Faltantes.Select(c => c.ToString()).ToList(),
+            problemas,
+            resultado.ConsumoWatts,
+            resultado.PotenciaWatts,
+            componentes.Sum(c => c.Componente.Precio * c.Cantidad));
+    }
+
     // FN-02
     public async Task<OrdenDetalle> IniciarArmadoAsync(Guid ordenId, Guid tecnicoId, CancellationToken ct = default)
     {
