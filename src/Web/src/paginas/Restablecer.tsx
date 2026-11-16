@@ -11,7 +11,7 @@ import { cerrarSesionLocal } from '../sesion/almacenToken'
 import { esquemaRestablecer, type DatosRestablecer } from '../sesion/esquemas'
 
 const enlaceNuevo = (
-  <Link to="/olvide-password" className="font-medium text-teal-700 hover:underline">
+  <Link to="/olvide-password" className="font-medium text-acento-texto hover:underline">
     Pedir un enlace nuevo
   </Link>
 )

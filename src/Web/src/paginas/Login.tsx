@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router'
 import { mensajeDeError } from '../api/errores'
 import { Boton, Campo, TarjetaFormulario } from '../componentes/Formulario'
 import { Mensaje } from '../componentes/Mensaje'
+import { VentajasTaller } from '../componentes/VentajasTaller'
 import { useSesion } from '../sesion/contexto'
 import { esquemaLogin, type DatosLogin } from '../sesion/esquemas'
 
@@ -41,17 +42,23 @@ export function Login() {
   return (
     <TarjetaFormulario
       titulo="Iniciar sesión"
-      descripcion="Entra para cotizar tu PC y seguir tus órdenes."
+      descripcion="Usa el correo con el que te registraste."
+      lateral={
+        <VentajasTaller
+          titulo="Arma tu PC y sigue cada paso del taller"
+          texto="Elige las piezas, comprueba que sean compatibles y pide la cotización. Después ves tu orden avanzar hasta la entrega."
+        />
+      }
       pie={
         <>
           <p>
             ¿No tienes cuenta?{' '}
-            <Link to="/registro" className="font-medium text-teal-700 hover:underline">
+            <Link to="/registro" className="font-medium text-acento-texto hover:underline">
               Regístrate
             </Link>
           </p>
           <p>
-            <Link to="/olvide-password" className="font-medium text-teal-700 hover:underline">
+            <Link to="/olvide-password" className="font-medium text-acento-texto hover:underline">
               Olvidé mi contraseña
             </Link>
           </p>

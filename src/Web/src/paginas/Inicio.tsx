@@ -36,31 +36,31 @@ export function Inicio() {
   return (
     <div className="space-y-16">
       <section className="max-w-3xl">
-        <p className="text-sm font-medium text-teal-700">Taller de computadoras a medida</p>
+        <p className="text-sm font-medium text-acento-texto">Taller de computadoras a medida</p>
         <h1 className="mt-2 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
           Arma tu PC a medida, sin sorpresas
         </h1>
-        <p className="mt-4 text-lg text-slate-600">
+        <p className="mt-4 text-lg text-texto-suave">
           Elige cada componente, recibe tu cotización al instante y sigue tu equipo desde el armado
           hasta la entrega.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
             to={principal.ruta}
-            className="rounded-md bg-teal-700 px-5 py-2.5 font-medium text-white hover:bg-teal-800"
+            className="rounded-lg bg-acento px-5 py-2.5 font-semibold text-sobre-acento hover:bg-acento-claro"
           >
             {principal.texto}
           </Link>
           <Link
             to="/catalogo"
-            className="rounded-md border border-slate-300 bg-white px-5 py-2.5 font-medium text-slate-800 hover:bg-slate-100"
+            className="rounded-lg border border-borde-fuerte bg-superficie px-5 py-2.5 font-medium text-texto hover:bg-superficie-2"
           >
             Ver catálogo
           </Link>
         </div>
         {!usuario && (
-          <p className="mt-4 text-sm text-slate-600">
-            <Link to="/registro" className="font-medium text-teal-700 hover:underline">
+          <p className="mt-4 text-sm text-texto-suave">
+            <Link to="/registro" className="font-medium text-acento-texto hover:underline">
               Crea tu cuenta gratis
             </Link>{' '}
             para ver el catálogo, cotizar y seguir tus órdenes.
@@ -73,9 +73,9 @@ export function Inicio() {
           Ventajas
         </h2>
         {ventajas.map(({ titulo, texto }) => (
-          <article key={titulo} className="rounded-xl border border-slate-200 bg-white p-5">
+          <article key={titulo} className="rounded-xl border border-borde bg-superficie p-5">
             <h3 className="font-semibold">{titulo}</h3>
-            <p className="mt-2 text-sm text-slate-600">{texto}</p>
+            <p className="mt-2 text-sm text-texto-suave">{texto}</p>
           </article>
         ))}
       </section>
@@ -86,12 +86,12 @@ export function Inicio() {
         </h2>
         <ol className="mt-6 grid gap-4 sm:grid-cols-4">
           {etapas.map(({ estado, texto }, indice) => (
-            <li key={estado} className="rounded-xl border border-slate-200 bg-white p-5">
-              <span className="flex size-7 items-center justify-center rounded-full bg-teal-700 text-sm font-semibold text-white">
+            <li key={estado} className="rounded-xl border border-borde bg-superficie p-5">
+              <span className="flex size-7 items-center justify-center rounded-full bg-acento text-sm font-semibold text-sobre-acento">
                 {indice + 1}
               </span>
               <p className="mt-3 font-semibold">{estado}</p>
-              <p className="mt-1 text-sm text-slate-600">{texto}</p>
+              <p className="mt-1 text-sm text-texto-suave">{texto}</p>
             </li>
           ))}
         </ol>

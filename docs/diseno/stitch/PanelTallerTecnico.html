@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-primary-fixed-variant":"#004e5c","on-primary":"#003640","outline":"#869397","on-error":"#690005","surface-dim":"#0b1326","on-background":"#dae2fd","surface-bright":"#31394d","primary-container":"#06b6d4","on-primary-container":"#00424f","on-surface-variant":"#bcc9cd","secondary-fixed-dim":"#adc6ff","surface-container-lowest":"#060e20","surface-container-high":"#222a3d","primary-fixed":"#acedff","on-secondary-fixed":"#001a42","tertiary-container":"#1bbd85","inverse-surface":"#dae2fd","inverse-primary":"#00687a","primary":"#4cd7f6","on-secondary-container":"#e6ecff","error-container":"#93000a","on-tertiary-fixed-variant":"#005236","secondary-fixed":"#d8e2ff","surface-tint":"#4cd7f6","on-secondary-fixed-variant":"#004395","surface-variant":"#2d3449","surface-container":"#171f33","on-primary-fixed":"#001f26","on-tertiary-fixed":"#002113","surface-container-highest":"#2d3449","outline-variant":"#3d494c","background":"#0b1326","primary-fixed-dim":"#4cd7f6","on-secondary":"#002e6a","inverse-on-surface":"#283044","secondary":"#adc6ff","on-error-container":"#ffdad6","tertiary-fixed":"#6ffbbe","on-tertiary":"#003824","on-tertiary-container":"#00452e","surface":"#0b1326","tertiary-fixed-dim":"#4edea3","on-surface":"#dae2fd","error":"#ffb4ab","tertiary":"#4edea3","surface-container-low":"#131b2e","secondary-container":"#0566d9"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-lg":"1.25rem","gutter":"1rem","space-xs":"0.25rem","space-sm":"0.5rem","space-md":"0.75rem","margin":"1rem","margin-desktop":"2rem","gutter-desktop":"1.5rem","space-xl":"2rem"},fontFamily:{"label-sm":["JetBrains Mono"],"body-lg":["Inter"],"headline-lg":["Inter"],"headline-sm":["Inter"],"label-lg":["JetBrains Mono"],"body-sm":["Inter"],"body-md":["Inter"],"label-md":["JetBrains Mono"],"display":["Inter"],"headline-lg-mobile":["Inter"],"headline-md":["Inter"]},fontSize:{"label-sm":["0.6875rem",{"lineHeight":"0.875rem","letterSpacing":"0.06em","fontWeight":"400"}],"body-lg":["1rem",{"lineHeight":"1.5rem","fontWeight":"400"}],"headline-lg":["2.25rem",{"lineHeight":"2.75rem","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["1.125rem",{"lineHeight":"1.5rem","letterSpacing":"-0.01em","fontWeight":"600"}],"label-lg":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.02em","fontWeight":"500"}],"body-sm":["0.75rem",{"lineHeight":"1rem","fontWeight":"400"}],"body-md":["0.875rem",{"lineHeight":"1.25rem","fontWeight":"400"}],"label-md":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.04em","fontWeight":"500"}],"display":["3rem",{"lineHeight":"3.5rem","letterSpacing":"-0.025em","fontWeight":"700"}],"headline-lg-mobile":["1.75rem",{"lineHeight":"2.25rem","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-md":["1.5rem",{"lineHeight":"2rem","letterSpacing":"-0.015em","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col"><div class="h-16 px-gutter flex items-center gap-space-sm bg-surface-container"><img alt="PC Builder Ops Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrBUH9CQIsn3zQWvt-vfRbBZJlgYjNRz_eSs-ibs0OoaJQIU7zBtPV21Pju2AYTgTVmlVAN89dP4rJLqRi57J7hXbAmOf9sm5J97GtF5HuMzGrrQNu5QlgpI5Ql9u5WAvKbyJQj5nE_p27Y1HGFqbmYbMPiyEaHa4VG9FIU3CWgncsnVciJ5OWpiWazOy75Ex_Xm3h8Qi3OmntKenMaQn_24AmyFBPQUj-5d2NHlxAqE"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight">PC Builder Ops</span><span class="font-label-sm text-label-sm text-outline uppercase">Workshop Suite</span></div></div><div class="px-gutter pt-space-lg pb-space-sm"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Estación de Trabajo</span></div><nav class="flex flex-col gap-space-xs px-space-sm" data-active-classes="bg-primary-container text-on-primary-container font-headline-sm"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md" data-path="pc-builder" href="#"><span class="material-symbols-outlined text-[1.25rem]">build</span><span>Armador de PC</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md" data-path="catalogo-de-componentes" href="#"><span class="material-symbols-outlined text-[1.25rem]">memory</span><span>Catálogo</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md" data-path="taller-tecnico" href="#"><span class="material-symbols-outlined text-[1.25rem]">precision_manufacturing</span><span>Taller Técnico</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md" data-path="mis-ordenes" href="#"><span class="material-symbols-outlined text-[1.25rem]">inventory_2</span><span>Mis Órdenes</span></a></nav></div><div class="p-gutter flex flex-col gap-space-sm bg-surface-container-lowest"><div class="flex items-center justify-between px-space-sm py-space-xs rounded bg-surface-container"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(78,222,163,0.5)]"></span><span class="font-label-sm text-label-sm text-on-surface">Taller Activo</span></div><span class="font-label-sm text-label-sm text-primary">v2.4.0</span></div><a class="flex items-center justify-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-bright transition-colors font-body-sm text-body-sm" data-path="inicio-de-sesion" href="#"><span class="material-symbols-outlined text-[1.125rem]">logout</span><span>Cerrar Sesión</span></a></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.3)] z-40"><div class="h-16 w-full px-gutter-desktop flex items-center justify-between"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded-lg"><span class="material-symbols-outlined text-outline text-[1.125rem]">bolt</span><span class="font-label-sm text-label-sm text-on-surface-variant">Carga PSU:</span><span class="font-label-sm text-label-sm text-tertiary">485W / 850W</span></div><div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded-lg"><span class="material-symbols-outlined text-outline text-[1.125rem]">verified</span><span class="font-label-sm text-label-sm text-on-surface-variant">Compatibilidad:</span><span class="font-label-sm text-label-sm text-primary">100% Validada</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-full bg-surface-container-high"><span class="w-2 h-2 rounded-full bg-tertiary"></span><span class="font-label-sm text-label-sm text-on-surface">Banco #04 En línea</span></div><div class="h-6 w-px bg-outline-variant"></div><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjytWAxhY_fHHzSfKoFbdvQRtQho4mQXR8IA3gArNxqw1B23gyoGw9W4DOQTvsij8cCWPEMz2nv4RfRnvRauDRAGLGlLh4_IUKQbu4L3FDdL5z9zNnua26L6xHbzgaxOBRACUHrd6D6I0e_hLSAsJynAAuYKR5zQDwEEQCw8sMsv755EFbQRKYYO1T7v65-xhXNYp0LVojp2WjudEpN195kncGa9OHWcOHQW0vtm4"/><div class="flex flex-col text-left"><span class="font-body-sm text-body-sm text-on-surface font-semibold leading-none">Técnico Alex R.</span><span class="font-label-sm text-label-sm text-outline">Lead Assembler</span></div></div></div></div></header><main class="relative pt-16 w-full min-h-screen bg-background"><div class="flex flex-col w-full">
+<!-- Dynamic Workbench Layout Container -->
+<div class="p-gutter-desktop flex flex-col gap-space-xl max-w-[1720px] mx-auto w-full">
+<!-- 1. Cabecera de la Estación de Trabajo -->
+<header class="flex flex-col gap-space-lg">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="px-space-xs py-0.5 rounded bg-primary/10 text-primary font-label-sm uppercase tracking-widest">Diagnóstico &amp; Certificación</span>
+<span class="text-outline font-label-sm">|</span>
+<span class="font-label-sm text-outline uppercase tracking-wider">Módulo de Telemetría v3.19</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Panel del Taller &amp; Banco de Pruebas</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">
+            Monitoreo en tiempo real de diagnóstico de estrés térmico/eléctrico, supervisión de bancos físicos y protocolo de verificación QC para ensamble de alta precisión.
+          </p>
+</div>
+<!-- Workbench Quick Action Suite -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<button class="flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-primary-container text-on-primary-container hover:bg-primary transition-all font-body-sm shadow-[0_0_16px_-2px_rgba(6,182,212,0.35)] cursor-pointer" id="btn-stress-test">
+<span class="material-symbols-outlined text-[1.25rem]">play_circle</span>
+<span class="font-semibold">Test de Estrés (Full Suite)</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-body-sm">
+<span class="material-symbols-outlined text-outline text-[1.25rem]">report</span>
+<span>Registrar RMA</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-body-sm">
+<span class="material-symbols-outlined text-outline text-[1.25rem]">pause_circle</span>
+<span>Pausar Banco</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-tertiary-container/20 text-tertiary hover:bg-tertiary-container/30 transition-colors font-body-sm">
+<span class="material-symbols-outlined text-[1.25rem]">verified_user</span>
+<span class="font-semibold">Emitir Certificado QC</span>
+</button>
+</div>
+</div>
+<!-- Selector de Bancos Físicos (Tabs Interactivos) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm">
+<!-- Banco 01 -->
+<button class="flex items-center justify-between p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container text-left transition-all group">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-outline uppercase">Muelle #01</span>
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+</div>
+<span class="font-headline-sm text-body-md text-on-surface group-hover:text-primary transition-colors">Banco #01</span>
+<span class="font-label-sm text-on-surface-variant">Ensamble Físico (Placa)</span>
+</div>
+<span class="font-label-sm text-outline">#BKO-88224</span>
+</button>
+<!-- Banco 02 -->
+<button class="flex items-center justify-between p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container text-left transition-all group">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-outline uppercase">Muelle #02</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</div>
+<span class="font-headline-sm text-body-md text-on-surface group-hover:text-primary transition-colors">Banco #02</span>
+<span class="font-label-sm text-on-surface-variant">Cable Management &amp; Sleeving</span>
+</div>
+<span class="font-label-sm text-outline">#BKO-88210</span>
+</button>
+<!-- Banco 03 -->
+<button class="flex items-center justify-between p-space-md rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container-low text-left opacity-75 hover:opacity-100 transition-all group">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-outline uppercase">Muelle #03</span>
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+</div>
+<span class="font-headline-sm text-body-md text-on-surface-variant group-hover:text-on-surface transition-colors">Banco #03</span>
+<span class="font-label-sm text-outline">Despejado / Listo para recepción</span>
+</div>
+<span class="font-label-sm text-tertiary">DISPONIBLE</span>
+</button>
+<!-- Banco 04 (Activo Seleccionado) -->
+<div class="flex items-center justify-between p-space-md rounded-lg bg-surface-container-high shadow-[0_0_16px_-2px_rgba(6,182,212,0.3)] relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="flex flex-col gap-0.5 pl-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+</span>
+<span class="font-label-sm text-primary uppercase font-bold">Muelle #04 - Activo</span>
+</div>
+<span class="font-headline-sm text-body-md text-on-surface font-semibold">Banco #04</span>
+<span class="font-label-sm text-on-surface-variant">Burn-In &amp; Telemetría (Alex R.)</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-tertiary font-bold">PASS 12/12</span>
+<span class="font-label-sm text-outline">#BKO-88219</span>
+</div>
+</div>
+</div>
+</header>
+<!-- 2. Tarjetas de Métricas Globales del Taller (KPIs) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- KPI 1 -->
+<div class="p-space-lg rounded-xl bg-surface-container-low flex flex-col justify-between gap-space-md shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-outline uppercase tracking-wider">Capacidad de Bancos</span>
+<span class="p-space-xs rounded bg-surface-container-high text-primary material-symbols-outlined text-[1.25rem]">precision_manufacturing</span>
+</div>
+<div class="flex items-baseline justify-between">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-on-surface">4</span>
+<span class="font-body-lg text-body-lg text-outline">/ 5 activos</span>
+</div>
+<span class="font-label-md text-label-md text-tertiary bg-tertiary/10 px-space-xs py-0.5 rounded">80% Ocupación</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 80%"></div>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="p-space-lg rounded-xl bg-surface-container-low flex flex-col justify-between gap-space-md shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-outline uppercase tracking-wider">Tests de Estrés en Curso</span>
+<span class="p-space-xs rounded bg-surface-container-high text-tertiary material-symbols-outlined text-[1.25rem]">speed</span>
+</div>
+<div class="flex items-baseline justify-between">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-on-surface">3</span>
+<span class="font-body-lg text-body-lg text-outline">builds</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">2 Cinebench / 1 FurMark</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="font-label-sm text-outline">Carga agregada de banco: 1,420W</span>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="p-space-lg rounded-xl bg-surface-container-low flex flex-col justify-between gap-space-md shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-outline uppercase tracking-wider">Tasa Aprobación QC</span>
+<span class="p-space-xs rounded bg-surface-container-high text-primary material-symbols-outlined text-[1.25rem]">task_alt</span>
+</div>
+<div class="flex items-baseline justify-between">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-tertiary">98.4%</span>
+<span class="font-body-sm text-body-sm text-outline">últimos 30 días</span>
+</div>
+<span class="font-label-sm text-tertiary flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[1rem]">arrow_upward</span> +0.6%
+          </span>
+</div>
+<span class="font-label-sm text-outline">123 de 125 builds validados al primer intento</span>
+</div>
+<!-- KPI 4 -->
+<div class="p-space-lg rounded-xl bg-surface-container-low flex flex-col justify-between gap-space-md shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-outline uppercase tracking-wider">Tiempo Promedio Burn-In</span>
+<span class="p-space-xs rounded bg-surface-container-high text-secondary material-symbols-outlined text-[1.25rem]">timer</span>
+</div>
+<div class="flex items-baseline justify-between">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-on-surface">04h 30m</span>
+<span class="font-body-sm text-body-sm text-outline">por equipo</span>
+</div>
+<span class="font-label-md text-label-md text-primary bg-primary/10 px-space-xs py-0.5 rounded">Estándar ISO</span>
+</div>
+<span class="font-label-sm text-outline">Objetivo de taller: 6 horas en rigs de uso industrial</span>
+</div>
+</section>
+<!-- 3 & 4. Zona Principal de Diagnóstico (Grid 12 Columnas: 8 Col Banco #04 + 4 Col Panel QC/Cola) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- COLUMNA IZQUIERDA Y CENTRAL: Banco #04 en Detalle (8 columnas) -->
+<main class="xl:col-span-8 flex flex-col gap-space-lg min-w-0">
+<!-- Barra de Estado Superior del Build Activo -->
+<div class="p-space-lg rounded-xl bg-surface-container flex flex-col gap-space-md shadow-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[1.75rem]">desktop_windows</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-outline">ORDEN ACTIVA:</span>
+<span class="font-label-md text-label-md text-primary font-bold">#BKO-88219</span>
+<span class="px-space-xs py-0.5 rounded bg-surface-container-high font-label-sm text-on-surface-variant">Cliente: VFX Studio Norte</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                  Workstation Ryzen 9 7950X • GeForce RTX 4080 Super OC
+                </h2>
+</div>
+</div>
+<!-- Badge de Estado de Burn-in -->
+<div class="flex items-center gap-space-md self-start md:self-auto">
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-outline uppercase">Tiempo en Carga Máxima</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold font-mono">04h 18m 42s / 06h 00m</span>
+</div>
+<div class="px-space-md py-space-xs rounded-full bg-tertiary/10 text-tertiary flex items-center gap-space-xs font-label-md">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span>Estabilidad 100% OK</span>
+</div>
+</div>
+</div>
+<!-- Barra de Progreso del Ciclo de Estrés -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex justify-between font-label-sm">
+<span class="text-on-surface-variant">Progreso del protocolo de certificación de estrés continuo</span>
+<span class="text-primary font-mono font-semibold">71.8% completado</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container-lowest overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary via-primary-container to-tertiary rounded-full" style="width: 71.8%"></div>
+</div>
+</div>
+</div>
+<!-- Grid de Sensores de Telemetría en Tiempo Real (2x2) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Sensor 1: CPU Package & Cores -->
+<div class="p-space-lg rounded-xl bg-surface-container-low flex flex-col justify-between gap-space-md shadow-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="p-space-xs rounded bg-surface-container-high text-primary">
+<span class="material-symbols-outlined text-[1.25rem]">memory</span>
+</div>
+<div>
+<span class="font-label-sm text-outline uppercase block">AMD Ryzen 9 7950X</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">CPU Package</h3>
+</div>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-tertiary/10 text-tertiary font-label-sm">TjMax: 95.0°C</span>
+</div>
+<!-- Métrica principal + Gráfico Sparkline SVG -->
+<div class="grid grid-cols-2 items-end gap-space-md">
+<div class="flex flex-col">
+<span class="font-display text-[2.5rem] leading-none font-bold text-on-surface font-mono">71.4<span class="text-headline-md text-primary font-sans">°C</span></span>
+<span class="font-label-sm text-tertiary flex items-center gap-0.5 mt-1">
+<span class="material-symbols-outlined text-[0.875rem]">ac_unit</span> Delta Térmico: +47.4°C
+                </span>
+</div>
+<!-- Curva SVG de temperatura CPU últimos 15 min -->
+<div class="w-full h-14 flex flex-col justify-end">
+<svg class="w-full h-12 text-primary" fill="none" preserveaspectratio="none" viewbox="0 0 100 35">
+<path d="M0 25 Q15 28 25 20 T50 18 T75 14 T100 12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path>
+<path d="M0 25 Q15 28 25 20 T50 18 T75 14 T100 12 L100 35 L0 35 Z" fill="currentColor" fill-opacity="0.1"></path>
+</svg>
+<div class="flex justify-between font-label-sm text-outline">
+<span>-15 min</span>
+<span>Actual</span>
+</div>
+</div>
+</div>
+<!-- Tabla de Parámetros Eléctricos y Ventiladores CPU -->
+<div class="grid grid-cols-3 gap-space-xs pt-space-xs bg-surface-container-lowest/50 p-space-sm rounded-lg">
+<div class="flex flex-col">
+<span class="font-label-sm text-outline">PPT Consumo</span>
+<span class="font-label-md text-label-md text-on-surface font-mono">172.4 W</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-outline">Vcore</span>
+<span class="font-label-md text-label-md text-on-surface font-mono">1.185 V</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-outline">Reloj Efectivo</span>
+<span class="font-label-md text-label-md text-tertiary font-mono">5.12 GHz</span>
+</div>
+<div class="flex flex-col mt-space-xs">
+<span class="font-label-sm text-outline">Bomba AIO</span>
+<span class="font-label-md text-label-md text-on-surface font-mono">2,850 RPM</span>
+</div>
+<div class="flex flex-col mt-space-xs">
+<span class="font-label-sm text-outline">Fans Radiador</span>
+<span class="font-label-md text-label-md text-on-surface font-mono">1,450 RPM</span>
+</div>
+<div class="flex flex-col mt-space-xs">
+<span class="font-label-sm text-outline">Estado Thermal</span>
+<span class="font-label-md text-label-md text-tertiary font-mono">NOMINAL</span>
+</div>
+</div>
+</div>
+<!-- Sensor 2: GPU Core, Hotspot & VRAM -->
+<div class="p-space-lg rounded-xl bg-surface-container-low flex flex-col justify-between gap-space-md shadow-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="p-space-xs rounded bg-surface-container-high text-primary">
+<span class="material-symbols-outlined text-[1.25rem]">videogame_asset</span>
+</div>
+<div>
+<span class="font-label-sm text-outline uppercase block">RTX 4080 Super 16GB</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">GPU Core &amp; VRAM</h3>
+</div>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-tertiary/10 text-tertiary font-label-sm">FurMark 1440p</span>
+</div>
+<!-- Métrica principal + Gráfico Sparkline SVG -->
+<div class="grid grid-cols-2 items-end gap-space-md">
+<div class="flex flex-col">
+<span class="font-display text-[2.5rem] leading-none font-bold text-on-surface font-mono">64.8<span class="text-headline-md text-primary font-sans">°C</span></span>
+<span class="font-label-sm text-on-surface-variant flex items-center gap-0.5 mt-1">
+<span class="material-symbols-outlined text-[0.875rem] text-secondary">local_fire_department</span> Hotspot: 76.2°C
+                </span>
+</div>
+<!-- Curva SVG de temperatura GPU -->
+<div class="w-full h-14 flex flex-col justify-end">
+<svg class="w-full h-12 text-tertiary" fill="none" preserveaspectratio="none" viewbox="0 0 100 35">
+<path d="M0 28 Q20 22 40 24 T70 16 T100 15" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path>
+<path d="M0 28 Q20 22 40 24 T70 16 T100 15 L100 35 L0 35 Z" fill="currentColor" fill-opacity="0.1"></path>
+</svg>
+<div class="flex justify-between font-label-sm text-outline">
+<span>-15 min</span>
+<span>Estable</span>
+</div>
+</div>
+</div>
+<!-- Tabla de Parámetros GPU -->
+<div class="grid grid-cols-3 gap-space-xs pt-space-xs bg-surface-container-lowest/50 p-space-sm rounded-lg">
+<div class="flex flex-col">
+<span class="font-label-sm text-outline">TGP Consumo</span>
+<span class="font-label-md text-label-md text-on-surface font-mono">285.2 W</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-outline">VRAM Clock</span>
+<span class="font-label-md text-label-md text-on-surface font-mono">11,200 MHz</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-outline">GPU Boost</span>
+<span class="font-label-md text-label-md text-tertiary font-mono">2,580 MHz</span>
+</div>
+<div class="flex flex-col mt-space-xs">
+<span class="font-label-sm text-outline">Ventiladores GPU</span>
+<span class="font-label-md text-label-md text-on-surface font-mono">58% (1620 RPM)</span>
+</div>
+<div class="flex flex-col mt-space-xs">
+<span class="font-label-sm text-outline">12VHPWR Pin T°</span>
+<span class="font-label-md text-label-md text-tertiary font-mono">48.5°C OK</span>
+</div>
+<div class="flex flex-col mt-space-xs">
+<span class="font-label-sm text-outline">PCIe Link</span>
+<span class="font-label-md text-label-md text-on-surface font-mono">Gen 4 x16</span>
+</div>
+</div>
+</div>
+<!-- Sensor 3: PSU & Voltage Rail Monitor -->
+<div class="p-space-lg rounded-xl bg-surface-container-low flex flex-col justify-between gap-space-md shadow-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="p-space-xs rounded bg-surface-container-high text-primary">
+<span class="material-symbols-outlined text-[1.25rem]">bolt</span>
+</div>
+<div>
+<span class="font-label-sm text-outline uppercase block">Corsair RM1000x Shift</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Monitor de Rieles PSU</h3>
+</div>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-tertiary/10 text-tertiary font-label-sm">80+ Platinum (91.2%)</span>
+</div>
+<!-- Carga de PSU -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-baseline justify-between">
+<span class="font-display text-[2rem] leading-none font-bold text-on-surface font-mono">540 <span class="text-headline-sm text-outline font-sans">/ 1000 W</span></span>
+<span class="font-label-md text-label-md text-tertiary font-mono">54.0% Carga (Zona Óptima)</span>
+</div>
+<!-- Barra segmentada de eficiencia de carga -->
+<div class="w-full h-3 rounded-full bg-surface-container-lowest flex overflow-hidden p-0.5">
+<div class="h-full bg-primary rounded-l-full" style="width: 54%"></div>
+<div class="h-full bg-surface-container-high" style="width: 46%"></div>
+</div>
+</div>
+<!-- Rieles de Voltaje con Tolerancia ATX 3.0 -->
+<div class="grid grid-cols-3 gap-space-xs bg-surface-container-lowest/50 p-space-sm rounded-lg">
+<div class="flex flex-col">
+<span class="font-label-sm text-outline">+12V Rail (GPU/CPU)</span>
+<span class="font-label-md text-label-md text-tertiary font-mono font-bold">12.04 V</span>
+<span class="font-label-sm text-outline">Ripple: &lt;18mV</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-outline">+5V Rail</span>
+<span class="font-label-md text-label-md text-tertiary font-mono font-bold">5.01 V</span>
+<span class="font-label-sm text-outline">Ripple: &lt;8mV</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-outline">+3.3V Rail</span>
+<span class="font-label-md text-label-md text-tertiary font-mono font-bold">3.32 V</span>
+<span class="font-label-sm text-outline">Ripple: &lt;6mV</span>
+</div>
+</div>
+</div>
+<!-- Sensor 4: Memoria RAM DDR5 & Bus Integridad -->
+<div class="p-space-lg rounded-xl bg-surface-container-low flex flex-col justify-between gap-space-md shadow-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="p-space-xs rounded bg-surface-container-high text-primary">
+<span class="material-symbols-outlined text-[1.25rem]">developer_board</span>
+</div>
+<div>
+<span class="font-label-sm text-outline uppercase block">G.Skill Trident Z5 Neo</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">RAM DDR5 &amp; Integridad Bus</h3>
+</div>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-tertiary/10 text-tertiary font-label-sm">MemTest86 Activo</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-baseline justify-between">
+<span class="font-display text-[2rem] leading-none font-bold text-on-surface font-mono">64 GB <span class="text-headline-sm text-outline font-sans">@ 6000 MT/s</span></span>
+<span class="font-label-md text-label-md text-tertiary font-mono">Pase 3 de 4</span>
+</div>
+<div class="flex items-center gap-space-md font-label-sm text-outline">
+<span>Latencia: CL30-38-38-96</span>
+<span>Voltaje VDD: 1.35V</span>
+</div>
+</div>
+<!-- Test de Errores y Banco de Módulos -->
+<div class="flex flex-col gap-space-xs bg-surface-container-lowest/50 p-space-sm rounded-lg">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-on-surface">Errores On-Die ECC detectados:</span>
+<span class="font-label-md text-tertiary font-mono font-bold">0 ERRORES</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs pt-1">
+<div class="flex items-center justify-between px-space-xs py-0.5 rounded bg-surface-container">
+<span class="font-label-sm text-outline">Slot DIMM A2:</span>
+<span class="font-label-sm text-tertiary font-mono">32GB OK (41.2°C)</span>
+</div>
+<div class="flex items-center justify-between px-space-xs py-0.5 rounded bg-surface-container">
+<span class="font-label-sm text-outline">Slot DIMM B2:</span>
+<span class="font-label-sm text-tertiary font-mono">32GB OK (42.8°C)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Consola de Telemetría y Log de Eventos en Vivo -->
+<div class="p-space-lg rounded-xl bg-surface-container-low flex flex-col gap-space-md shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Consola del Banco &amp; Log de Telemetría</h3>
+<span class="px-space-xs py-0.5 rounded bg-surface-container-high font-label-sm text-outline">TTY0-DIAGNOSTIC</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-1 rounded bg-surface-container hover:bg-surface-container-high font-label-sm text-outline hover:text-on-surface transition-colors">Limpiar</button>
+<button class="px-space-sm py-1 rounded bg-surface-container hover:bg-surface-container-high font-label-sm text-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[0.875rem]">download</span> Exportar .RAW
+              </button>
+</div>
+</div>
+<!-- Terminal Log Body -->
+<div class="bg-surface-container-lowest p-space-md rounded-lg font-mono text-[0.8125rem] leading-relaxed text-on-surface-variant flex flex-col gap-1.5 max-h-56 overflow-y-auto border border-outline-variant/20 shadow-inner">
+<div class="flex items-start gap-space-sm text-outline">
+<span class="text-outline/70">[11:42:10]</span>
+<span class="text-tertiary font-semibold">[BENCHMARK]</span>
+<span class="text-on-surface">Cinebench 2024 Multi-Core Pass 12 finalizado con éxito. Score registrado: <strong class="text-primary">38,420 pts</strong>. Temp pico: 72.1°C.</span>
+</div>
+<div class="flex items-start gap-space-sm text-outline">
+<span class="text-outline/70">[11:38:55]</span>
+<span class="text-primary font-semibold">[PWR-RAIL]</span>
+<span>Detección de picos de transitorios PCIe: 312W transitorio instantáneo. Atenuación por riel +12V sin fluctuación de drop (ΔV = 0.02V). Normal.</span>
+</div>
+<div class="flex items-start gap-space-sm text-outline">
+<span class="text-outline/70">[11:35:04]</span>
+<span class="text-tertiary font-semibold">[MEM-PASS]</span>
+<span>MemTest86 Test 7 [Block Move 64-bit] completado en canales A2/B2. 0 bits invertidos. Consistencia hash verificada.</span>
+</div>
+<div class="flex items-start gap-space-sm text-outline">
+<span class="text-outline/70">[11:22:18]</span>
+<span class="text-secondary font-semibold">[FAN-CURVE]</span>
+<span>Calibración de perfil térmico silencioso: Fans de chasis Lian Li 216 fijados a 850 RPM con carga sostenida. Presión acústica: 33.4 dBA.</span>
+</div>
+<div class="flex items-start gap-space-sm text-outline">
+<span class="text-outline/70">[11:15:00]</span>
+<span class="text-primary font-semibold">[SUITE-START]</span>
+<span>Inicio de ciclo de estrés combinado: FurMark v2.1 (Preset 1440p) + Cinebench Loop iniciado por Técnico Alex R. Banco asignado: #04.</span>
+</div>
+</div>
+</div>
+</main>
+<!-- COLUMNA DERECHA: Checklist de Certificación Técnica (QC) & Cola de Ensamble (4 columnas) -->
+<aside class="xl:col-span-4 flex flex-col gap-space-lg">
+<!-- Checklist de Certificación Técnica de Calidad (QC Protocol) -->
+<div class="p-space-lg rounded-xl bg-surface-container flex flex-col gap-space-md shadow-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="p-space-xs rounded bg-tertiary/10 text-tertiary material-symbols-outlined text-[1.25rem]">checklist</span>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Protocolo QC &amp; QA</h3>
+<span class="font-label-sm text-outline">Certificado de Banco #04</span>
+</div>
+</div>
+<span class="font-label-sm text-tertiary font-mono bg-tertiary/10 px-space-xs py-0.5 rounded">5 de 7 Cumplidos</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Verificación obligatoria previa al empaquetado y emisión de informe térmico al cliente final.
+          </p>
+<!-- Interactive QC List -->
+<div class="flex flex-col gap-space-xs" id="qc-checklist">
+<!-- Item 1: Completado -->
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group">
+<input checked="" class="mt-1 h-4 w-4 rounded accent-primary bg-surface-container cursor-pointer" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-on-surface font-medium group-hover:text-primary transition-colors">Inspección de pines AM5 &amp; torque del cooler</span>
+<span class="font-label-sm text-outline">Socket verificado con lupa x10. Torque a 0.6 N·m</span>
+</div>
+</label>
+<!-- Item 2: Completado -->
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group">
+<input checked="" class="mt-1 h-4 w-4 rounded accent-primary bg-surface-container cursor-pointer" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-on-surface font-medium group-hover:text-primary transition-colors">Pasta térmica Thermal Grizzly Kryonaut</span>
+<span class="font-label-sm text-outline">Esparcido uniforme sin rebalse perimetral</span>
+</div>
+</label>
+<!-- Item 3: Completado -->
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group">
+<input checked="" class="mt-1 h-4 w-4 rounded accent-primary bg-surface-container cursor-pointer" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-on-surface font-medium group-hover:text-primary transition-colors">Conector 12VHPWR con clic audible</span>
+<span class="material-symbols-outlined text-tertiary text-[1rem]">photo_camera</span>
+</div>
+<span class="font-label-sm text-outline">Cero holgura en toma GPU. Registro fotográfico anexado</span>
+</div>
+</label>
+<!-- Item 4: Completado -->
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group">
+<input checked="" class="mt-1 h-4 w-4 rounded accent-primary bg-surface-container cursor-pointer" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-on-surface font-medium group-hover:text-primary transition-colors">Perfil EXPO/XMP habilitado en BIOS</span>
+<span class="font-label-sm text-outline">BIOS ASUS v2401 parche AGESA 1.2.0.2 validada</span>
+</div>
+</label>
+<!-- Item 5: Completado -->
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group">
+<input checked="" class="mt-1 h-4 w-4 rounded accent-primary bg-surface-container cursor-pointer" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-on-surface font-medium group-hover:text-primary transition-colors">Curvas de ventilación optimizadas</span>
+<span class="font-label-sm text-outline">Histeresis de 3 segundos para evitar ráfagas sonoras</span>
+</div>
+</label>
+<!-- Item 6: En Proceso -->
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer group">
+<input class="mt-1 h-4 w-4 rounded accent-primary bg-surface-container cursor-pointer" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-primary font-semibold">Test continuo de estrés térmico (6 horas)</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+</div>
+<span class="font-label-sm text-on-surface-variant">En ejecución: 04h 18m completadas</span>
+</div>
+</label>
+<!-- Item 7: Pendiente -->
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group opacity-75">
+<input class="mt-1 h-4 w-4 rounded accent-primary bg-surface-container cursor-pointer" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-on-surface font-medium group-hover:text-on-surface transition-colors">Limpieza antiestática &amp; precintos inviolables</span>
+<span class="font-label-sm text-outline">Soplado de ionización negativa y firma de sellos</span>
+</div>
+</label>
+</div>
+<div class="pt-space-xs">
+<button class="w-full py-space-sm rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface transition-colors font-body-sm text-center flex items-center justify-center gap-space-xs">
+<span class="material-symbols-outlined text-[1.125rem]">signature</span>
+<span>Firmar Validación Técnica (Alex R.)</span>
+</button>
+</div>
+</div>
+<!-- Cola de Ensambles para el Banco (Próximas Órdenes) -->
+<div class="p-space-lg rounded-xl bg-surface-container flex flex-col gap-space-md shadow-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="p-space-xs rounded bg-surface-container-high text-primary material-symbols-outlined text-[1.25rem]">queue</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Cola de Ensamble</h3>
+</div>
+<span class="font-label-sm text-outline font-mono">Banco #04</span>
+</div>
+<!-- Siguiente Orden Inmediata -->
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-tertiary uppercase font-bold">Siguiente en línea</span>
+<span class="font-label-sm text-outline font-mono">PRIORIDAD ALTA</span>
+</div>
+<span class="font-headline-sm text-body-md text-on-surface font-semibold">Gaming Tier AM5 Ryzen 7 7800X3D</span>
+<span class="font-body-sm text-outline">Orden #BKO-87940 • RTX 4070 Ti Super</span>
+<div class="flex items-center justify-between pt-space-xs mt-space-xs">
+<span class="font-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[0.875rem] text-primary">inventory_2</span> Partes pickeadas 100%
+              </span>
+<span class="font-label-sm text-primary hover:underline cursor-pointer">Ver BOM →</span>
+</div>
+</div>
+<!-- Orden en Espera Secundaria -->
+<div class="p-space-md rounded-lg bg-surface-container-lowest/70 flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-outline">EN ESPERA DE CHASIS</span>
+<span class="font-label-sm text-outline font-mono">#BKO-88231</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface">Compact ITX Intel Core i7-14700K</span>
+<span class="font-body-sm text-outline">Lian Li A4-H2O • En tránsito desde almacén</span>
+</div>
+</div>
+<!-- Tarjeta de Referencia Rápida de Herramientas del Banco -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest/80 flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-outline text-[1.5rem]">tune</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-on-surface font-medium">Calibrador de Torquímetro</span>
+<span class="font-label-sm text-outline">Última cal: Hoy 08:30 • ID: #TQ-99</span>
+</div>
+</div>
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+</div>
+</aside>
+</div>
+</div>
+<!-- Interactive JavaScript Micro-interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Toggle button active visual pulse
+      const stressBtn = document.getElementById('btn-stress-test');
+      if (stressBtn) {
+        stressBtn.addEventListener('click', () => {
+          stressBtn.classList.toggle('ring-2');
+          stressBtn.classList.toggle('ring-primary');
+          const span = stressBtn.querySelector('span.font-semibold');
+          if (span) {
+            span.textContent = span.textContent.includes('Re-iniciando') ? 'Test de Estrés (Full Suite)' : 'Suite en Ejecución Activa';
+          }
+        });
+      }
+
+      // Checkbox interactive visual toggle
+      const checkboxes = document.querySelectorAll('#qc-checklist input[type="checkbox"]');
+      checkboxes.forEach(cb => {
+        cb.addEventListener('change', (e) => {
+          const parent = e.target.closest('label');
+          if (e.target.checked) {
+            parent.classList.remove('opacity-75');
+          } else {
+            parent.classList.add('opacity-75');
+          }
+        });
+      });
+    });
+  </script>
+</div></main></div></body></html>

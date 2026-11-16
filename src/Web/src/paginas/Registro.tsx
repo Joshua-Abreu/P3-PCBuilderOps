@@ -6,12 +6,13 @@ import { registrar } from '../api/auth'
 import { mensajeDeError } from '../api/errores'
 import { Boton, Campo, TarjetaFormulario } from '../componentes/Formulario'
 import { Mensaje } from '../componentes/Mensaje'
+import { VentajasTaller } from '../componentes/VentajasTaller'
 import { esquemaRegistro, type DatosRegistro } from '../sesion/esquemas'
 
 const enlaceLogin = (
   <p>
     ¿Ya tienes cuenta?{' '}
-    <Link to="/login" className="font-medium text-teal-700 hover:underline">
+    <Link to="/login" className="font-medium text-acento-texto hover:underline">
       Inicia sesión
     </Link>
   </p>
@@ -43,9 +44,9 @@ export function Registro() {
           Te enviamos un enlace de activación a <strong>{correoRegistrado}</strong>. Ábrelo para
           activar tu cuenta; vence en 24 horas.
         </Mensaje>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-texto-suave">
           ¿No llegó?{' '}
-          <Link to="/reenviar-activacion" className="font-medium text-teal-700 hover:underline">
+          <Link to="/reenviar-activacion" className="font-medium text-acento-texto hover:underline">
             Reenviar el correo de activación
           </Link>
         </p>
@@ -56,6 +57,12 @@ export function Registro() {
     <TarjetaFormulario
       titulo="Crear cuenta"
       descripcion="Regístrate para armar tu PC y seguir tus órdenes."
+      lateral={
+        <VentajasTaller
+          titulo="Crea tu cuenta en PC Builder Ops"
+          texto="Con tu cuenta ves el catálogo, cotizas tu armado y sigues tu orden hasta la entrega."
+        />
+      }
       pie={enlaceLogin}
     >
       {errors.root?.message && <Mensaje tipo="error">{errors.root.message}</Mensaje>}
@@ -80,7 +87,7 @@ export function Registro() {
           error={errors.password?.message}
           {...register('password')}
         />
-        <p className="-mt-2 text-xs text-slate-500">
+        <p className="-mt-2 text-xs text-texto-suave">
           Mínimo 8 caracteres, con al menos una letra y un número.
         </p>
         <Campo

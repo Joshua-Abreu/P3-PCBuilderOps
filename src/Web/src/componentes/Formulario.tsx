@@ -5,20 +5,35 @@ export function TarjetaFormulario({
   descripcion,
   children,
   pie,
+  lateral,
 }: {
   titulo: string
   descripcion?: string
   children: ReactNode
   pie?: ReactNode
+  lateral?: ReactNode
 }) {
   return (
-    <div className="mx-auto w-full max-w-md">
-      <div className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
-        <h1 className="text-2xl font-semibold tracking-tight">{titulo}</h1>
-        {descripcion && <p className="mt-2 text-sm text-slate-600">{descripcion}</p>}
+    <div
+      className={`mx-auto flex w-full flex-col overflow-hidden rounded-2xl border border-borde bg-superficie shadow-[0_0_60px_-20px_rgba(34,195,224,0.25)] md:flex-row ${
+        lateral ? 'max-w-5xl' : 'max-w-md'
+      }`}
+    >
+      {lateral && (
+        <div className="border-b border-borde bg-[#0a1120] p-8 md:w-5/12 md:border-r md:border-b-0 md:p-10">
+          {lateral}
+        </div>
+      )}
+      <div className="flex-1 p-6 sm:p-8 md:p-10">
+        <h1 className="text-2xl font-bold tracking-tight">{titulo}</h1>
+        {descripcion && <p className="mt-2 text-[15px] text-texto-suave">{descripcion}</p>}
         <div className="mt-6 space-y-4">{children}</div>
+        {pie && (
+          <div className="mt-6 space-y-1.5 border-t border-borde pt-5 text-sm text-texto-suave">
+            {pie}
+          </div>
+        )}
       </div>
-      {pie && <div className="mt-4 space-y-1 text-center text-sm text-slate-600">{pie}</div>}
     </div>
   )
 }
@@ -33,28 +48,36 @@ export function Campo({
 
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="block text-sm font-medium">
         {etiqueta}
       </label>
       <input
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? idError : undefined}
-        className={`mt-1 block w-full rounded-md border bg-white px-3 py-2 text-sm shadow-xs outline-none focus:ring-2 ${
+        className={`mt-1.5 block h-11 w-full rounded-lg border bg-fondo px-3.5 text-[15px] text-texto outline-none placeholder:text-texto-tenue focus:ring-2 ${
           error
-            ? 'border-red-400 focus:border-red-500 focus:ring-red-100'
-            : 'border-slate-300 focus:border-teal-600 focus:ring-teal-100'
+            ? 'border-error focus:ring-error/25'
+            : 'border-borde-fuerte focus:border-acento focus:ring-acento/25'
         }`}
         {...props}
       />
       {error && (
-        <p id={idError} className="mt-1 text-sm text-red-700">
+        <p id={idError} className="mt-1.5 text-sm text-error">
           {error}
         </p>
       )}
     </div>
   )
 }
+
+export const estiloBotonPrimario =
+  'inline-flex items-center justify-center gap-2 rounded-lg bg-acento px-4 py-2.5 text-[15px] font-semibold text-sobre-acento transition-colors hover:bg-acento-claro'
+
+export const estiloBotonSecundario =
+  'inline-flex items-center justify-center gap-2 rounded-lg border border-borde-fuerte bg-superficie-2 px-4 py-2.5 text-[15px] font-medium text-texto transition-colors hover:border-acento/60'
+
+export const estiloEnlace = 'font-medium text-acento-texto hover:underline'
 
 export function Boton({
   cargando = false,
@@ -63,15 +86,12 @@ export function Boton({
   className = '',
   ...props
 }: ComponentProps<'button'> & { cargando?: boolean; variante?: 'primario' | 'secundario' }) {
-  const estilo =
-    variante === 'primario'
-      ? 'bg-teal-700 text-white hover:bg-teal-800'
-      : 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-100'
+  const estilo = variante === 'primario' ? estiloBotonPrimario : estiloBotonSecundario
 
   return (
     <button
       disabled={cargando || props.disabled}
-      className={`inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${estilo} ${className}`}
+      className={`${estilo} disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
       {...props}
     >
       {cargando && (

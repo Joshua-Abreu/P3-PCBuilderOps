@@ -3,9 +3,9 @@ import type { ReactNode } from 'react'
 type Tipo = 'error' | 'info' | 'exito'
 
 const estilos: Record<Tipo, string> = {
-  error: 'border-red-200 bg-red-50 text-red-800',
-  info: 'border-sky-200 bg-sky-50 text-sky-800',
-  exito: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+  error: 'border-error/40 bg-error/10 text-[#ffc9c4]',
+  info: 'border-acento/35 bg-acento/10 text-[#c4effa]',
+  exito: 'border-exito/40 bg-exito/10 text-[#b5f0d7]',
 }
 
 // RD-07
@@ -13,7 +13,7 @@ export function Mensaje({ tipo = 'info', children }: { tipo?: Tipo; children: Re
   return (
     <div
       role={tipo === 'error' ? 'alert' : 'status'}
-      className={`rounded-lg border px-4 py-3 text-sm ${estilos[tipo]}`}
+      className={`rounded-lg border px-4 py-3 text-sm leading-relaxed ${estilos[tipo]}`}
     >
       {children}
     </div>

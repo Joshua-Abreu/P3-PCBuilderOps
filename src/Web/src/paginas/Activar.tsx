@@ -7,7 +7,7 @@ import { TarjetaFormulario } from '../componentes/Formulario'
 import { Mensaje } from '../componentes/Mensaje'
 
 const enlaceReenvio = (
-  <Link to="/reenviar-activacion" className="font-medium text-teal-700 hover:underline">
+  <Link to="/reenviar-activacion" className="font-medium text-acento-texto hover:underline">
     Pedir un enlace nuevo
   </Link>
 )
@@ -51,7 +51,7 @@ export function Activar() {
       <Mensaje tipo="exito">Tu cuenta está lista. Ya puedes iniciar sesión.</Mensaje>
       <Link
         to="/login"
-        className="inline-block rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800"
+        className="inline-block rounded-lg bg-acento px-4 py-2 text-sm font-semibold text-sobre-acento hover:bg-acento-claro"
       >
         Iniciar sesión
       </Link>

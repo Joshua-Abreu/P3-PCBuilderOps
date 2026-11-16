@@ -40,7 +40,7 @@ export function FormularioCorreo({
       titulo={titulo}
       descripcion={descripcion}
       pie={
-        <Link to="/login" className="font-medium text-teal-700 hover:underline">
+        <Link to="/login" className="font-medium text-acento-texto hover:underline">
           Volver a iniciar sesión
         </Link>
       }
