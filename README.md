@@ -367,7 +367,7 @@ Ejecuta las dos suites (xUnit): `tests/Core.Tests` para Gestión de permisos y e
 |---------|--------------|
 | `tests/PCBuilderOps.Tests/Domain/MaquinaEstadosOrdenEnsambleTests.cs` | Una prueba por cada fila de las tablas de [`docs/maquina-de-estados.md`](docs/maquina-de-estados.md): 3 permitidas y 13 prohibidas (rechazo y estado sin cambiar), más la prueba de que del estado terminal no se sale (RD-04, RF-NEG-03, 04, 05). |
 | `tests/PCBuilderOps.Tests/Domain/OrdenEnsambleTests.cs` | Reglas de la orden: costo, reserva de stock, regla de la prueba más reciente y datos inválidos (FN-01 a 04). |
-| `tests/PCBuilderOps.Tests/Domain/VerificadorCompatibilidadTests.cs` | Compatibilidad de socket y potencia, incluidos los límites (FN-01). |
+| `tests/PCBuilderOps.Tests/Domain/VerificadorCompatibilidadTests.cs` | Compatibilidad de socket, tipo de memoria, ranuras y potencia, y la advertencia por poco margen de la fuente, incluidos los límites (FN-01). |
 | `tests/PCBuilderOps.Tests/Services/OrdenesServiceTests.cs` | Cada funcionalidad por separado, verificada sobre lo **guardado** en la base (RF-NEG-02, FN-01 a 05). |
 | `tests/PCBuilderOps.Tests/Integracion/OperarTallerIntegracionTests.cs` | **Prueba de integración:** Gestión de permisos y el módulo reales, sin dobles y sin levantar la aplicación. `RegistrarPrueba_SeRechazaAntesDeAprobarLaSolicitudYSePermiteDespues` verifica las dos caras (RF-GP-05, FN-03). |
 
@@ -533,8 +533,8 @@ Las tablas completas de transiciones permitidas y prohibidas están en [`docs/ma
 |---------------|-----------------|--------------------|
 | **RF-NEG-06** (Sin sesión) | Sin token, `GET /api/ordenes/mias`. | `401`. |
 | **FN-01** (Cotizar) | Como cliente, `POST /api/ordenes` con `{"componentes": [{"componenteId": "...", "cantidad": 1}]}`, incluyendo CPU, placa y fuente compatibles. | `201` con `"estado": "Cotizada"`, el código de seguimiento y el costo total. |
-| **FN-01** (Incompatible) | Repetir con la CPU LGA1700 y la placa AM5; luego con la RTX 4090 y la fuente de 450 W. | `400` que indica el socket o la potencia. No se crea ninguna orden. |
-| **FN-01** (Validar sin cotizar) | Como cliente, `POST /api/componentes/validar` con el mismo cuerpo que la cotización (peticiones 81 a 84 de `API.http`). | `200` con `esCompatible`, `faltantes` (por ejemplo `["PlacaBase","Fuente"]`), todos los `problemas` a la vez, `consumoWatts`, `potenciaWatts` y `total`. No crea órdenes ni reserva existencias. Sin sesión: `401`. |
+| **FN-01** (Incompatible) | Repetir con la CPU LGA1700 y la placa AM5; luego con la RTX 4090 y la fuente de 450 W; luego con la RAM DDR5 en la placa AM4, que es DDR4 (petición 88 de `API.http`). | `400` que indica el socket, la potencia o la memoria. No se crea ninguna orden. |
+| **FN-01** (Validar sin cotizar) | Como cliente, `POST /api/componentes/validar` con el mismo cuerpo que la cotización (peticiones 81 a 87 de `API.http`). | `200` con `esCompatible`, `faltantes` (por ejemplo `["PlacaBase","Fuente"]`), todos los `problemas` a la vez (socket, memoria de otro tipo, más módulos que ranuras, potencia), `advertencias` (fuente con menos del 20 % de margen, sin bloquear), `consumoWatts`, `potenciaWatts` y `total`. No crea órdenes ni reserva existencias. Sin sesión: `401`. |
 | **RF-NEG-06** (Rol) | Como Administrador, `POST /api/ordenes`. Como cliente, `POST /api/ordenes/{id}/iniciar-armado`. | `403` en ambos casos. |
 | **FN-05** (Consultar) | Como cliente, `GET /api/ordenes/mias` y `GET /api/ordenes/{id}`. Con el token de otro usuario, `GET /api/ordenes/{id}`. | El cliente ve sus órdenes con componentes y pruebas. El otro usuario recibe `404`. |
 | **RF-NEG-04** (Transición prohibida) | Como Administrador, `POST /api/taller/ordenes/{id}/entregar` sobre la orden Cotizada. | `409` y la orden sigue `Cotizada`. |

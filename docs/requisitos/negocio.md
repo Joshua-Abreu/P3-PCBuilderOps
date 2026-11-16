@@ -11,11 +11,11 @@ PC Builder Ops gestiona el ciclo de computadoras personalizadas a pedido: cotiza
 | Entidad | Atributos | Relaciones |
 |---------|-----------|------------|
 | `OrdenEnsamble` | `Id`, `CodigoSeguimiento`, `ClienteUsuarioId`, `TecnicoAsignadoId?`, `Estado`, `CostoTotal`, `FechaCreacionUtc` | 1 cliente (Usuario) · 0..1 técnico (Usuario) · N `DetalleEnsamble` · N `PruebaRendimiento` |
-| `Componente` | `Id`, `Nombre`, `Categoria`, `Fabricante`, `SocketOInterfaz`, `ConsumoWatts`, `PotenciaWatts?`, `Precio`, `StockDisponible` | N `DetalleEnsamble` |
+| `Componente` | `Id`, `Nombre`, `Categoria`, `Fabricante`, `SocketOInterfaz`, `ConsumoWatts`, `PotenciaWatts?`, `Precio`, `StockDisponible`, `TipoMemoria?`, `RanurasMemoria?` | N `DetalleEnsamble` |
 | `DetalleEnsamble` | `Id`, `OrdenEnsambleId`, `ComponenteId`, `Cantidad`, `PrecioUnitario` | 1 `OrdenEnsamble` · 1 `Componente` |
 | `PruebaRendimiento` | `Id`, `OrdenEnsambleId`, `TipoSoftwarePrueba`, `TemperaturaMaximaCpu`, `TemperaturaMaximaGpu`, `PuntajeBenchmark`, `EsAprobada`, `FechaEjecucionUtc` | 1 `OrdenEnsamble` |
 
-`Fabricante` se agrega a `Componente` porque el reporte de negocio agrupa "piezas más utilizadas por fabricante". `PotenciaWatts` solo aplica a las fuentes de poder y permite comprobar que cubren el consumo (FN-01).
+`Fabricante` se agrega a `Componente` porque el reporte de negocio agrupa "piezas más utilizadas por fabricante". `PotenciaWatts` solo aplica a las fuentes de poder y permite comprobar que cubren el consumo (FN-01). `TipoMemoria` (`DDR4`, `DDR5`) y `RanurasMemoria` solo aplican a las placas base: indican qué memoria aceptan y cuántos módulos caben. En la RAM, su tipo de memoria es su `SocketOInterfaz`.
 
 ## 2. Máquina de estados de `OrdenEnsamble` (RF-NEG-03, 04, 05, 09)
 
@@ -36,7 +36,7 @@ PC Builder Ops gestiona el ciclo de computadoras personalizadas a pedido: cotiza
 
 | ID | Funcionalidad | Regla principal |
 |----|---------------|-----------------|
-| FN-01 | Cotización con verificación de compatibilidad | El socket de la CPU coincide con el de la tarjeta madre y la PSU cubre la suma de `ConsumoWatts` de los componentes. Incompatible → rechazo controlado. |
+| FN-01 | Cotización con verificación de compatibilidad | El socket de la CPU coincide con el de la tarjeta madre, la RAM es del tipo de memoria de la placa y no pasa de sus ranuras, y la PSU cubre la suma de `ConsumoWatts` de los componentes. Incompatible → rechazo controlado. Si la PSU queda con menos del 20 % de margen se advierte sin rechazar. |
 | FN-02 | Apertura y asignación de la orden a un técnico | El Administrador la asigna a un técnico con `OperarTaller`; pasa a `EnArmado`, reserva stock y registra el técnico responsable. |
 | FN-03 | Registro de pruebas de rendimiento y estrés térmico | El técnico registra telemetría y veredicto (`EsAprobada`). Exige el permiso `OperarTaller` de Gestión de permisos. |
 | FN-04 | Aprobación final de control de calidad | El pase a `Entregada` solo procede si hay pruebas y la más reciente está aprobada. |

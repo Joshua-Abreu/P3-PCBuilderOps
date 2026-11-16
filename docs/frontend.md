@@ -99,7 +99,7 @@ El Administrador no cotiza (la API responde `403` a `POST /api/ordenes`), por es
 
 1. **CPU.** El usuario elige una de las CPU del catálogo.
 2. **Placa base.** Se muestran primero las placas con el mismo socket que la CPU; las demás aparecen deshabilitadas con el motivo.
-3. **RAM, GPU y almacenamiento.** Opcionales, con cantidad.
+3. **RAM, GPU y almacenamiento.** Opcionales, con cantidad. La RAM del tipo de memoria de la placa aparece primero y la otra deshabilitada con el motivo; la cantidad de módulos no pasa de las ranuras de la placa (**cambio B8**).
 4. **Fuente de poder.** Se muestra el consumo total y se marcan las fuentes que no alcanzan.
 5. **Resumen.** Lista de piezas, consumo frente a potencia, total en USD y la conversión opcional a otra moneda tras cotizar.
 6. **Cotizar.** `POST /api/ordenes` crea la orden `Cotizada` y lleva a su detalle.
@@ -119,6 +119,7 @@ Cada uno va en su propia rama, con pruebas, sin romper ninguna petición de `API
 | B5 | `GET /api/taller/ordenes/{id}`: detalle de cualquier orden para el técnico con `OperarTaller` o el Administrador. | Hoy el detalle solo lo ve el cliente dueño; el técnico necesita ver piezas y pruebas para trabajar. | FN-03, FN-04, RF-GP-05 |
 | B6 | `GET /api/taller/tecnicos` (Administrador): usuarios activos con `OperarTaller`. | Elegir técnico de una lista en vez de pegar un identificador. | FN-02 |
 | B7 | Nombres de cliente y técnico en `OrdenResumen` y `OrdenDetalle`. | Mostrar «Técnico: Juan Pérez» en vez de un identificador. | FN-05 |
+| B8 ✅ | `TipoMemoria` y `RanurasMemoria` en las placas (también en `GET /api/componentes`); la compatibilidad revisa el tipo de RAM y las ranuras, y `POST /api/componentes/validar` agrega `advertencias` (fuente con menos del 20 % de margen). La semilla suma una plataforma AM4 con DDR4. | Que el armador filtre la RAM por la placa y avise del margen de la fuente. | FN-01, RD-02 |
 
 Opcional, más adelante: descripción e imagen de cada componente para un catálogo más visual.
 
