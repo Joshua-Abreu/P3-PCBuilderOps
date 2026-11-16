@@ -10,6 +10,8 @@ export interface Componente {
   potenciaWatts: number | null
   precio: number
   stockDisponible: number
+  tipoMemoria: string | null
+  ranurasMemoria: number | null
 }
 
 // FN-01, RF-NEG-06

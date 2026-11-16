@@ -98,6 +98,28 @@ public sealed class OrdenesServiceTests : IDisposable
 
     // FN-01
     [Fact]
+    public async Task Cotizar_MemoriaIncompatibleConLaPlaca_SeRechazaYNoGuardaNada()
+    {
+        // Preparar
+        LineaCotizacion[] lineas =
+        [
+            new(ComponentesIniciales.CpuAm4, 1),
+            new(ComponentesIniciales.PlacaAm4, 1),
+            new(ComponentesIniciales.Ram32Gb, 1),
+            new(ComponentesIniciales.Fuente450W, 1)
+        ];
+
+        // Actuar
+        var accion = () => _bd.NuevoServicioOrdenes().CotizarAsync(_clienteId, lineas);
+
+        // Verificar
+        var error = await Assert.ThrowsAsync<ValidacionException>(accion);
+        Assert.Equal("La memoria Vengeance 32 GB DDR5 es DDR5 y la placa base usa DDR4.", error.Message);
+        Assert.Empty(await _bd.NuevoContextoNegocio().OrdenesEnsamble.ToListAsync());
+    }
+
+    // FN-01
+    [Fact]
     public async Task Cotizar_SocketsIncompatibles_SeRechazaYNoGuardaNada()
     {
         // Preparar

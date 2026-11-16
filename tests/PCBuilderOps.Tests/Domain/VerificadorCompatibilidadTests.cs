@@ -162,6 +162,183 @@ public class VerificadorCompatibilidadTests
     }
 
     [Fact]
+    public void Evaluar_MemoriaDeOtroTipoQueLaPlaca_LaInformaComoProblema()
+    {
+        // Preparar
+        (Componente, int)[] componentes =
+        [
+            (OrdenesDePrueba.Cpu(), 1),
+            (OrdenesDePrueba.Placa(tipoMemoria: "DDR5"), 1),
+            (OrdenesDePrueba.Ram(tipo: "DDR4"), 1),
+            (OrdenesDePrueba.Fuente(), 1)
+        ];
+
+        // Actuar
+        var resultado = VerificadorCompatibilidad.Evaluar(componentes);
+
+        // Verificar
+        Assert.False(resultado.EsCompatible);
+        Assert.Equal(["La memoria RAM DDR4 es DDR4 y la placa base usa DDR5."], resultado.Problemas);
+    }
+
+    [Fact]
+    public void Validar_MemoriaDeOtroTipoQueLaPlaca_SeRechaza()
+    {
+        // Preparar
+        (Componente, int)[] componentes =
+        [
+            (OrdenesDePrueba.Cpu(), 1),
+            (OrdenesDePrueba.Placa(tipoMemoria: "DDR4"), 1),
+            (OrdenesDePrueba.Ram(tipo: "DDR5"), 1),
+            (OrdenesDePrueba.Fuente(), 1)
+        ];
+
+        // Actuar
+        var accion = () => VerificadorCompatibilidad.Validar(componentes);
+
+        // Verificar
+        var error = Assert.Throws<ValidacionException>(accion);
+        Assert.Equal("La memoria RAM DDR5 es DDR5 y la placa base usa DDR4.", error.Message);
+    }
+
+    [Fact]
+    public void Evaluar_MemoriaDelMismoTipoQueLaPlaca_EsCompatible()
+    {
+        // Preparar
+        (Componente, int)[] componentes =
+        [
+            (OrdenesDePrueba.Cpu(), 1),
+            (OrdenesDePrueba.Placa(tipoMemoria: "DDR5", ranurasMemoria: 4), 1),
+            (OrdenesDePrueba.Ram(tipo: "DDR5"), 2),
+            (OrdenesDePrueba.Fuente(), 1)
+        ];
+
+        // Actuar
+        var resultado = VerificadorCompatibilidad.Evaluar(componentes);
+
+        // Verificar
+        Assert.True(resultado.EsCompatible);
+    }
+
+    [Fact]
+    public void Evaluar_MasModulosQueRanuras_LoInformaComoProblema()
+    {
+        // Preparar
+        (Componente, int)[] componentes =
+        [
+            (OrdenesDePrueba.Cpu(), 1),
+            (OrdenesDePrueba.Placa(tipoMemoria: "DDR5", ranurasMemoria: 2), 1),
+            (OrdenesDePrueba.Ram(tipo: "DDR5"), 3),
+            (OrdenesDePrueba.Fuente(), 1)
+        ];
+
+        // Actuar
+        var resultado = VerificadorCompatibilidad.Evaluar(componentes);
+
+        // Verificar
+        Assert.Equal(
+            ["La placa base tiene 2 ranuras de memoria y el armado lleva 3 módulos."],
+            resultado.Problemas);
+    }
+
+    [Fact]
+    public void Evaluar_ModulosIgualALasRanuras_EsCompatible()
+    {
+        // Preparar
+        (Componente, int)[] componentes =
+        [
+            (OrdenesDePrueba.Cpu(), 1),
+            (OrdenesDePrueba.Placa(tipoMemoria: "DDR5", ranurasMemoria: 2), 1),
+            (OrdenesDePrueba.Ram(tipo: "DDR5"), 1),
+            (OrdenesDePrueba.Ram(tipo: "DDR5"), 1),
+            (OrdenesDePrueba.Fuente(), 1)
+        ];
+
+        // Actuar
+        var resultado = VerificadorCompatibilidad.Evaluar(componentes);
+
+        // Verificar
+        Assert.True(resultado.EsCompatible);
+    }
+
+    [Fact]
+    public void Evaluar_PlacaSinDatosDeMemoria_NoRevisaLaMemoria()
+    {
+        // Preparar
+        (Componente, int)[] componentes =
+        [
+            (OrdenesDePrueba.Cpu(), 1),
+            (OrdenesDePrueba.Placa(), 1),
+            (OrdenesDePrueba.Ram(tipo: "DDR4", consumoWatts: 1), 8),
+            (OrdenesDePrueba.Fuente(), 1)
+        ];
+
+        // Actuar
+        var resultado = VerificadorCompatibilidad.Evaluar(componentes);
+
+        // Verificar
+        Assert.True(resultado.EsCompatible);
+    }
+
+    [Fact]
+    public void Evaluar_ConsumoSobreElOchentaPorCientoDeLaFuente_AdvierteSinBloquear()
+    {
+        // Preparar
+        (Componente, int)[] componentes =
+        [
+            (OrdenesDePrueba.Cpu(consumoWatts: 351), 1),
+            (OrdenesDePrueba.Placa(consumoWatts: 50), 1),
+            (OrdenesDePrueba.Fuente(potenciaWatts: 500), 1)
+        ];
+
+        // Actuar
+        var resultado = VerificadorCompatibilidad.Evaluar(componentes);
+
+        // Verificar
+        Assert.True(resultado.EsCompatible);
+        Assert.Equal(
+            ["La fuente queda con menos del 20 % de margen: entrega 500 W y los componentes consumen 401 W."],
+            resultado.Advertencias);
+    }
+
+    [Fact]
+    public void Evaluar_ConsumoEnElOchentaPorCientoDeLaFuente_NoAdvierte()
+    {
+        // Preparar
+        (Componente, int)[] componentes =
+        [
+            (OrdenesDePrueba.Cpu(consumoWatts: 350), 1),
+            (OrdenesDePrueba.Placa(consumoWatts: 50), 1),
+            (OrdenesDePrueba.Fuente(potenciaWatts: 500), 1)
+        ];
+
+        // Actuar
+        var resultado = VerificadorCompatibilidad.Evaluar(componentes);
+
+        // Verificar
+        Assert.Empty(resultado.Advertencias);
+    }
+
+    [Fact]
+    public void Evaluar_ConsumoSobreLaPotencia_EsProblemaYNoAdvertencia()
+    {
+        // Preparar
+        (Componente, int)[] componentes =
+        [
+            (OrdenesDePrueba.Cpu(consumoWatts: 500), 1),
+            (OrdenesDePrueba.Placa(consumoWatts: 50), 1),
+            (OrdenesDePrueba.Fuente(potenciaWatts: 500), 1)
+        ];
+
+        // Actuar
+        var resultado = VerificadorCompatibilidad.Evaluar(componentes);
+
+        // Verificar
+        Assert.Single(resultado.Problemas);
+        Assert.Empty(resultado.Advertencias);
+    }
+
+    [Fact]
     public void Evaluar_VariosProblemas_LosInformaTodosALaVez()
     {
         // Preparar

@@ -41,7 +41,9 @@ public class OrdenesService : IOrdenesService
             c.ConsumoWatts,
             c.PotenciaWatts,
             c.Precio,
-            c.StockDisponible)).ToList();
+            c.StockDisponible,
+            c.TipoMemoria,
+            c.RanurasMemoria)).ToList();
     }
 
     // FN-01
@@ -73,6 +75,7 @@ public class OrdenesService : IOrdenesService
             resultado.Faltantes.Count == 0 && problemas.Count == 0,
             resultado.Faltantes.Select(c => c.ToString()).ToList(),
             problemas,
+            resultado.Advertencias,
             resultado.ConsumoWatts,
             resultado.PotenciaWatts,
             componentes.Sum(c => c.Componente.Precio * c.Cantidad));

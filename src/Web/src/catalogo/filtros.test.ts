@@ -18,6 +18,8 @@ const componente = (
   potenciaWatts: null,
   precio: 100,
   stockDisponible: 5,
+  tipoMemoria: null,
+  ranurasMemoria: null,
   ...datos,
 })
 

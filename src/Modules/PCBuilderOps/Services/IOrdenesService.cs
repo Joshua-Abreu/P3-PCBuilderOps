@@ -22,6 +22,7 @@ public record ValidacionArmado(
     bool EsCompatible,
     IReadOnlyList<string> Faltantes,
     IReadOnlyList<string> Problemas,
+    IReadOnlyList<string> Advertencias,
     long ConsumoWatts,
     int? PotenciaWatts,
     decimal Total);
@@ -42,7 +43,9 @@ public record ComponenteResumen(
     int ConsumoWatts,
     int? PotenciaWatts,
     decimal Precio,
-    int StockDisponible);
+    int StockDisponible,
+    string? TipoMemoria,
+    int? RanurasMemoria);
 
 public record OrdenResumen(
     Guid Id,
