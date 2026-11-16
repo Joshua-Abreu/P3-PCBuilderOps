@@ -29,5 +29,6 @@ Para que los enlaces de los correos de activación y recuperación abran las pan
 | `src/api`         | Cliente HTTP (`pedir`) y los errores de la API (`ErrorApi`).                                                |
 | `src/sesion`      | Token, contexto de la sesión, reglas de acceso por rol, rutas protegidas y validaciones de los formularios. |
 | `src/componentes` | Piezas reutilizables: plantilla, cabecera, pie y mensajes.                                                  |
+| `src/catalogo`    | Filtros del catálogo (en la URL), categorías, formato de precios y tarjeta de componente.                   |
 | `src/paginas`     | Una pantalla por archivo.                                                                                   |
 | `src/rutas.tsx`   | Rutas de la aplicación.                                                                                     |
