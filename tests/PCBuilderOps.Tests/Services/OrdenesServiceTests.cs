@@ -62,20 +62,6 @@ public sealed class OrdenesServiceTests : IDisposable
 
     // FN-01
     [Fact]
-    public async Task ListarComponentes_DevuelveElCatalogoInicial()
-    {
-        // Preparar
-        var servicio = _bd.NuevoServicioOrdenes();
-
-        // Actuar
-        var componentes = await servicio.ListarComponentesAsync();
-
-        // Verificar
-        Assert.Equal(ComponentesIniciales.Todos.Length, componentes.Count);
-    }
-
-    // FN-01
-    [Fact]
     public async Task Cotizar_PcCompatible_GuardaLaOrdenCotizadaConSusDetalles()
     {
         // Preparar

@@ -19,11 +19,6 @@ public class OrdenesController : NegocioControllerBase
         _conversion = conversion;
     }
 
-    // FN-01
-    [HttpGet("componentes")]
-    public async Task<IActionResult> ListarComponentes(CancellationToken ct) =>
-        Ok(await _ordenes.ListarComponentesAsync(ct));
-
     // FN-01, RF-NEG-06
     [HttpPost("componentes/validar")]
     public Task<IActionResult> ValidarArmado([FromBody] CotizarOrdenRequest request, CancellationToken ct) =>

@@ -1,3 +1,4 @@
+using Core.Auth.Exceptions;
 using PCBuilderOps.Exceptions;
 
 namespace PCBuilderOps.Domain;
@@ -23,6 +24,60 @@ public class Componente
     public int StockDisponible { get; private set; }
     public string? TipoMemoria { get; private set; }
     public int? RanurasMemoria { get; private set; }
+    public bool EstaActivo { get; private set; } = true;
+    public string? ImagenArchivo { get; private set; }
+    public string? ImagenTipoContenido { get; private set; }
+
+    // RF-NEG-01, RD-07
+    public static Componente Registrar(Guid id, DatosComponente datos)
+    {
+        var validos = ValidadorComponente.Validar(datos);
+        var componente = new Componente { Id = id, Categoria = validos.Categoria };
+        componente.Aplicar(validos);
+        return componente;
+    }
+
+    // RF-NEG-01, RD-07
+    public void Actualizar(DatosComponente datos)
+    {
+        var validos = ValidadorComponente.Validar(datos);
+
+        if (validos.Categoria != Categoria)
+            throw new ValidacionException("La categoría de un componente no se puede cambiar; retíralo y crea uno nuevo.");
+
+        Aplicar(validos);
+    }
+
+    public void CambiarEstado(bool estaActivo) => EstaActivo = estaActivo;
+
+    public string? CambiarImagen(string archivo, string tipoContenido)
+    {
+        var anterior = ImagenArchivo;
+        ImagenArchivo = archivo;
+        ImagenTipoContenido = tipoContenido;
+        return anterior;
+    }
+
+    public string? QuitarImagen()
+    {
+        var anterior = ImagenArchivo;
+        ImagenArchivo = null;
+        ImagenTipoContenido = null;
+        return anterior;
+    }
+
+    private void Aplicar(DatosComponenteValidos datos)
+    {
+        Nombre = datos.Nombre;
+        Fabricante = datos.Fabricante;
+        SocketOInterfaz = datos.SocketOInterfaz;
+        ConsumoWatts = datos.ConsumoWatts;
+        PotenciaWatts = datos.PotenciaWatts;
+        Precio = datos.Precio;
+        StockDisponible = datos.StockDisponible;
+        TipoMemoria = datos.TipoMemoria;
+        RanurasMemoria = datos.RanurasMemoria;
+    }
 
     public static Componente Crear(
         Guid id,

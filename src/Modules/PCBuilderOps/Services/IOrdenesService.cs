@@ -2,7 +2,6 @@ namespace PCBuilderOps.Services;
 
 public interface IOrdenesService
 {
-    Task<IReadOnlyList<ComponenteResumen>> ListarComponentesAsync(CancellationToken ct = default);
     Task<OrdenDetalle> CotizarAsync(Guid clienteId, IReadOnlyCollection<LineaCotizacion> lineas, CancellationToken ct = default);
     Task<ValidacionArmado> ValidarArmadoAsync(IReadOnlyCollection<LineaCotizacion> lineas, CancellationToken ct = default);
     Task<OrdenDetalle> IniciarArmadoAsync(Guid ordenId, Guid tecnicoId, CancellationToken ct = default);
@@ -33,19 +32,6 @@ public record DatosPrueba(
     decimal TemperaturaMaximaGpu,
     int PuntajeBenchmark,
     bool EsAprobada);
-
-public record ComponenteResumen(
-    Guid Id,
-    string Nombre,
-    string Categoria,
-    string Fabricante,
-    string SocketOInterfaz,
-    int ConsumoWatts,
-    int? PotenciaWatts,
-    decimal Precio,
-    int StockDisponible,
-    string? TipoMemoria,
-    int? RanurasMemoria);
 
 public record OrdenResumen(
     Guid Id,
