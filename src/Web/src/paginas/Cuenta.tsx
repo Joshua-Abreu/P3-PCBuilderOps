@@ -45,19 +45,19 @@ export function Cuenta() {
         <Mensaje tipo="info">Debes cambiar tu contraseña antes de continuar.</Mensaje>
       )}
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6">
+      <section className="rounded-xl border border-borde bg-superficie p-6">
         <h2 className="text-lg font-semibold">Tus datos</h2>
         <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
           <div>
-            <dt className="text-slate-500">Nombre</dt>
+            <dt className="text-texto-suave">Nombre</dt>
             <dd className="mt-1 font-medium">{usuario.nombre}</dd>
           </div>
           <div>
-            <dt className="text-slate-500">Correo</dt>
+            <dt className="text-texto-suave">Correo</dt>
             <dd className="mt-1 font-medium break-all">{usuario.correo}</dd>
           </div>
           <div>
-            <dt className="text-slate-500">Tipo de cuenta</dt>
+            <dt className="text-texto-suave">Tipo de cuenta</dt>
             <dd className="mt-1 font-medium">{describirRol(usuario)}</dd>
           </div>
         </dl>
@@ -66,9 +66,9 @@ export function Cuenta() {
         </Boton>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6">
+      <section className="rounded-xl border border-borde bg-superficie p-6">
         <h2 className="text-lg font-semibold">Cambiar contraseña</h2>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-1 text-sm text-texto-suave">
           Al cambiarla se cerrarán todas tus sesiones, incluida esta.
         </p>
         <form onSubmit={enviar} noValidate className="mt-4 max-w-sm space-y-4">
