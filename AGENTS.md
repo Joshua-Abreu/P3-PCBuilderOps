@@ -20,7 +20,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | 4. Notificaciones y cola de correos | 11–12 | Parcial: existe la cola mínima de la Práctica 1, enviada por la API cada 30 s desde la Práctica 4 (sin reintentos, estado fallido ni bandeja interna). |
 | 5. Reportes con agregación | 12 | Pendiente. |
 | 6. Auditoría | 14 | Pendiente. |
-| Frontend web (extra, no calificado) | — | ⏳ Fases 1 (base), 2 (sesión) y 3 (catálogo con sesión) hechas; sigue la fase 4 (armador de PC, con el cambio B2): ver `docs/frontend.md`. Cede ante cualquier entrega del curso. |
+| Frontend web (extra, no calificado) | — | ⏳ Fases 1 (base), 2 (sesión) y 3 (catálogo con sesión) hechas, con el diseño visual de `docs/diseno/README.md`; sigue la fase 4 (armador de PC, con el cambio B2): ver `docs/frontend.md`. Cede ante cualquier entrega del curso. |
 
 ### Desviaciones conocidas (no corregir sin que el usuario lo pida)
 - Gestión de permisos (`tests/Core.Tests`) y el negocio (`tests/PCBuilderOps.Tests`) tienen pruebas automatizadas; Control de acceso solo las tiene para los enlaces de correo y el bloqueo por intentos (`tests/Core.Tests/Auth`), no para registro, activación ni sesiones (RD-12).

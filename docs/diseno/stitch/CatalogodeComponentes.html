@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-primary-fixed-variant":"#004e5c","on-primary":"#003640","outline":"#869397","on-error":"#690005","surface-dim":"#0b1326","on-background":"#dae2fd","surface-bright":"#31394d","primary-container":"#06b6d4","on-primary-container":"#00424f","on-surface-variant":"#bcc9cd","secondary-fixed-dim":"#adc6ff","surface-container-lowest":"#060e20","surface-container-high":"#222a3d","primary-fixed":"#acedff","on-secondary-fixed":"#001a42","tertiary-container":"#1bbd85","inverse-surface":"#dae2fd","inverse-primary":"#00687a","primary":"#4cd7f6","on-secondary-container":"#e6ecff","error-container":"#93000a","on-tertiary-fixed-variant":"#005236","secondary-fixed":"#d8e2ff","surface-tint":"#4cd7f6","on-secondary-fixed-variant":"#004395","surface-variant":"#2d3449","surface-container":"#171f33","on-primary-fixed":"#001f26","on-tertiary-fixed":"#002113","surface-container-highest":"#2d3449","outline-variant":"#3d494c","background":"#0b1326","primary-fixed-dim":"#4cd7f6","on-secondary":"#002e6a","inverse-on-surface":"#283044","secondary":"#adc6ff","on-error-container":"#ffdad6","tertiary-fixed":"#6ffbbe","on-tertiary":"#003824","on-tertiary-container":"#00452e","surface":"#0b1326","tertiary-fixed-dim":"#4edea3","on-surface":"#dae2fd","error":"#ffb4ab","tertiary":"#4edea3","surface-container-low":"#131b2e","secondary-container":"#0566d9"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-lg":"1.25rem","gutter":"1rem","space-xs":"0.25rem","space-sm":"0.5rem","space-md":"0.75rem","margin":"1rem","margin-desktop":"2rem","gutter-desktop":"1.5rem","space-xl":"2rem"},fontFamily:{"label-sm":["JetBrains Mono"],"body-lg":["Inter"],"headline-lg":["Inter"],"headline-sm":["Inter"],"label-lg":["JetBrains Mono"],"body-sm":["Inter"],"body-md":["Inter"],"label-md":["JetBrains Mono"],"display":["Inter"],"headline-lg-mobile":["Inter"],"headline-md":["Inter"]},fontSize:{"label-sm":["0.6875rem",{"lineHeight":"0.875rem","letterSpacing":"0.06em","fontWeight":"400"}],"body-lg":["1rem",{"lineHeight":"1.5rem","fontWeight":"400"}],"headline-lg":["2.25rem",{"lineHeight":"2.75rem","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["1.125rem",{"lineHeight":"1.5rem","letterSpacing":"-0.01em","fontWeight":"600"}],"label-lg":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.02em","fontWeight":"500"}],"body-sm":["0.75rem",{"lineHeight":"1rem","fontWeight":"400"}],"body-md":["0.875rem",{"lineHeight":"1.25rem","fontWeight":"400"}],"label-md":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.04em","fontWeight":"500"}],"display":["3rem",{"lineHeight":"3.5rem","letterSpacing":"-0.025em","fontWeight":"700"}],"headline-lg-mobile":["1.75rem",{"lineHeight":"2.25rem","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-md":["1.5rem",{"lineHeight":"2rem","letterSpacing":"-0.015em","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col"><div class="h-16 px-gutter flex items-center gap-space-sm bg-surface-container"><img alt="PC Builder Ops Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrBUH9CQIsn3zQWvt-vfRbBZJlgYjNRz_eSs-ibs0OoaJQIU7zBtPV21Pju2AYTgTVmlVAN89dP4rJLqRi57J7hXbAmOf9sm5J97GtF5HuMzGrrQNu5QlgpI5Ql9u5WAvKbyJQj5nE_p27Y1HGFqbmYbMPiyEaHa4VG9FIU3CWgncsnVciJ5OWpiWazOy75Ex_Xm3h8Qi3OmntKenMaQn_24AmyFBPQUj-5d2NHlxAqE"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight">PC Builder Ops</span><span class="font-label-sm text-label-sm text-outline uppercase">Workshop Suite</span></div></div><div class="px-gutter pt-space-lg pb-space-sm"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Estación de Trabajo</span></div><nav class="flex flex-col gap-space-xs px-space-sm" data-active-classes="bg-primary-container text-on-primary-container font-headline-sm"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md" data-path="pc-builder" href="#"><span class="material-symbols-outlined text-[1.25rem]">build</span><span>Armador de PC</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md" data-path="catalogo-de-componentes" href="#"><span class="material-symbols-outlined text-[1.25rem]">memory</span><span>Catálogo</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md" data-path="taller-tecnico" href="#"><span class="material-symbols-outlined text-[1.25rem]">precision_manufacturing</span><span>Taller Técnico</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md" data-path="mis-ordenes" href="#"><span class="material-symbols-outlined text-[1.25rem]">inventory_2</span><span>Mis Órdenes</span></a></nav></div><div class="p-gutter flex flex-col gap-space-sm bg-surface-container-lowest"><div class="flex items-center justify-between px-space-sm py-space-xs rounded bg-surface-container"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(78,222,163,0.5)]"></span><span class="font-label-sm text-label-sm text-on-surface">Taller Activo</span></div><span class="font-label-sm text-label-sm text-primary">v2.4.0</span></div><a class="flex items-center justify-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-bright transition-colors font-body-sm text-body-sm" data-path="inicio-de-sesion" href="#"><span class="material-symbols-outlined text-[1.125rem]">logout</span><span>Cerrar Sesión</span></a></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.3)] z-40"><div class="h-16 w-full px-gutter-desktop flex items-center justify-between"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded-lg"><span class="material-symbols-outlined text-outline text-[1.125rem]">bolt</span><span class="font-label-sm text-label-sm text-on-surface-variant">Carga PSU:</span><span class="font-label-sm text-label-sm text-tertiary">485W / 850W</span></div><div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded-lg"><span class="material-symbols-outlined text-outline text-[1.125rem]">verified</span><span class="font-label-sm text-label-sm text-on-surface-variant">Compatibilidad:</span><span class="font-label-sm text-label-sm text-primary">100% Validada</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-full bg-surface-container-high"><span class="w-2 h-2 rounded-full bg-tertiary"></span><span class="font-label-sm text-label-sm text-on-surface">Banco #04 En línea</span></div><div class="h-6 w-px bg-outline-variant"></div><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjytWAxhY_fHHzSfKoFbdvQRtQho4mQXR8IA3gArNxqw1B23gyoGw9W4DOQTvsij8cCWPEMz2nv4RfRnvRauDRAGLGlLh4_IUKQbu4L3FDdL5z9zNnua26L6xHbzgaxOBRACUHrd6D6I0e_hLSAsJynAAuYKR5zQDwEEQCw8sMsv755EFbQRKYYO1T7v65-xhXNYp0LVojp2WjudEpN195kncGa9OHWcOHQW0vtm4"/><div class="flex flex-col text-left"><span class="font-body-sm text-body-sm text-on-surface font-semibold leading-none">Técnico Alex R.</span><span class="font-label-sm text-label-sm text-outline">Lead Assembler</span></div></div></div></div></header><main class="relative pt-16 w-full min-h-screen bg-background"><div class="flex flex-col w-full">
+<!-- Top Ambient Glow Bar -->
+<div class="relative w-full overflow-hidden px-margin-desktop pt-space-lg pb-space-md">
+<div class="absolute -top-24 left-1/4 w-96 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute -top-20 right-1/3 w-80 h-32 bg-tertiary/10 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Page Breadcrumb & Operational State Bar -->
+<div class="relative flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-outline">Inventario Operativo</span>
+<span class="text-outline-variant font-label-sm text-label-sm">/</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary font-medium">Hardware Validado</span>
+<span class="ml-space-xs inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+            Sync Activa
+          </span>
+</div>
+<div class="flex items-baseline gap-space-md">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Catálogo de Componentes</h1>
+<span class="font-label-md text-label-md text-outline hidden sm:inline">[DEPÓSITO CENTRAL &amp; BANCO 04]</span>
+</div>
+</div>
+<!-- Quick Metrics Strip -->
+<div class="flex items-center gap-space-sm self-start md:self-auto">
+<div class="bg-surface-container px-space-md py-space-xs rounded-lg flex items-center gap-space-sm shadow-sm">
+<span class="material-symbols-outlined text-primary text-[1.25rem]">memory</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase">Total SKUs</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">1,420 pzs</span>
+</div>
+</div>
+<div class="bg-surface-container px-space-md py-space-xs rounded-lg flex items-center gap-space-sm shadow-sm">
+<span class="material-symbols-outlined text-tertiary text-[1.25rem]">verified_user</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase">Garantía RMA</span>
+<span class="font-label-md text-label-md text-tertiary font-semibold">100% Oficial</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Search & Filter Controls Toolbar -->
+<div class="relative bg-surface-container-low rounded-xl p-space-sm shadow-md mt-space-xs">
+<div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-sm">
+<!-- Search Input with Leading Icon & Quick Clear -->
+<div class="relative flex-1 group">
+<span class="material-symbols-outlined absolute left-space-md top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-[1.25rem]">
+            search
+          </span>
+<input class="w-full bg-surface-container-lowest pl-11 pr-24 py-2.5 rounded-lg text-on-surface placeholder:text-outline font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-inner transition-all" id="component-search" placeholder="Buscar procesadores, tarjetas de video, RAM, socket AM5, PCIe..." type="text"/>
+<div class="absolute right-space-sm top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
+<kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[0.625rem] font-label-sm text-outline bg-surface-container-high rounded shadow-sm">⌘K</kbd>
+</div>
+</div>
+<!-- Right Tooling: Sort, Counter & Layout View Toggle -->
+<div class="flex flex-wrap items-center justify-between lg:justify-end gap-space-sm pt-space-xs lg:pt-0">
+<!-- Results Counter -->
+<div class="flex items-center gap-1.5 px-space-sm py-1.5 rounded-lg bg-surface-container-high">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold" id="catalog-counter">148</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">disponibles</span>
+</div>
+<!-- Sort Select Menu -->
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-space-sm text-outline text-[1.125rem] pointer-events-none">
+              sort
+            </span>
+<select class="appearance-none bg-surface-container-lowest text-on-surface font-body-sm text-body-sm pl-8 pr-9 py-2 rounded-lg cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" id="sort-select">
+<option value="populares">Más populares</option>
+<option value="precio-asc">Precio: Menor a mayor</option>
+<option value="precio-desc">Precio: Mayor a menor</option>
+<option value="novedades">Novedades del taller</option>
+<option value="tdp">Consumo (TDP): Menor impacto</option>
+</select>
+<span class="material-symbols-outlined absolute right-space-xs text-outline text-[1.125rem] pointer-events-none">
+              expand_more
+            </span>
+</div>
+<!-- View Switcher -->
+<div class="inline-flex p-0.5 rounded-lg bg-surface-container-lowest">
+<button class="p-1.5 rounded text-on-primary bg-primary shadow-sm transition-all flex items-center justify-center" id="view-grid-btn" title="Vista en Cuadrícula">
+<span class="material-symbols-outlined text-[1.125rem]">grid_view</span>
+</button>
+<button class="p-1.5 rounded text-outline hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center justify-center" id="view-list-btn" title="Vista en Lista Detallada">
+<span class="material-symbols-outlined text-[1.125rem]">view_agenda</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Workstation Layout: 12-Column Responsive Blueprint -->
+<div class="px-margin-desktop pb-space-xl">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-desktop items-start">
+<!-- ==============================================
+           LEFT ADVANCED FILTERS ASIDE (Cols 1-3)
+           ============================================== -->
+<aside class="lg:col-span-3 flex flex-col gap-space-md sticky top-20">
+<!-- Filter Header with Reset -->
+<div class="bg-surface-container-low rounded-xl p-space-md shadow-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-primary">
+<span class="material-symbols-outlined text-[1.25rem]">tune</span>
+<span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">Filtros Taller</span>
+</div>
+<button class="font-label-sm text-label-sm text-primary hover:text-primary-fixed underline transition-colors" id="clear-filters-btn">
+              Limpiar todo
+            </button>
+</div>
+<!-- Categorías Tree -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Categorías Hardware</span>
+<div class="flex flex-col gap-1 mt-1 font-body-sm text-body-sm">
+<button class="category-pill active flex items-center justify-between px-space-sm py-1.5 rounded-lg bg-primary-container text-on-primary-container font-medium transition-all text-left">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[1rem]">apps</span>
+<span>Todos los componentes</span>
+</span>
+<span class="font-label-sm text-label-sm bg-on-primary-container/20 px-1.5 py-0.5 rounded text-on-primary-container">148</span>
+</button>
+<button class="category-pill flex items-center justify-between px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-left">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[1rem]">memory</span>
+<span>Procesadores (CPU)</span>
+</span>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-1.5 py-0.5 rounded text-outline">28</span>
+</button>
+<button class="category-pill flex items-center justify-between px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-left">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[1rem]">videogame_asset</span>
+<span>Tarjetas Gráficas (GPU)</span>
+</span>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-1.5 py-0.5 rounded text-outline">34</span>
+</button>
+<button class="category-pill flex items-center justify-between px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-left">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[1rem]">developer_board</span>
+<span>Placas Base (Motherboards)</span>
+</span>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-1.5 py-0.5 rounded text-outline">22</span>
+</button>
+<button class="category-pill flex items-center justify-between px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-left">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[1rem]">straighten</span>
+<span>Memoria RAM</span>
+</span>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-1.5 py-0.5 rounded text-outline">19</span>
+</button>
+<button class="category-pill flex items-center justify-between px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-left">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[1rem]">save</span>
+<span>Almacenamiento SSD/HDD</span>
+</span>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-1.5 py-0.5 rounded text-outline">25</span>
+</button>
+<button class="category-pill flex items-center justify-between px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-left">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[1rem]">bolt</span>
+<span>Fuentes de Poder (PSU)</span>
+</span>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-1.5 py-0.5 rounded text-outline">15</span>
+</button>
+<button class="category-pill flex items-center justify-between px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-left">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[1rem]">mode_fan</span>
+<span>Gabinetes &amp; Cooling</span>
+</span>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-1.5 py-0.5 rounded text-outline">20</span>
+</button>
+</div>
+</div>
+<!-- Price Range Slider Section -->
+<div class="flex flex-col gap-space-xs pt-space-sm bg-surface-container rounded-lg p-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Rango Presupuesto</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold" id="price-range-label">$20 - $2,500 USD</span>
+</div>
+<div class="relative py-2">
+<input class="w-full accent-primary bg-surface-container-lowest h-1.5 rounded-lg cursor-pointer" id="price-slider" max="2500" min="20" step="10" type="range" value="2500"/>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>Min: $20</span>
+<span>Max: $2,500</span>
+</div>
+</div>
+<!-- Marcas Destacadas (Checkboxes) -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Fabricante / Marca</span>
+<div class="grid grid-cols-2 gap-2 mt-1">
+<label class="flex items-center gap-2 px-2 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<input checked="" class="accent-primary rounded w-3.5 h-3.5" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">AMD</span>
+</label>
+<label class="flex items-center gap-2 px-2 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<input checked="" class="accent-primary rounded w-3.5 h-3.5" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">NVIDIA</span>
+</label>
+<label class="flex items-center gap-2 px-2 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<input class="accent-primary rounded w-3.5 h-3.5" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">Intel</span>
+</label>
+<label class="flex items-center gap-2 px-2 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<input checked="" class="accent-primary rounded w-3.5 h-3.5" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">ASUS</span>
+</label>
+<label class="flex items-center gap-2 px-2 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<input checked="" class="accent-primary rounded w-3.5 h-3.5" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">Corsair</span>
+</label>
+<label class="flex items-center gap-2 px-2 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<input checked="" class="accent-primary rounded w-3.5 h-3.5" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">MSI</span>
+</label>
+<label class="flex items-center gap-2 px-2 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<input class="accent-primary rounded w-3.5 h-3.5" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">Gigabyte</span>
+</label>
+<label class="flex items-center gap-2 px-2 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<input class="accent-primary rounded w-3.5 h-3.5" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">EVGA</span>
+</label>
+</div>
+</div>
+<!-- Socket & Tecnologías Clave -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Socket &amp; Tecnologías</span>
+<div class="flex flex-wrap gap-1.5 mt-1">
+<button class="spec-tag active px-2.5 py-1 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold transition-all">AM5</button>
+<button class="spec-tag px-2.5 py-1 rounded bg-surface-container text-outline hover:text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm transition-all">LGA1700</button>
+<button class="spec-tag active px-2.5 py-1 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold transition-all">DDR5</button>
+<button class="spec-tag px-2.5 py-1 rounded bg-surface-container text-outline hover:text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm transition-all">PCIe 5.0</button>
+<button class="spec-tag px-2.5 py-1 rounded bg-surface-container text-outline hover:text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm transition-all">PCIe 4.0</button>
+<button class="spec-tag px-2.5 py-1 rounded bg-surface-container text-outline hover:text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm transition-all">ATX 3.0</button>
+</div>
+</div>
+<!-- Disponibilidad / Existencias -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Disponibilidad en Taller</span>
+<div class="flex flex-col gap-1.5 mt-1">
+<label class="flex items-center justify-between p-2 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-body-sm text-body-sm text-on-surface">En stock inmediato (Taller)</span>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary">112</span>
+</label>
+<label class="flex items-center justify-between p-2 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-body-sm text-body-sm text-on-surface">Entrega en 24h</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">27</span>
+</label>
+<label class="flex items-center justify-between p-2 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors opacity-60">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="font-body-sm text-body-sm text-on-surface">Agotado temporalmente</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">9</span>
+</label>
+</div>
+</div>
+</div>
+<!-- Banner de Ayuda de Taller / Ensamble -->
+<div class="bg-gradient-to-br from-surface-container-high to-surface-container-lowest p-space-md rounded-xl shadow flex items-start gap-space-sm relative overflow-hidden">
+<div class="p-2 rounded bg-primary/20 text-primary">
+<span class="material-symbols-outlined text-[1.25rem]">help_center</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-headline-sm text-headline-sm text-on-surface">¿Duda técnica?</span>
+<p class="font-body-sm text-body-sm text-outline">
+              El motor de compatibilidad verifica TDP, dimensiones de GPU y sockets en tiempo real.
+            </p>
+</div>
+</div>
+</aside>
+<!-- ==============================================
+           RIGHT CATALOG GRID CONTAINER (Cols 4-12)
+           ============================================== -->
+<section class="lg:col-span-9 flex flex-col gap-space-lg">
+<!-- Active Filter Chips / Badges Row -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm bg-surface-container-low px-space-md py-space-sm rounded-xl">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-outline mr-1">Filtros Activos:</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+<span>AMD &amp; NVIDIA</span>
+<button class="hover:text-error text-outline transition-colors"><span class="material-symbols-outlined text-[0.875rem]">close</span></button>
+</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+<span>Socket AM5 / DDR5</span>
+<button class="hover:text-error text-outline transition-colors"><span class="material-symbols-outlined text-[0.875rem]">close</span></button>
+</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-tertiary/15 text-tertiary font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>En Stock Taller</span>
+<button class="hover:text-error transition-colors"><span class="material-symbols-outlined text-[0.875rem]">close</span></button>
+</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-outline">Mostrando 1 - 6 de 148</span>
+</div>
+</div>
+<!-- 6 High-Tech Hardware Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter-desktop" id="catalog-grid">
+<!-- TARJETA 1: AMD Ryzen 7 7800X3D -->
+<article class="group bg-surface-container-low hover:bg-surface-container transition-all duration-200 rounded-xl overflow-hidden shadow-md flex flex-col justify-between relative hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+<div class="p-space-md flex flex-col gap-space-sm flex-1">
+<!-- Card Top Header (Category & Stock Pill) -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-sm text-label-sm text-outline uppercase font-mono">CPU #01</span>
+<span class="font-label-sm text-label-sm text-primary uppercase font-mono">Socket AM5</span>
+</div>
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>8 en stock</span>
+</div>
+</div>
+<!-- Product Visual Block -->
+<div class="relative w-full h-44 rounded-lg bg-surface-container-lowest overflow-hidden flex items-center justify-center p-space-sm group-hover:scale-[1.01] transition-transform">
+<img class="w-full h-full object-cover rounded" data-alt="Close up studio shot of an AMD Ryzen 7 7800X3D desktop processor resting on an anti-static carbon workbench. Intricate gold pins, heat spreader engraving with micro-details, futuristic cyan LED workshop backlighting, high tech hardware photography, sharp depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBr_pNa5N5N6vyUqXHVqAlBbHt6oPsVVCjqtagowR1p1ZbUYQOy1aD0a_RPyyERIr4WJam1J0jU1k1JFVzFft1bz8wJrTVbiEEAIZrUAKRdYQXXEnlONke4adMIQaIPt3-IZWTnCsnZxsg2e4xtgC23qC7SuKZ9yQMbOVP3LKxWjvayYBWUlxOxvM1vHsvKggPD6VzsVxOlm22RdIG_bKitE03vMoPdlA685BFyEFY"/>
+<span class="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-surface-container-lowest/80 backdrop-blur font-label-sm text-label-sm text-outline">
+                  3D V-Cache
+                </span>
+<span class="absolute top-2 right-2 p-1 rounded bg-surface-container-lowest/80 text-outline hover:text-primary transition-colors cursor-pointer" title="Marcar como favorito">
+<span class="material-symbols-outlined text-[1.125rem]">bookmark</span>
+</span>
+</div>
+<!-- Component Identity & Specs Matrix -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">AMD</span>
+<span class="font-label-sm text-label-sm text-tertiary">Taller Banco #04</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors line-clamp-1">
+                  AMD Ryzen 7 7800X3D
+                </h3>
+</div>
+<!-- Key Hardware Specs Matrix -->
+<div class="grid grid-cols-3 gap-1 bg-surface-container-lowest p-space-xs rounded-lg mt-1">
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Núcleos</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">8C / 16T</span>
+</div>
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Boost</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">5.0 GHz</span>
+</div>
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">TDP</span>
+<span class="font-label-md text-label-md text-primary font-semibold">120W</span>
+</div>
+</div>
+</div>
+<!-- Card Bottom Bar: Pricing & Actions -->
+<div class="px-space-md pb-space-md pt-space-xs bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-baseline justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Precio Taller</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">$389.00</span>
+<span class="font-label-sm text-label-sm text-outline">USD</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-mono">IVA Inc.</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="inspect-btn flex items-center justify-center gap-1 py-2 px-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface transition-colors font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[1rem]">description</span>
+<span>Ficha Técnica</span>
+</button>
+<button class="add-to-build-btn flex items-center justify-center gap-1 py-2 px-space-xs rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-body-sm transition-all shadow-sm active:scale-95">
+<span class="material-symbols-outlined text-[1.125rem]">add_circle</span>
+<span>Ensamble</span>
+</button>
+</div>
+</div>
+</article>
+<!-- TARJETA 2: NVIDIA GeForce RTX 4070 Ti Super ASUS TUF Gaming -->
+<article class="group bg-surface-container-low hover:bg-surface-container transition-all duration-200 rounded-xl overflow-hidden shadow-md flex flex-col justify-between relative hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+<div class="p-space-md flex flex-col gap-space-sm flex-1">
+<!-- Card Top Header -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-sm text-label-sm text-outline uppercase font-mono">GPU #02</span>
+<span class="font-label-sm text-label-sm text-primary uppercase font-mono">PCIe 4.0 x16</span>
+</div>
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>5 en stock</span>
+</div>
+</div>
+<!-- Product Visual Block -->
+<div class="relative w-full h-44 rounded-lg bg-surface-container-lowest overflow-hidden flex items-center justify-center p-space-sm group-hover:scale-[1.01] transition-transform">
+<img class="w-full h-full object-cover rounded" data-alt="ASUS TUF Gaming GeForce RTX 4070 Ti Super graphics card on a matte dark tech slate surface. Triple axial fans with geometric shroud design, metallic gunmetal accents, subtle cyan ambient underglow, pristine component layout, hyper realistic product render." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNH4ossBF1T0D-0xwcZxXjKK6Tt5MrrSnYe0HSmdt2hKaFHUP6EaCu8zGY0f7GPARPv50yPGzC4zfAs-9-VO6V5WbUXv49_mnp4_BIPCrCGWbdTCTz8EkG_fGxPzZelFKFtxgOYtjuSNBWHyimMHkoUju3bZ6R050D68aeO88PvCyr2pwD1mR5jSq34Ig0Zv9n3gHEmIkLLvv17BQyld8j-sjtPZhLGuVTvgzJoiI"/>
+<span class="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-surface-container-lowest/80 backdrop-blur font-label-sm text-label-sm text-outline">
+                  16GB GDDR6X
+                </span>
+<span class="absolute top-2 right-2 p-1 rounded bg-surface-container-lowest/80 text-outline hover:text-primary transition-colors cursor-pointer" title="Marcar como favorito">
+<span class="material-symbols-outlined text-[1.125rem]">bookmark</span>
+</span>
+</div>
+<!-- Identity & Title -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">ASUS TUF / NVIDIA</span>
+<span class="font-label-sm text-label-sm text-tertiary">Longitud: 305mm</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors line-clamp-1">
+                  RTX 4070 Ti Super 16GB
+                </h3>
+</div>
+<!-- Key Hardware Specs Matrix -->
+<div class="grid grid-cols-3 gap-1 bg-surface-container-lowest p-space-xs rounded-lg mt-1">
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">VRAM</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">16GB 256b</span>
+</div>
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">CUDA</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">8448</span>
+</div>
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Consumo</span>
+<span class="font-label-md text-label-md text-secondary font-semibold">285W</span>
+</div>
+</div>
+</div>
+<!-- Card Bottom Bar -->
+<div class="px-space-md pb-space-md pt-space-xs bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-baseline justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Precio Taller</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">$829.99</span>
+<span class="font-label-sm text-label-sm text-outline">USD</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-mono">3 Años Gar.</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="inspect-btn flex items-center justify-center gap-1 py-2 px-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface transition-colors font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[1rem]">description</span>
+<span>Ficha Técnica</span>
+</button>
+<button class="add-to-build-btn flex items-center justify-center gap-1 py-2 px-space-xs rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-body-sm transition-all shadow-sm active:scale-95">
+<span class="material-symbols-outlined text-[1.125rem]">add_circle</span>
+<span>Ensamble</span>
+</button>
+</div>
+</div>
+</article>
+<!-- TARJETA 3: Corsair Dominator Titanium RGB DDR5 32GB -->
+<article class="group bg-surface-container-low hover:bg-surface-container transition-all duration-200 rounded-xl overflow-hidden shadow-md flex flex-col justify-between relative hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+<div class="p-space-md flex flex-col gap-space-sm flex-1">
+<!-- Card Top Header -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-sm text-label-sm text-outline uppercase font-mono">RAM #03</span>
+<span class="font-label-sm text-label-sm text-primary uppercase font-mono">DDR5 Kit</span>
+</div>
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>14 en stock</span>
+</div>
+</div>
+<!-- Product Visual Block -->
+<div class="relative w-full h-44 rounded-lg bg-surface-container-lowest overflow-hidden flex items-center justify-center p-space-sm group-hover:scale-[1.01] transition-transform">
+<img class="w-full h-full object-cover rounded" data-alt="Corsair Dominator Titanium RGB DDR5 dual memory modules isolated on modern dark workbench surface. Sleek brushed titanium gray aluminum heat spreaders with illuminated top lightbars showing subtle neon cyan hues, pristine studio hardware lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmxGgWudFRFXbfTD_k55PJqkmvZ5lrvxvsoV5IUVYS2zKd-8H3n9extb30fk3ix8yWjd2SHDIxYa2MII7CdTeRmo7satk9ZTqiR-lGbDKPANvSU7ccuTO6qHt47mdxVXjYXUtpNt5e0DovCCDNuSMbaTTKFv-fvDp1HdYpvglQW7551fDQ8N2oIRObt1fHYlB-rMTqT6oahRIYcBgwZYCIqgBRhaLjaOrvK0dDqoo"/>
+<span class="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-surface-container-lowest/80 backdrop-blur font-label-sm text-label-sm text-outline">
+                  Expo / XMP 3.0
+                </span>
+<span class="absolute top-2 right-2 p-1 rounded bg-surface-container-lowest/80 text-outline hover:text-primary transition-colors cursor-pointer" title="Marcar como favorito">
+<span class="material-symbols-outlined text-[1.125rem]">bookmark</span>
+</span>
+</div>
+<!-- Identity & Title -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">CORSAIR MEMORY</span>
+<span class="font-label-sm text-label-sm text-tertiary">Latencia CL30</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors line-clamp-1">
+                  Dominator Titanium 32GB (2x16)
+                </h3>
+</div>
+<!-- Key Hardware Specs Matrix -->
+<div class="grid grid-cols-3 gap-1 bg-surface-container-lowest p-space-xs rounded-lg mt-1">
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Capacidad</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">32GB Dual</span>
+</div>
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Velocidad</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">6000 MT/s</span>
+</div>
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Perfil</span>
+<span class="font-label-md text-label-md text-primary font-semibold">EXPO/XMP</span>
+</div>
+</div>
+</div>
+<!-- Card Bottom Bar -->
+<div class="px-space-md pb-space-md pt-space-xs bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-baseline justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Precio Taller</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">$149.99</span>
+<span class="font-label-sm text-label-sm text-outline">USD</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-mono">Gar. Vitalicia</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="inspect-btn flex items-center justify-center gap-1 py-2 px-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface transition-colors font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[1rem]">description</span>
+<span>Ficha Técnica</span>
+</button>
+<button class="add-to-build-btn flex items-center justify-center gap-1 py-2 px-space-xs rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-body-sm transition-all shadow-sm active:scale-95">
+<span class="material-symbols-outlined text-[1.125rem]">add_circle</span>
+<span>Ensamble</span>
+</button>
+</div>
+</div>
+</article>
+<!-- TARJETA 4: Samsung 990 PRO 2TB NVMe M.2 -->
+<article class="group bg-surface-container-low hover:bg-surface-container transition-all duration-200 rounded-xl overflow-hidden shadow-md flex flex-col justify-between relative hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+<div class="p-space-md flex flex-col gap-space-sm flex-1">
+<!-- Card Top Header -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-sm text-label-sm text-outline uppercase font-mono">NVMe #04</span>
+<span class="font-label-sm text-label-sm text-primary uppercase font-mono">M.2 2280</span>
+</div>
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>22 en stock</span>
+</div>
+</div>
+<!-- Product Visual Block -->
+<div class="relative w-full h-44 rounded-lg bg-surface-container-lowest overflow-hidden flex items-center justify-center p-space-sm group-hover:scale-[1.01] transition-transform">
+<img class="w-full h-full object-cover rounded" data-alt="Samsung 990 PRO 2TB NVMe PCIe 4.0 M.2 SSD stick laid diagonally on metallic workbench. Detailed PCB circuitry, nickel-plated controller chip, heat dissipation thermal label, studio dark macro tech aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPYvknyafNJ5NnE9Qi4zyy3sHTjrgBkUqckn_qZdWafYmnvcV1wTCJdZT3cY9uoeXGVmeCLwJ3fyyUwp_xwoJibWsYV4ElUzDIX5IRidzgGLoMO_R6KbzjVFUy33FEZ_uPVBXxFqPSXogD2kV1gYIh4r36H4NM9anKJBqtZxobZkhAQQ1rx3b5TPVZaVJQoZu9SjobVlphPpWPdKa4FxHguFjyTqJdgF-6tUe97L0"/>
+<span class="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-surface-container-lowest/80 backdrop-blur font-label-sm text-label-sm text-outline">
+                  PCIe 4.0 NVMe
+                </span>
+<span class="absolute top-2 right-2 p-1 rounded bg-surface-container-lowest/80 text-outline hover:text-primary transition-colors cursor-pointer" title="Marcar como favorito">
+<span class="material-symbols-outlined text-[1.125rem]">bookmark</span>
+</span>
+</div>
+<!-- Identity & Title -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">SAMSUNG V-NAND</span>
+<span class="font-label-sm text-label-sm text-tertiary">1200 TBW</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors line-clamp-1">
+                  Samsung 990 PRO 2TB NVMe
+                </h3>
+</div>
+<!-- Key Hardware Specs Matrix -->
+<div class="grid grid-cols-3 gap-1 bg-surface-container-lowest p-space-xs rounded-lg mt-1">
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Lectura</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">7,450 MB/s</span>
+</div>
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Escritura</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">6,900 MB/s</span>
+</div>
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Caché</span>
+<span class="font-label-md text-label-md text-primary font-semibold">2GB LPDDR4</span>
+</div>
+</div>
+</div>
+<!-- Card Bottom Bar -->
+<div class="px-space-md pb-space-md pt-space-xs bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-baseline justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Precio Taller</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">$169.99</span>
+<span class="font-label-sm text-label-sm text-outline">USD</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-mono">5 Años Gar.</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="inspect-btn flex items-center justify-center gap-1 py-2 px-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface transition-colors font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[1rem]">description</span>
+<span>Ficha Técnica</span>
+</button>
+<button class="add-to-build-btn flex items-center justify-center gap-1 py-2 px-space-xs rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-body-sm transition-all shadow-sm active:scale-95">
+<span class="material-symbols-outlined text-[1.125rem]">add_circle</span>
+<span>Ensamble</span>
+</button>
+</div>
+</div>
+</article>
+<!-- TARJETA 5: MSI MAG B650 Tomahawk WiFi -->
+<article class="group bg-surface-container-low hover:bg-surface-container transition-all duration-200 rounded-xl overflow-hidden shadow-md flex flex-col justify-between relative hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+<div class="p-space-md flex flex-col gap-space-sm flex-1">
+<!-- Card Top Header -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-sm text-label-sm text-outline uppercase font-mono">MOBO #05</span>
+<span class="font-label-sm text-label-sm text-primary uppercase font-mono">ATX Standard</span>
+</div>
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>11 en stock</span>
+</div>
+</div>
+<!-- Product Visual Block -->
+<div class="relative w-full h-44 rounded-lg bg-surface-container-lowest overflow-hidden flex items-center justify-center p-space-sm group-hover:scale-[1.01] transition-transform">
+<img class="w-full h-full object-cover rounded" data-alt="MSI MAG B650 Tomahawk WiFi ATX motherboard angled showcase. Matte black multi-layer PCB, massive extended VRM aluminum heatsinks, reinforced PCIe slots, Wi-Fi 6E antenna ports, clean engineering perspective." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_rv72kAqacQ39WWKs83HqGujor_QA3uk4mDR0ks6gmwJkpEIgc2RLMSxUXCHzyVelISHqCCIpsJWh4m2VHmpH01hkw4NGsrmiQDq3deWuzxxDQH5BNePnSxVr2Fot6IQc1bsCrc0ChkuJrJG4iwckwrnFi1SkCMJRJ4utTKHpj87XUysSdLX0y5sr8XFxxnUzXT4L3_yT9zYy8evb6gYUvSC6Qyib8qn-JOme7RI"/>
+<span class="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-surface-container-lowest/80 backdrop-blur font-label-sm text-label-sm text-outline">
+                  Wi-Fi 6E + 2.5G LAN
+                </span>
+<span class="absolute top-2 right-2 p-1 rounded bg-surface-container-lowest/80 text-outline hover:text-primary transition-colors cursor-pointer" title="Marcar como favorito">
+<span class="material-symbols-outlined text-[1.125rem]">bookmark</span>
+</span>
+</div>
+<!-- Identity & Title -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">MSI ARSENAL GAMING</span>
+<span class="font-label-sm text-label-sm text-tertiary">14+2+1 VRM</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors line-clamp-1">
+                  MSI MAG B650 Tomahawk
+                </h3>
+</div>
+<!-- Key Hardware Specs Matrix -->
+<div class="grid grid-cols-3 gap-1 bg-surface-container-lowest p-space-xs rounded-lg mt-1">
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Socket</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">AMD AM5</span>
+</div>
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Slots M.2</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">3x Gen4</span>
+</div>
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">RAM</span>
+<span class="font-label-md text-label-md text-primary font-semibold">4x DDR5</span>
+</div>
+</div>
+</div>
+<!-- Card Bottom Bar -->
+<div class="px-space-md pb-space-md pt-space-xs bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-baseline justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Precio Taller</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">$219.00</span>
+<span class="font-label-sm text-label-sm text-outline">USD</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-mono">3 Años Gar.</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="inspect-btn flex items-center justify-center gap-1 py-2 px-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface transition-colors font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[1rem]">description</span>
+<span>Ficha Técnica</span>
+</button>
+<button class="add-to-build-btn flex items-center justify-center gap-1 py-2 px-space-xs rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-body-sm transition-all shadow-sm active:scale-95">
+<span class="material-symbols-outlined text-[1.125rem]">add_circle</span>
+<span>Ensamble</span>
+</button>
+</div>
+</div>
+</article>
+<!-- TARJETA 6: Corsair RM850x Shift 850W 80+ Gold Modular -->
+<article class="group bg-surface-container-low hover:bg-surface-container transition-all duration-200 rounded-xl overflow-hidden shadow-md flex flex-col justify-between relative hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+<div class="p-space-md flex flex-col gap-space-sm flex-1">
+<!-- Card Top Header -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-sm text-label-sm text-outline uppercase font-mono">PSU #06</span>
+<span class="font-label-sm text-label-sm text-primary uppercase font-mono">ATX 3.0 / PCIe 5</span>
+</div>
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>9 en stock</span>
+</div>
+</div>
+<!-- Product Visual Block -->
+<div class="relative w-full h-44 rounded-lg bg-surface-container-lowest overflow-hidden flex items-center justify-center p-space-sm group-hover:scale-[1.01] transition-transform">
+<img class="w-full h-full object-cover rounded" data-alt="Corsair RM850x Shift 850W power supply showing innovative side-mounted modular connector interface. Matte textured black metal enclosure with fan grill, 80 Plus Gold emblem, clean modular cable ports illuminated by workstation ambient teal light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHTZ-jG6DzK7xxOLI-AVyRJpi-TygHRpU17deo9_Ra86umL9EajECuIxTjNM2vxlsKo7h8fuedCOfcxmM4Su_qAZVieyiSeoESwTue9V4t18xfhFttfBQdqfBSdgwUnfXqB61PPuYTmJyzpyDgIZgtUbGkCA3xSI5aKoL54wnlTQUJlUoc7AQGjES77Y_8aR4DZaUxlEI7ImXn3MyH67CU3mX0XzZ7UTST-c1t0eA"/>
+<span class="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-surface-container-lowest/80 backdrop-blur font-label-sm text-label-sm text-outline">
+                  80 PLUS Gold
+                </span>
+<span class="absolute top-2 right-2 p-1 rounded bg-surface-container-lowest/80 text-outline hover:text-primary transition-colors cursor-pointer" title="Marcar como favorito">
+<span class="material-symbols-outlined text-[1.125rem]">bookmark</span>
+</span>
+</div>
+<!-- Identity & Title -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">CORSAIR POWER</span>
+<span class="font-label-sm text-label-sm text-tertiary">140mm FDB Fan</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors line-clamp-1">
+                  Corsair RM850x Shift 850W
+                </h3>
+</div>
+<!-- Key Hardware Specs Matrix -->
+<div class="grid grid-cols-3 gap-1 bg-surface-container-lowest p-space-xs rounded-lg mt-1">
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Potencia</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">850 Watts</span>
+</div>
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Eficiencia</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">90%+ Gold</span>
+</div>
+<div class="flex flex-col text-center p-1 rounded bg-surface-container">
+<span class="font-label-sm text-label-sm text-outline uppercase">Conector</span>
+<span class="font-label-md text-label-md text-primary font-semibold">12VHPWR</span>
+</div>
+</div>
+</div>
+<!-- Card Bottom Bar -->
+<div class="px-space-md pb-space-md pt-space-xs bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-baseline justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Precio Taller</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">$159.99</span>
+<span class="font-label-sm text-label-sm text-outline">USD</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-mono">10 Años Gar.</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="inspect-btn flex items-center justify-center gap-1 py-2 px-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface transition-colors font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[1rem]">description</span>
+<span>Ficha Técnica</span>
+</button>
+<button class="add-to-build-btn flex items-center justify-center gap-1 py-2 px-space-xs rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-body-sm transition-all shadow-sm active:scale-95">
+<span class="material-symbols-outlined text-[1.125rem]">add_circle</span>
+<span>Ensamble</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+<!-- ==============================================
+             BOTTOM ADVANCED PAGINATION STRIP
+             ============================================== -->
+<nav aria-label="Navegación de Catálogo" class="bg-surface-container-low rounded-xl p-space-md shadow flex flex-col sm:flex-row items-center justify-between gap-space-md mt-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline">Componentes por página:</span>
+<select class="bg-surface-container-lowest text-on-surface font-label-sm text-label-sm px-2 py-1 rounded cursor-pointer focus:outline-none">
+<option selected="">6 piezas</option>
+<option>12 piezas</option>
+<option>24 piezas</option>
+<option>48 piezas</option>
+</select>
+</div>
+<!-- Numbered Pagination -->
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container-high text-outline hover:text-on-surface hover:bg-surface-bright flex items-center justify-center transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined text-[1.125rem]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-semibold shadow-sm">1</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-sm text-label-sm transition-colors">2</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-sm text-label-sm transition-colors">3</button>
+<span class="px-1 text-outline font-label-sm text-label-sm">...</span>
+<button class="w-8 h-8 rounded-lg bg-surface-container text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-sm text-label-sm transition-colors">25</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-bright flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[1.125rem]">chevron_right</span>
+</button>
+</div>
+<!-- Quick Jump Indicator -->
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-outline">
+<span>Página 1 de 25</span>
+<span class="text-outline-variant">|</span>
+<span class="text-tertiary">Stock sincronizado</span>
+</div>
+</nav>
+</section>
+</div>
+</div>
+<!-- Notification Toast Container for Add-to-Build Feedback -->
+<div class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none" id="toast-notification">
+<div class="bg-surface-container-highest/95 backdrop-blur-md px-space-md py-space-sm rounded-xl shadow-2xl flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-tertiary/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[1.25rem]">check_circle</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-body-md text-on-surface font-semibold" id="toast-title">Componente asignado</span>
+<span class="font-label-sm text-label-sm text-tertiary" id="toast-subtitle">Enviado al banco de ensamble #04</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Client Script for State & Filters Micro-Interactions -->
+<script>
+  // Price Slider Feedback
+  const priceSlider = document.getElementById('price-slider');
+  const priceLabel = document.getElementById('price-range-label');
+  if (priceSlider && priceLabel) {
+    priceSlider.addEventListener('input', (e) => {
+      priceLabel.textContent = `$20 - $${Number(e.target.value).toLocaleString('en-US')} USD`;
+    });
+  }
+
+  // Category Pills Switching
+  const categoryPills = document.querySelectorAll('.category-pill');
+  categoryPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      categoryPills.forEach(p => {
+        p.classList.remove('bg-primary-container', 'text-on-primary-container', 'font-medium');
+        p.classList.add('text-on-surface-variant');
+      });
+      pill.classList.remove('text-on-surface-variant');
+      pill.classList.add('bg-primary-container', 'text-on-primary-container', 'font-medium');
+    });
+  });
+
+  // Spec Tags Multi-toggle
+  const specTags = document.querySelectorAll('.spec-tag');
+  specTags.forEach(tag => {
+    tag.addEventListener('click', () => {
+      const isActive = tag.classList.contains('bg-secondary-container');
+      if (isActive) {
+        tag.classList.remove('bg-secondary-container', 'text-on-secondary-container', 'font-semibold');
+        tag.classList.add('bg-surface-container', 'text-outline');
+      } else {
+        tag.classList.remove('bg-surface-container', 'text-outline');
+        tag.classList.add('bg-secondary-container', 'text-on-secondary-container', 'font-semibold');
+      }
+    });
+  });
+
+  // View Switcher (Grid / List)
+  const viewGridBtn = document.getElementById('view-grid-btn');
+  const viewListBtn = document.getElementById('view-list-btn');
+  const catalogGrid = document.getElementById('catalog-grid');
+
+  if (viewGridBtn && viewListBtn && catalogGrid) {
+    viewGridBtn.addEventListener('click', () => {
+      catalogGrid.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter-desktop';
+      viewGridBtn.className = 'p-1.5 rounded text-on-primary bg-primary shadow-sm transition-all flex items-center justify-center';
+      viewListBtn.className = 'p-1.5 rounded text-outline hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center justify-center';
+    });
+
+    viewListBtn.addEventListener('click', () => {
+      catalogGrid.className = 'grid grid-cols-1 gap-space-md';
+      viewListBtn.className = 'p-1.5 rounded text-on-primary bg-primary shadow-sm transition-all flex items-center justify-center';
+      viewGridBtn.className = 'p-1.5 rounded text-outline hover:text-on-surface hover:bg-surface-container-high transition-all flex items-center justify-center';
+    });
+  }
+
+  // Toast Trigger for "Agregar al Ensamble"
+  const addButtons = document.querySelectorAll('.add-to-build-btn');
+  const toast = document.getElementById('toast-notification');
+  const toastTitle = document.getElementById('toast-title');
+
+  addButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const card = e.target.closest('article');
+      const partName = card ? card.querySelector('h3').textContent.trim() : 'Componente';
+      
+      if (toast && toastTitle) {
+        toastTitle.textContent = `${partName} agregado`;
+        toast.classList.remove('translate-y-24', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+
+        setTimeout(() => {
+          toast.classList.remove('translate-y-0', 'opacity-100');
+          toast.classList.add('translate-y-24', 'opacity-0');
+        }, 2600);
+      }
+    });
+  });
+
+  // Clear filters button micro-feedback
+  const clearBtn = document.getElementById('clear-filters-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      const search = document.getElementById('component-search');
+      if (search) search.value = '';
+      if (priceSlider && priceLabel) {
+        priceSlider.value = 2500;
+        priceLabel.textContent = '$20 - $2,500 USD';
+      }
+    });
+  }
+</script></main></div></body></html>

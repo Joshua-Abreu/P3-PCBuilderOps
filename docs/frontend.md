@@ -5,7 +5,8 @@
 | Tipo de trabajo | Extra, no calificado por ninguna rúbrica. Las entregas del curso tienen prioridad. |
 | Carpeta | `src/Web` (proyecto de Node, fuera de `P3-PCBuilderOps.slnx`) |
 | Ramas | Una por fase: `feature/web-...`; los cambios del backend que pida el frontend van en su propia rama `feature/...`. |
-| Estado | ⏳ En diseño (esta ficha) |
+| Estado | ⏳ Fases 1 a 3 y diseño visual hechos; sigue la fase 4 |
+| Diseño visual | `docs/diseno/README.md` (colores, letras y reglas, a partir de Google Stitch) |
 
 > *Un cliente arma su computadora en el navegador viendo en vivo si las piezas son compatibles, la cotiza y sigue su orden hasta la entrega; el técnico y el Administrador operan el taller desde la misma aplicación.*
 
@@ -25,7 +26,8 @@
 | Interfaz | React + TypeScript (modo estricto) |
 | Rutas y pantallas protegidas por rol | React Router |
 | Datos de la API (carga, error, caché, recarga) | TanStack Query |
-| Estilos | Tailwind CSS |
+| Estilos | Tailwind CSS, con los colores del diseño en `src/index.css` |
+| Letras | Inter y JetBrains Mono, servidas desde la app con `@fontsource-variable` |
 | Formularios y validación | React Hook Form + Zod |
 | Pruebas | Vitest (cuando haya lógica que probar) |
 | Calidad | oxlint (el revisor que trae la plantilla oficial de Vite) y Prettier |
@@ -152,6 +154,7 @@ Opcional, más adelante: descripción e imagen de cada componente para un catál
 - [x] Fase 1: base del proyecto
 - [x] Fase 2: sesión (con B3 y B4)
 - [x] Fase 3: catálogo (con sesión; B1 descartado)
+- [x] Diseño visual: tema oscuro de Stitch afinado en Claude Design y aplicado a las pantallas hechas
 - [ ] Fase 4: armador de PC (con B2)
 - [ ] Fase 5: pantallas del cliente (con B7)
 - [ ] Fase 6: taller y Administrador (con B5 y B6)

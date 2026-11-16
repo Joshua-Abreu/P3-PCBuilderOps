@@ -134,6 +134,10 @@ El rechazo por bloqueo dice cuántos minutos faltan («Intenta de nuevo en 15 mi
 `VerificadorCompatibilidad.Evaluar` devuelve un diagnóstico completo (faltantes, todos los problemas, consumo y potencia) sin lanzar excepción, y `Validar` lo usa para lanzar el primer error con el mismo mensaje y en el mismo orden que antes. `POST /api/componentes/validar` expone ese diagnóstico más el total, exige sesión como el resto del negocio y no crea órdenes ni reserva existencias. Un armado incompleto se informa en `faltantes`, no como error.
 **Por qué:** el armador del frontend necesita avisar mientras el usuario elige piezas sin duplicar la regla de compatibilidad en el navegador (RD-02). Una sola fuente de la regla evita que la validación previa y la cotización digan cosas distintas; una prueba de caracterización fija los mensajes de `Validar` para que la cotización no cambie.
 
+### 2026-11-16 · Diseño visual oscuro a partir de Google Stitch, solo con datos de la API (RD-02, RF-NEG-06)
+El frontend usa un solo tema oscuro (azul marino con acento cian), Inter para el texto y JetBrains Mono para cifras y códigos, ambas servidas desde la aplicación. Con sesión, la navegación es un menú lateral que en el teléfono se abre con un botón; sin sesión, una cabecera. Los colores viven solo en el `@theme` de `src/Web/src/index.css`, y `docs/diseno/README.md` explica qué se tomó de Stitch y qué se descartó.
+**Por qué:** el usuario eligió el estilo de Stitch y lo revisó afinado en Claude Design. Stitch inventa datos que la API no tiene (telemetría, fotos, elegir rol, rastreo sin sesión); dibujarlos crearía pantallas que el backend no respalda o que contradicen RF-NEG-06, así que se quitaron. Un solo tema evita mantener dos paletas en un trabajo que no se califica; las fuentes propias evitan depender de un servicio externo dentro de Docker.
+
 ## Pendientes
 
 - **Fechas leídas de la base sin `Z` (RD-11).** `fechaCreacionUtc` sale con `Z` al crearse pero sin ella al leerse de SQL Server (`DateTimeKind.Unspecified`). Unificar marcando las fechas como UTC al leerlas.

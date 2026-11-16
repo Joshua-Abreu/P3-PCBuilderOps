@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-primary-fixed-variant":"#004e5c","on-primary":"#003640","outline":"#869397","on-error":"#690005","surface-dim":"#0b1326","on-background":"#dae2fd","surface-bright":"#31394d","primary-container":"#06b6d4","on-primary-container":"#00424f","on-surface-variant":"#bcc9cd","secondary-fixed-dim":"#adc6ff","surface-container-lowest":"#060e20","surface-container-high":"#222a3d","primary-fixed":"#acedff","on-secondary-fixed":"#001a42","tertiary-container":"#1bbd85","inverse-surface":"#dae2fd","inverse-primary":"#00687a","primary":"#4cd7f6","on-secondary-container":"#e6ecff","error-container":"#93000a","on-tertiary-fixed-variant":"#005236","secondary-fixed":"#d8e2ff","surface-tint":"#4cd7f6","on-secondary-fixed-variant":"#004395","surface-variant":"#2d3449","surface-container":"#171f33","on-primary-fixed":"#001f26","on-tertiary-fixed":"#002113","surface-container-highest":"#2d3449","outline-variant":"#3d494c","background":"#0b1326","primary-fixed-dim":"#4cd7f6","on-secondary":"#002e6a","inverse-on-surface":"#283044","secondary":"#adc6ff","on-error-container":"#ffdad6","tertiary-fixed":"#6ffbbe","on-tertiary":"#003824","on-tertiary-container":"#00452e","surface":"#0b1326","tertiary-fixed-dim":"#4edea3","on-surface":"#dae2fd","error":"#ffb4ab","tertiary":"#4edea3","surface-container-low":"#131b2e","secondary-container":"#0566d9"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-lg":"1.25rem","gutter":"1rem","space-xs":"0.25rem","space-sm":"0.5rem","space-md":"0.75rem","margin":"1rem","margin-desktop":"2rem","gutter-desktop":"1.5rem","space-xl":"2rem"},fontFamily:{"label-sm":["JetBrains Mono"],"body-lg":["Inter"],"headline-lg":["Inter"],"headline-sm":["Inter"],"label-lg":["JetBrains Mono"],"body-sm":["Inter"],"body-md":["Inter"],"label-md":["JetBrains Mono"],"display":["Inter"],"headline-lg-mobile":["Inter"],"headline-md":["Inter"]},fontSize:{"label-sm":["0.6875rem",{"lineHeight":"0.875rem","letterSpacing":"0.06em","fontWeight":"400"}],"body-lg":["1rem",{"lineHeight":"1.5rem","fontWeight":"400"}],"headline-lg":["2.25rem",{"lineHeight":"2.75rem","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["1.125rem",{"lineHeight":"1.5rem","letterSpacing":"-0.01em","fontWeight":"600"}],"label-lg":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.02em","fontWeight":"500"}],"body-sm":["0.75rem",{"lineHeight":"1rem","fontWeight":"400"}],"body-md":["0.875rem",{"lineHeight":"1.25rem","fontWeight":"400"}],"label-md":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.04em","fontWeight":"500"}],"display":["3rem",{"lineHeight":"3.5rem","letterSpacing":"-0.025em","fontWeight":"700"}],"headline-lg-mobile":["1.75rem",{"lineHeight":"2.25rem","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-md":["1.5rem",{"lineHeight":"2rem","letterSpacing":"-0.015em","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col"><div class="h-16 px-gutter flex items-center gap-space-sm bg-surface-container"><img alt="PC Builder Ops Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrBUH9CQIsn3zQWvt-vfRbBZJlgYjNRz_eSs-ibs0OoaJQIU7zBtPV21Pju2AYTgTVmlVAN89dP4rJLqRi57J7hXbAmOf9sm5J97GtF5HuMzGrrQNu5QlgpI5Ql9u5WAvKbyJQj5nE_p27Y1HGFqbmYbMPiyEaHa4VG9FIU3CWgncsnVciJ5OWpiWazOy75Ex_Xm3h8Qi3OmntKenMaQn_24AmyFBPQUj-5d2NHlxAqE"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight">PC Builder Ops</span><span class="font-label-sm text-label-sm text-outline uppercase">Workshop Suite</span></div></div><div class="px-gutter pt-space-lg pb-space-sm"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Estación de Trabajo</span></div><nav class="flex flex-col gap-space-xs px-space-sm" data-active-classes="bg-primary-container text-on-primary-container font-headline-sm"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md" data-path="pc-builder" href="#"><span class="material-symbols-outlined text-[1.25rem]">build</span><span>Armador de PC</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md" data-path="catalogo-de-componentes" href="#"><span class="material-symbols-outlined text-[1.25rem]">memory</span><span>Catálogo</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md" data-path="taller-tecnico" href="#"><span class="material-symbols-outlined text-[1.25rem]">precision_manufacturing</span><span>Taller Técnico</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md" data-path="mis-ordenes" href="#"><span class="material-symbols-outlined text-[1.25rem]">inventory_2</span><span>Mis Órdenes</span></a></nav></div><div class="p-gutter flex flex-col gap-space-sm bg-surface-container-lowest"><div class="flex items-center justify-between px-space-sm py-space-xs rounded bg-surface-container"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(78,222,163,0.5)]"></span><span class="font-label-sm text-label-sm text-on-surface">Taller Activo</span></div><span class="font-label-sm text-label-sm text-primary">v2.4.0</span></div><a class="flex items-center justify-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-bright transition-colors font-body-sm text-body-sm" data-path="inicio-de-sesion" href="#"><span class="material-symbols-outlined text-[1.125rem]">logout</span><span>Cerrar Sesión</span></a></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.3)] z-40"><div class="h-16 w-full px-gutter-desktop flex items-center justify-between"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded-lg"><span class="material-symbols-outlined text-outline text-[1.125rem]">bolt</span><span class="font-label-sm text-label-sm text-on-surface-variant">Carga PSU:</span><span class="font-label-sm text-label-sm text-tertiary">485W / 850W</span></div><div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded-lg"><span class="material-symbols-outlined text-outline text-[1.125rem]">verified</span><span class="font-label-sm text-label-sm text-on-surface-variant">Compatibilidad:</span><span class="font-label-sm text-label-sm text-primary">100% Validada</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-full bg-surface-container-high"><span class="w-2 h-2 rounded-full bg-tertiary"></span><span class="font-label-sm text-label-sm text-on-surface">Banco #04 En línea</span></div><div class="h-6 w-px bg-outline-variant"></div><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjytWAxhY_fHHzSfKoFbdvQRtQho4mQXR8IA3gArNxqw1B23gyoGw9W4DOQTvsij8cCWPEMz2nv4RfRnvRauDRAGLGlLh4_IUKQbu4L3FDdL5z9zNnua26L6xHbzgaxOBRACUHrd6D6I0e_hLSAsJynAAuYKR5zQDwEEQCw8sMsv755EFbQRKYYO1T7v65-xhXNYp0LVojp2WjudEpN195kncGa9OHWcOHQW0vtm4"/><div class="flex flex-col text-left"><span class="font-body-sm text-body-sm text-on-surface font-semibold leading-none">Técnico Alex R.</span><span class="font-label-sm text-label-sm text-outline">Lead Assembler</span></div></div></div></div></header><main class="relative pt-16 w-full min-h-screen bg-background"><div class="flex flex-col w-full p-gutter-desktop gap-space-lg">
+<!-- Sub-header & Workflow Stepper Area -->
+<div class="w-full bg-surface-container rounded-xl p-space-md shadow-md flex flex-col gap-space-md">
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="p-space-xs rounded bg-surface-container-high text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[1.25rem]">tune</span>
+</span>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">Estación de Configuración Modular</span>
+<span class="font-label-sm text-label-sm text-outline">Orden ID: #BKO-88219 • Banco de Pruebas Activo</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="flex items-center gap-space-xs px-space-md py-space-xs rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-bright transition-colors font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[1rem]">restart_alt</span>
+<span>Reiniciar Selección</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-xs rounded-lg bg-surface-container-high text-primary hover:bg-surface-bright transition-colors font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[1rem]">share</span>
+<span>Compartir Enlace</span>
+</button>
+</div>
+</div>
+<!-- 5-Step Horizontal Stepper -->
+<div class="w-full grid grid-cols-1 md:grid-cols-5 gap-space-xs pt-space-xs">
+<!-- Paso 1: CPU (Completado) -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-low transition-all">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[0.95rem]">check_circle</span>
+            PASO 01
+          </span>
+<span class="font-label-sm text-label-sm text-outline">120W</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface font-semibold truncate">Procesador (CPU)</div>
+<span class="font-label-sm text-label-sm text-tertiary truncate">Ryzen 7 7800X3D</span>
+</div>
+<!-- Paso 2: Motherboard (Completado) -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-low transition-all">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[0.95rem]">check_circle</span>
+            PASO 02
+          </span>
+<span class="font-label-sm text-label-sm text-outline">50W</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface font-semibold truncate">Placa Base (Mobo)</div>
+<span class="font-label-sm text-label-sm text-tertiary truncate">ROG STRIX B650E-F</span>
+</div>
+<!-- Paso 3: RAM, GPU & M.2 (Activo) -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-high relative overflow-hidden shadow-[0_0_16px_-4px_rgba(6,182,212,0.4)]">
+<div class="absolute top-0 left-0 h-1 w-full bg-primary"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+            PASO 03 ACTIVO
+          </span>
+<span class="font-label-sm text-label-sm text-primary">315W</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface font-semibold truncate">RAM, GPU &amp; SSD</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">En selección...</span>
+</div>
+<!-- Paso 4: PSU & Cooling (Pendiente) -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-lowest opacity-60">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">PASO 04</span>
+<span class="material-symbols-outlined text-[0.9rem] text-outline">lock</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant font-semibold truncate">Fuente &amp; Cooler</div>
+<span class="font-label-sm text-label-sm text-outline truncate">Recomendada: 850W</span>
+</div>
+<!-- Paso 5: Resumen (Pendiente) -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-lowest opacity-60">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">PASO 05</span>
+<span class="material-symbols-outlined text-[0.9rem] text-outline">verified</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant font-semibold truncate">Inspección Final</div>
+<span class="font-label-sm text-label-sm text-outline truncate">Validación total</span>
+</div>
+</div>
+</div>
+<!-- Realtime Diagnostic & Metrics Bar (Horizontal Cockpit) -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-md shadow-md flex flex-col lg:flex-row items-center justify-between gap-space-md">
+<!-- Wattage Diagnostics -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center gap-space-lg w-full lg:w-auto">
+<div class="flex flex-col gap-1 min-w-[220px]">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[1rem] text-primary">electric_bolt</span>
+            Consumo Calculado
+          </span>
+<span class="font-label-md text-label-md text-primary font-bold" id="tdp-readout">485W / 850W</span>
+</div>
+<!-- Progress Bar Meter -->
+<div class="w-full bg-surface-container-highest rounded-full h-2.5 overflow-hidden flex">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 57%;"></div>
+</div>
+<div class="flex items-center justify-between text-outline">
+<span class="font-label-sm text-label-sm">Idle ~65W</span>
+<span class="font-label-sm text-label-sm text-tertiary">Eficiencia Gold (57%)</span>
+</div>
+</div>
+<!-- Compatibility Pill & AM5 Banner -->
+<div class="flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-container">
+<span class="material-symbols-outlined text-tertiary text-[1.25rem]">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-tertiary font-bold tracking-tight">100% Compatible</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Socket AM5 • PCIe 5.0 x16 Ready</span>
+</div>
+</div>
+</div>
+<!-- Pricing Summary and Actions -->
+<div class="flex flex-wrap items-center justify-between lg:justify-end gap-space-md w-full lg:w-auto">
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Subtotal Acumulado</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight" id="total-price-display">$1,429.95</span>
+<span class="font-label-sm text-label-sm text-outline">USD</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md py-space-sm rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface transition-all font-body-md text-body-md font-medium flex items-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">save</span>
+<span>Guardar</span>
+</button>
+<button class="px-space-lg py-space-sm rounded-lg bg-primary-container hover:bg-primary text-on-primary font-headline-sm text-headline-sm tracking-tight transition-all shadow-[0_0_16px_rgba(6,182,212,0.4)] flex items-center gap-space-xs" type="button">
+<span>Continuar a Fuente &amp; Coolers</span>
+<span class="material-symbols-outlined text-[1.25rem]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Primary Workspace: 12-Column Multi-Pane Workbench -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- Central Selection Stream: Step 3 Modules (8 Columns on xl) -->
+<div class="xl:col-span-8 flex flex-col gap-space-lg">
+<!-- Interactive Filter Bar -->
+<div class="bg-surface-container rounded-xl p-space-md flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-label-md text-label-md text-on-surface uppercase tracking-wider font-semibold">Filtros Activos:</span>
+<div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded bg-surface-container-high font-label-sm text-label-sm text-primary">
+<span>Factor de Forma: ATX</span>
+<span class="material-symbols-outlined text-[0.875rem] cursor-pointer">close</span>
+</div>
+<div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded bg-surface-container-high font-label-sm text-label-sm text-primary">
+<span>DDR5 Compatible</span>
+<span class="material-symbols-outlined text-[0.875rem] cursor-pointer">close</span>
+</div>
+</div>
+<!-- Automatic Compatibility Filter Toggle -->
+<label class="flex items-center gap-space-xs cursor-pointer select-none">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-container relative"></div>
+<span class="font-body-sm text-body-sm text-on-surface font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[1rem] text-tertiary">check</span>
+            Ocultar incompatibles
+          </span>
+</label>
+</div>
+<!-- SECTION 1: Tarjetas Gráficas (GPU) -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[1.25rem]">videogame_asset</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">1. Tarjeta Gráfica (GPU)</span>
+<span class="font-label-sm text-label-sm text-outline ml-2">[Slot PCIe 5.0 x16 Asignado]</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">1 de 3 seleccionada</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Card 1: RTX 4070 Ti Super (Seleccionada) -->
+<div class="gpu-card relative rounded-xl p-space-md flex flex-col justify-between transition-all cursor-pointer bg-surface-container-high shadow-[0_0_16px_rgba(6,182,212,0.35)] ring-1 ring-primary" id="gpu-card-1">
+<div class="absolute top-3 right-3 flex items-center gap-1 px-space-xs py-0.5 rounded bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold uppercase">
+<span class="material-symbols-outlined text-[0.875rem]">done</span>
+              Seleccionado
+            </div>
+<div class="flex flex-col gap-space-xs">
+<div class="w-full h-32 rounded-lg bg-surface-container-lowest overflow-hidden flex items-center justify-center p-2 mb-2">
+<img class="w-full h-full object-contain" data-alt="High-end sleek gaming graphics card RTX 4070 Ti Super with triple axial fans, dark matte chassis with illuminated cyan edge lines on an engineering test table, macro photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDCMQDHx1x23rPWQRm_Wle0S445kKw6gV0RLNhBksaXPB2tl3xEJA97Lx0zY6baaC02QggWNBDOZC89How9F1Qpsm2hobMbd-hBcCtgj-KfVr1ANR8dK0rNRH8nk5Id-Jaco-wpxq-7JHnk0VtI1ebMiHg__jY6l0YLYWsXYkKMaHvsBeIPpH9nYPbIskMny9eiU9AYzOV3_iwMLCFz5ENuAPudRMIOoJx6JTKQcQ"/>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-bold">NVIDIA GEFORCE</span>
+<span class="font-headline-sm text-headline-sm text-on-surface leading-tight">RTX 4070 Ti Super 16GB</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Triple Fan Cooling • 285mm Largo</span>
+<!-- Spec Table Matrix -->
+<div class="grid grid-cols-2 gap-space-xs mt-space-sm p-space-xs rounded bg-surface-container-lowest font-label-sm text-label-sm">
+<div><span class="text-outline">TDP:</span> <span class="text-on-surface">285W</span></div>
+<div><span class="text-outline">VRAM:</span> <span class="text-on-surface">16GB GDDR6X</span></div>
+<div><span class="text-outline">Bus:</span> <span class="text-on-surface">256-bit</span></div>
+<div><span class="text-outline">Pines:</span> <span class="text-on-surface">1x 16-pin 12VHPWR</span></div>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between bg-surface-container-high">
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">$799.00</span>
+<span class="font-label-sm text-label-sm text-outline ml-1">USD</span>
+</div>
+<button class="px-space-md py-space-xs rounded bg-primary text-on-primary font-label-md text-label-md font-semibold" type="button">
+                Activo
+              </button>
+</div>
+</div>
+<!-- Card 2: Radeon RX 7900 XT 20GB -->
+<div class="gpu-card relative rounded-xl p-space-md flex flex-col justify-between transition-all cursor-pointer bg-surface-container-low hover:bg-surface-container" id="gpu-card-2">
+<div class="flex flex-col gap-space-xs">
+<div class="w-full h-32 rounded-lg bg-surface-container-lowest overflow-hidden flex items-center justify-center p-2 mb-2">
+<img class="w-full h-full object-contain" data-alt="AMD Radeon RX 7900 XT graphics card with high-tech red and black angular shroud, dual-slot bracket, placed in clean modular workshop studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJXtx43rAR0NQvZiIcf568d4Y0-59sVh8gxulpspu_oFG7LrGGubfJZpD_DWMAS99N0FTuVuAQMvpoU8ScPNyTH9l8-KlbkRG31bG2KlfYaKyKuirssuctqOTRWzi7WmNiFWJ-rn79FmfQhqTS8ERHOox-gHSKO7ZCmfy5vLmNFqPKCnzUChS6nxUheWeatVxJGw0npboauEKiI2kCrbkZLEWD4lVwQZRcYGwoajc"/>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-bold">AMD RADEON</span>
+<span class="font-headline-sm text-headline-sm text-on-surface leading-tight">Radeon RX 7900 XT 20GB</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">RDNA 3 Architecture • 276mm Largo</span>
+<!-- Spec Table Matrix -->
+<div class="grid grid-cols-2 gap-space-xs mt-space-sm p-space-xs rounded bg-surface-container-lowest font-label-sm text-label-sm">
+<div><span class="text-outline">TDP:</span> <span class="text-on-surface">315W</span></div>
+<div><span class="text-outline">VRAM:</span> <span class="text-on-surface">20GB GDDR6</span></div>
+<div><span class="text-outline">Bus:</span> <span class="text-on-surface">320-bit</span></div>
+<div><span class="text-outline">Pines:</span> <span class="text-on-surface">2x 8-pin PCIe</span></div>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">$699.00</span>
+<span class="font-label-sm text-label-sm text-outline ml-1">USD</span>
+</div>
+<button class="px-space-md py-space-xs rounded bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-md text-label-md" type="button">
+                Elegir
+              </button>
+</div>
+</div>
+<!-- Card 3: RTX 4080 Super 16GB -->
+<div class="gpu-card relative rounded-xl p-space-md flex flex-col justify-between transition-all cursor-pointer bg-surface-container-low hover:bg-surface-container" id="gpu-card-3">
+<div class="flex flex-col gap-space-xs">
+<div class="w-full h-32 rounded-lg bg-surface-container-lowest overflow-hidden flex items-center justify-center p-2 mb-2">
+<img class="w-full h-full object-contain" data-alt="Massive flagship RTX 4080 Super GPU with stealth black metallic heat sink, illuminated logo, 3-slot form factor in an enthusiast workspace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMjc6CZfgvooxIEtvAp3SqVGl5DUFKuH1ZdZhUV_OdQPb8ysomcNlp825qAdnblMhJyUyWV4wb6_3nuD52Fz5-sqtCevxPRxxxDh9zsjOj349sNssZSfyoiw44JvvwnZGM1QJifqTy9GtO4KDIC6NaObv2QE8j8E7DAss-KUHzDziJqrkSn8yiR3c4mZkKrMpk_G6MCmVKLlsoMn1o738yN4npbL7EfrusS_Vc1cw"/>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-bold">NVIDIA GEFORCE</span>
+<span class="font-headline-sm text-headline-sm text-on-surface leading-tight">RTX 4080 Super 16GB</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Vapor Chamber • 310mm Largo</span>
+<!-- Spec Table Matrix -->
+<div class="grid grid-cols-2 gap-space-xs mt-space-sm p-space-xs rounded bg-surface-container-lowest font-label-sm text-label-sm">
+<div><span class="text-outline">TDP:</span> <span class="text-on-surface">320W</span></div>
+<div><span class="text-outline">VRAM:</span> <span class="text-on-surface">16GB GDDR6X</span></div>
+<div><span class="text-outline">Bus:</span> <span class="text-on-surface">256-bit</span></div>
+<div><span class="text-outline">Pines:</span> <span class="text-on-surface">1x 16-pin 12VHPWR</span></div>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">$999.00</span>
+<span class="font-label-sm text-label-sm text-outline ml-1">USD</span>
+</div>
+<button class="px-space-md py-space-xs rounded bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-md text-label-md" type="button">
+                Elegir
+              </button>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 2: Memoria RAM & Almacenamiento M.2 (2-Col Sub-Bento) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
+<!-- RAM Module Block -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[1.25rem]">memory</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">2. Memoria RAM</span>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary">2 / 4 Slots Utilizados</span>
+</div>
+<div class="bg-surface-container-high rounded-xl p-space-md flex flex-col justify-between gap-space-md shadow-[0_0_12px_rgba(6,182,212,0.25)] ring-1 ring-primary">
+<div class="flex items-start gap-space-md">
+<div class="w-16 h-16 rounded-lg bg-surface-container-lowest flex items-center justify-center p-1 shrink-0">
+<img class="w-full h-full object-contain" data-alt="Two sleek dark grey DDR5 Corsair Vengeance RAM sticks with aluminum heat spreaders on dark workbench mat, low angle close-up." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfnAbnEC0OWsIoqu6B-jRI60QUHr2Jb4IdbZ6VJ4glFp0TqFRMjLdUHjziWOnISdb3b9rTg5O2G0Q4fniamjXviUAXLCDeoktEno62hgy1nVpUWRvkmnuYfcWKVd-n6sw4kzm2H6uCtyuc8gZmZNIQMRVe7sE80K_siKxThKRzA-hLDanIcDAf6908nUvY9FPHZI4a0X0TzCHITMhL1o145NADVy8TBOT7Nue6yco"/>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-primary font-bold">CORSAIR VENGEANCE</span>
+<span class="px-1.5 py-0.5 rounded bg-tertiary/10 text-tertiary font-label-sm text-label-sm">AMD EXPO Ready</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">DDR5 32GB (2x16GB) 6000MHz</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Latencia CL30-36-36-76 • Perfil 1.35V</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-space-xs p-space-xs rounded bg-surface-container-lowest font-label-sm text-label-sm text-center">
+<div><span class="text-outline block">Consumo:</span> <span class="text-on-surface font-semibold">15W</span></div>
+<div><span class="text-outline block">Altura:</span> <span class="text-on-surface font-semibold">35mm</span></div>
+<div><span class="text-outline block">Garantía:</span> <span class="text-on-surface font-semibold">De por vida</span></div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">$114.99 <span class="font-label-sm text-label-sm text-outline">USD</span></span>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-md py-space-xs rounded bg-surface-container text-on-surface hover:bg-surface-bright font-label-md text-label-md" type="button">Cambiar</button>
+<button class="px-space-md py-space-xs rounded bg-primary text-on-primary font-label-md text-label-md font-semibold" type="button">Seleccionado</button>
+</div>
+</div>
+</div>
+</div>
+<!-- M.2 SSD Storage Block -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[1.25rem]">save</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">3. Almacenamiento SSD M.2</span>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary">M.2_1 (PCIe 5.0/4.0)</span>
+</div>
+<div class="bg-surface-container-high rounded-xl p-space-md flex flex-col justify-between gap-space-md shadow-[0_0_12px_rgba(6,182,212,0.25)] ring-1 ring-primary">
+<div class="flex items-start gap-space-md">
+<div class="w-16 h-16 rounded-lg bg-surface-container-lowest flex items-center justify-center p-1 shrink-0">
+<img class="w-full h-full object-contain" data-alt="Samsung 990 PRO NVMe M.2 2TB high performance solid state drive with dark sticker and exposed controller chip, ultra-detailed macro shot." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGOUFLCmhpSnvtxhChxgBgk6xv81eujhMSEHCPUtXi9-fdpA9aWL69_ek_PQ--VViMk5ifKPAScg5dayzc6ioDB0mTq92BFR_h-RUri2IDKfCe1imq-bwn3jrWELCjr88QpqeATnYLztnPLOg4MtS_ZdH3Jy4lNZqpkFFtDi6GoWLjwb02W9q1nKSIlRT1kAacFsSGf5h0nYhAFgR4f8NZmQ6MALrkdQ6-NA7bkAQ"/>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-primary font-bold">SAMSUNG</span>
+<span class="px-1.5 py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">NVMe 2.0</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">990 PRO 2TB NVMe PCIe 4.0</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Lectura: 7,450 MB/s • Escritura: 6,900 MB/s</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-space-xs p-space-xs rounded bg-surface-container-lowest font-label-sm text-label-sm text-center">
+<div><span class="text-outline block">Consumo:</span> <span class="text-on-surface font-semibold">8.5W Max</span></div>
+<div><span class="text-outline block">Formato:</span> <span class="text-on-surface font-semibold">2280 Key M</span></div>
+<div><span class="text-outline block">TBW:</span> <span class="text-on-surface font-semibold">1200 TBW</span></div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">$169.99 <span class="font-label-sm text-label-sm text-outline">USD</span></span>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-md py-space-xs rounded bg-surface-container text-on-surface hover:bg-surface-bright font-label-md text-label-md" type="button">Cambiar</button>
+<button class="px-space-md py-space-xs rounded bg-primary text-on-primary font-label-md text-label-md font-semibold" type="button">Seleccionado</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Summary Sidebar: Bill of Materials & Diagnostic Validation (4 Columns on xl) -->
+<div class="xl:col-span-4 flex flex-col gap-space-md sticky top-20">
+<div class="bg-surface-container rounded-xl p-space-md flex flex-col gap-space-md shadow-lg">
+<!-- Sidebar Header -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[1.25rem]">assignment</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Resumen de Ensamble</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant">5 Componentes</span>
+</div>
+<!-- Realtime Spec Validation Checklist -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-lowest">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-1">Inspección de Compatibilidad</span>
+<div class="flex items-center gap-space-xs text-tertiary">
+<span class="material-symbols-outlined text-[1rem]">check_circle</span>
+<span class="font-body-sm text-body-sm text-on-surface">Espacio en gabinete verificado (360mm disp.)</span>
+</div>
+<div class="flex items-center gap-space-xs text-tertiary">
+<span class="material-symbols-outlined text-[1rem]">check_circle</span>
+<span class="font-body-sm text-body-sm text-on-surface">Pines PCIe / 12VHPWR nativos suficientes</span>
+</div>
+<div class="flex items-center gap-space-xs text-tertiary">
+<span class="material-symbols-outlined text-[1rem]">check_circle</span>
+<span class="font-body-sm text-body-sm text-on-surface">Compatibilidad de disipador con RAM (35mm)</span>
+</div>
+<div class="flex items-center gap-space-xs text-tertiary">
+<span class="material-symbols-outlined text-[1rem]">check_circle</span>
+<span class="font-body-sm text-body-sm text-on-surface">BIOS compatible con Zen 4 sin update previo</span>
+</div>
+</div>
+<!-- Chosen Components List -->
+<div class="flex flex-col gap-space-sm divide-y-0">
+<!-- Item 1: CPU -->
+<div class="flex items-center justify-between p-space-xs rounded hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[1rem]">developer_board</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-on-surface font-semibold truncate">Ryzen 7 7800X3D</span>
+<span class="font-label-sm text-label-sm text-outline truncate">Socket AM5 • 120W TDP</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-md text-label-md text-on-surface font-bold">$389.00</span>
+<span class="font-label-sm text-label-sm text-tertiary">1x Slot</span>
+</div>
+</div>
+<!-- Item 2: Motherboard -->
+<div class="flex items-center justify-between p-space-xs rounded hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[1rem]">grid_view</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-on-surface font-semibold truncate">ASUS ROG STRIX B650E-F</span>
+<span class="font-label-sm text-label-sm text-outline truncate">ATX • WiFi 6E • PCIe 5.0</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-md text-label-md text-on-surface font-bold">$269.99</span>
+<span class="font-label-sm text-label-sm text-tertiary">1x Base</span>
+</div>
+</div>
+<!-- Item 3: GPU (RTX 4070 Ti Super) -->
+<div class="flex items-center justify-between p-space-xs rounded bg-surface-container-high/60">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[1rem]">videogame_asset</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-on-surface font-semibold truncate">RTX 4070 Ti Super 16GB</span>
+<span class="font-label-sm text-label-sm text-primary truncate">285W TDP • 3 slots</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-md text-label-md text-on-surface font-bold">$799.00</span>
+<span class="font-label-sm text-label-sm text-primary">PCIe 1</span>
+</div>
+</div>
+<!-- Item 4: RAM -->
+<div class="flex items-center justify-between p-space-xs rounded hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[1rem]">memory</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-on-surface font-semibold truncate">Corsair 32GB DDR5 6000</span>
+<span class="font-label-sm text-label-sm text-outline truncate">2x16GB CL30 • 15W</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-md text-label-md text-on-surface font-bold">$114.99</span>
+<span class="font-label-sm text-label-sm text-tertiary">DIMM A2/B2</span>
+</div>
+</div>
+<!-- Item 5: SSD -->
+<div class="flex items-center justify-between p-space-xs rounded hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[1rem]">save</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-on-surface font-semibold truncate">Samsung 990 PRO 2TB</span>
+<span class="font-label-sm text-label-sm text-outline truncate">M.2 Gen4 NVMe • 8.5W</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-md text-label-md text-on-surface font-bold">$169.99</span>
+<span class="font-label-sm text-label-sm text-tertiary">M.2_Slot 1</span>
+</div>
+</div>
+</div>
+<!-- Breakdown Table & Grand Total -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Hardware (5 ítems):</span>
+<span class="text-on-surface font-semibold">$1,742.97</span>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm text-tertiary">
+<span>Descuento Combo Bundle:</span>
+<span>-$313.02</span>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Servicio de Ensamble &amp; Test:</span>
+<span class="text-tertiary font-semibold">GRATIS</span>
+</div>
+<div class="h-px bg-outline-variant my-1"></div>
+<div class="flex justify-between items-baseline">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Total Actual:</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">$1,429.95</span>
+</div>
+</div>
+<!-- Action CTAs -->
+<div class="flex flex-col gap-space-xs">
+<button class="w-full py-space-sm rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-headline-sm tracking-tight transition-all shadow-[0_0_16px_rgba(6,182,212,0.3)] flex items-center justify-center gap-space-xs" type="button">
+<span>Validar y Continuar</span>
+<span class="material-symbols-outlined text-[1.125rem]">arrow_forward</span>
+</button>
+<button class="w-full py-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface transition-all font-body-sm text-body-sm flex items-center justify-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[1rem]">download</span>
+<span>Exportar Lista de Partes (.PDF / .CSV)</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+    (function() {
+      const gpuCards = document.querySelectorAll('.gpu-card');
+      const tdpReadout = document.getElementById('tdp-readout');
+      const totalPriceDisplay = document.getElementById('total-price-display');
+
+      const gpuData = {
+        'gpu-card-1': { name: 'RTX 4070 Ti Super 16GB', tdp: 285, price: 799.00 },
+        'gpu-card-2': { name: 'Radeon RX 7900 XT 20GB', tdp: 315, price: 699.00 },
+        'gpu-card-3': { name: 'RTX 4080 Super 16GB', tdp: 320, price: 999.00 }
+      };
+
+      const baseTdpWithoutGpu = 200; // CPU (120W) + Mobo (50W) + RAM/SSD (30W)
+      const basePriceWithoutGpu = 630.95; // Bundled parts base
+
+      gpuCards.forEach(card => {
+        card.addEventListener('click', function() {
+          gpuCards.forEach(c => {
+            c.classList.remove('bg-surface-container-high', 'shadow-[0_0_16px_rgba(6,182,212,0.35)]', 'ring-1', 'ring-primary');
+            c.classList.add('bg-surface-container-low');
+            const badge = c.querySelector('.absolute.top-3.right-3');
+            if (badge) badge.remove();
+            const btn = c.querySelector('button');
+            if (btn) {
+              btn.className = 'px-space-md py-space-xs rounded bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-md text-label-md';
+              btn.textContent = 'Elegir';
+            }
+          });
+
+          this.classList.remove('bg-surface-container-low');
+          this.classList.add('bg-surface-container-high', 'shadow-[0_0_16px_rgba(6,182,212,0.35)]', 'ring-1', 'ring-primary');
+
+          const badge = document.createElement('div');
+          badge.className = 'absolute top-3 right-3 flex items-center gap-1 px-space-xs py-0.5 rounded bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold uppercase';
+          badge.innerHTML = '<span class="material-symbols-outlined text-[0.875rem]">done</span> Seleccionado';
+          this.prepend(badge);
+
+          const btn = this.querySelector('button');
+          if (btn) {
+            btn.className = 'px-space-md py-space-xs rounded bg-primary text-on-primary font-label-md text-label-md font-semibold';
+            btn.textContent = 'Activo';
+          }
+
+          const cardId = this.id;
+          if (gpuData[cardId]) {
+            const currentTdp = baseTdpWithoutGpu + gpuData[cardId].tdp;
+            const currentPrice = (basePriceWithoutGpu + gpuData[cardId].price).toFixed(2);
+            if (tdpReadout) {
+              tdpReadout.textContent = currentTdp + 'W / 850W';
+            }
+            if (totalPriceDisplay) {
+              totalPriceDisplay.textContent = '$' + currentPrice;
+            }
+          }
+        });
+      });
+    })();
+  </script>
+</div></main></div></body></html>

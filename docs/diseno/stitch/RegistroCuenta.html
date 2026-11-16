@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Cuenta - PC Builder Ops</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              cyan: '#06b6d4',
+              hover: '#0891b2',
+              glow: 'rgba(6, 182, 212, 0.18)'
+            },
+            surface: {
+              base: '#0b1326',
+              container: '#131b2e',
+              darker: '#060e20',
+              card: '#162035',
+              border: '#222f4c'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #060e20;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+    }
+    .grid-bg {
+      background-image: radial-gradient(rgba(6, 182, 212, 0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .circuit-glow {
+      box-shadow: 0 0 35px -5px rgba(6, 182, 212, 0.25);
+    }
+  </style>
+</head>
+<body class="min-h-screen grid-bg flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+
+  <!-- Top Global Bar -->
+  <header class="border-b border-[#1b2640] bg-[#0b1326]/90 backdrop-blur-md px-6 py-3 flex items-center justify-between z-10">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-600 to-cyan-400 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-cyan-500/20">
+        <i class="fa-solid fa-microchip text-lg"></i>
+      </div>
+      <div>
+        <span class="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
+          PC Builder <span class="text-cyan-400">Ops</span>
+        </span>
+        <span class="text-[10px] text-slate-400 tracking-wider font-mono block uppercase">Alta de Nuevos Usuarios & Técnicos</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-4 text-xs">
+      <span class="text-slate-400 hidden sm:inline">¿Ya tienes cuenta activa?</span>
+      <a href="#" class="px-3.5 py-1.5 rounded-lg border border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 font-medium transition flex items-center gap-1.5">
+        <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+        <span>Iniciar Sesión</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Register Container -->
+  <main class="flex-1 flex items-center justify-center p-4 md:p-8">
+    <div class="w-full max-w-5xl bg-[#0b1326] border border-[#222f4c] rounded-2xl overflow-hidden shadow-2xl flex flex-col lg:flex-row circuit-glow">
+      
+      <!-- Left Panel: Benefits per account type -->
+      <div class="lg:w-5/12 bg-gradient-to-b from-[#131b2e] to-[#0a101f] p-8 border-b lg:border-b-0 lg:border-r border-[#222f4c] flex flex-col justify-between relative overflow-hidden">
+        <div class="absolute -top-24 -left-24 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div>
+          <!-- Badge -->
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-mono mb-5">
+            <i class="fa-solid fa-user-plus text-[11px]"></i>
+            Registro Centralizado
+          </div>
+
+          <h1 class="text-2xl font-bold text-white tracking-tight leading-tight mb-3">
+            Crea tu Cuenta en PC Builder Ops
+          </h1>
+          <p class="text-sm text-slate-300 leading-relaxed mb-6">
+            Únete a la plataforma de ensamble de hardware con trazabilidad completa de componentes, certificados térmicos y seguimiento en vivo por banco.
+          </p>
+
+          <!-- What you get section -->
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-md bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0 mt-0.5">
+                <i class="fa-solid fa-microchip text-xs"></i>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-white">Armador Inteligente con Validación de Watts</p>
+                <p class="text-[11px] text-slate-400">Guarda configuraciones, verifica pines PCIe/12VHPWR y compatibilidad de disipadores.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-md bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0 mt-0.5">
+                <i class="fa-solid fa-chart-line text-xs"></i>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-white">Telemetría de Banco & Certificado QC</p>
+                <p class="text-[11px] text-slate-400">Accede al reporte de temperaturas, curvas de ventilación y pase de MemTest86.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-md bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0 mt-0.5">
+                <i class="fa-solid fa-file-shield text-xs"></i>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-white">Garantía Directa On-Site de 3 Años</p>
+                <p class="text-[11px] text-slate-400">Historial de componentes, número de serie único y soporte RMA expedito.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trust footer -->
+        <div class="pt-6 border-t border-[#1b2640] flex items-center justify-between text-xs text-slate-400 font-mono">
+          <span class="flex items-center gap-1.5">
+            <i class="fa-solid fa-certificate text-cyan-400"></i> ISO-9001 Bench Standard
+          </span>
+          <span class="text-emerald-400">100% Verificado</span>
+        </div>
+
+      </div>
+
+      <!-- Right Panel: Registration Form -->
+      <div class="lg:w-7/12 p-8 md:p-10 flex flex-col justify-center">
+        
+        <div class="mb-5">
+          <h2 class="text-2xl font-bold text-white tracking-tight">Crear Nueva Cuenta</h2>
+          <p class="text-xs text-slate-400 mt-1">Completa los datos para habilitar tu perfil en la plataforma de ensamble</p>
+        </div>
+
+        <!-- Account Type Selector Cards -->
+        <div class="mb-5">
+          <label class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-2">Selecciona Tipo de Perfil</label>
+          <div class="grid grid-cols-2 gap-3">
+            
+            <!-- Type 1: Cliente / Entusiasta (Selected) -->
+            <div class="p-3.5 rounded-xl border-2 border-cyan-500 bg-[#0d182e] cursor-pointer relative shadow-lg shadow-cyan-500/10">
+              <div class="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-cyan-500 flex items-center justify-center text-slate-950 text-[10px]">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div class="flex items-center gap-2.5 mb-1">
+                <div class="w-7 h-7 rounded bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">
+                  <i class="fa-solid fa-user"></i>
+                </div>
+                <span class="text-xs font-bold text-white">Cliente / Creador</span>
+              </div>
+              <p class="text-[11px] text-slate-300">Para armar PCs, pedir cotizaciones y rastrear envíos.</p>
+            </div>
+
+            <!-- Type 2: Técnico de Taller -->
+            <div class="p-3.5 rounded-xl border border-[#222f4c] bg-[#070e1c] hover:border-slate-500 cursor-pointer transition">
+              <div class="flex items-center gap-2.5 mb-1">
+                <div class="w-7 h-7 rounded bg-slate-800 text-slate-300 flex items-center justify-center text-xs">
+                  <i class="fa-solid fa-screwdriver-wrench"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-200">Técnico de Taller</span>
+              </div>
+              <p class="text-[11px] text-slate-400">Requiere ID de empleado y validación de banco de pruebas.</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Form Fields Grid -->
+        <form class="space-y-3.5" onsubmit="event.preventDefault();">
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-mono text-slate-300 mb-1">NOMBRE COMPLETO</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-regular fa-user text-xs"></i>
+                </span>
+                <input type="text" placeholder="Ej. Carlos Mendoza" class="w-full bg-[#070e1c] border border-[#222f4c] rounded-xl pl-9 pr-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-mono text-slate-300 mb-1">EMPRESA / ESTUDIO (OPCIONAL)</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-regular fa-building text-xs"></i>
+                </span>
+                <input type="text" placeholder="Ej. VFX Studio Norte" class="w-full bg-[#070e1c] border border-[#222f4c] rounded-xl pl-9 pr-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">CORREO ELECTRÓNICO</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                <i class="fa-regular fa-envelope text-xs"></i>
+              </span>
+              <input type="email" placeholder="carlos.mendoza@ejemplo.com" class="w-full bg-[#070e1c] border border-[#222f4c] rounded-xl pl-9 pr-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 font-mono transition">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-mono text-slate-300 mb-1">CONTRASEÑA</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-solid fa-lock text-xs"></i>
+                </span>
+                <input type="password" placeholder="Mínimo 8 caracteres" class="w-full bg-[#070e1c] border border-[#222f4c] rounded-xl pl-9 pr-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 font-mono transition">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-mono text-slate-300 mb-1">CONFIRMAR CONTRASEÑA</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-solid fa-shield-check text-xs"></i>
+                </span>
+                <input type="password" placeholder="Repite tu contraseña" class="w-full bg-[#070e1c] border border-[#222f4c] rounded-xl pl-9 pr-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 font-mono transition">
+              </div>
+            </div>
+          </div>
+
+          <!-- Password strength indicators -->
+          <div class="flex items-center gap-1.5 pt-0.5">
+            <div class="h-1 flex-1 rounded bg-emerald-500"></div>
+            <div class="h-1 flex-1 rounded bg-emerald-500"></div>
+            <div class="h-1 flex-1 rounded bg-emerald-500"></div>
+            <div class="h-1 flex-1 rounded bg-slate-700"></div>
+            <span class="text-[10px] text-emerald-400 font-mono ml-2">Seguridad: Fuerte</span>
+          </div>
+
+          <!-- Optional technical field (Conditional display hint for technicians) -->
+          <div class="p-3 bg-[#0a1222] border border-[#1b2742] rounded-xl text-xs">
+            <div class="flex items-center justify-between text-slate-400 mb-1">
+              <span class="font-mono text-[11px] text-cyan-400">¿Eres técnico o ensamblador certificado?</span>
+              <span class="text-[10px] text-slate-500">Opcional</span>
+            </div>
+            <input type="text" placeholder="Código de Invitación del Taller / ID de Banco (Ej. WRK-2024-B04)" class="w-full bg-[#060c18] border border-[#1e2a47] rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 font-mono focus:outline-none focus:border-cyan-500">
+          </div>
+
+          <!-- Terms acceptance -->
+          <div class="space-y-2 pt-1 text-xs">
+            <label class="flex items-start gap-2 cursor-pointer select-none">
+              <input type="checkbox" checked class="mt-0.5 w-4 h-4 rounded bg-[#070e1c] border-[#222f4c] text-cyan-500 focus:ring-0">
+              <span class="text-slate-300 text-[11px] leading-tight">
+                Acepto los <a href="#" class="text-cyan-400 hover:underline">Términos de Servicio</a>, políticas de garantía de ensamble y tratamiento de datos de telemetría.
+              </span>
+            </label>
+            <label class="flex items-start gap-2 cursor-pointer select-none">
+              <input type="checkbox" checked class="mt-0.5 w-4 h-4 rounded bg-[#070e1c] border-[#222f4c] text-cyan-500 focus:ring-0">
+              <span class="text-slate-400 text-[11px] leading-tight">
+                Deseo recibir alertas de actualización de estado y reportes de benchmark de mis órdenes por correo y SMS.
+              </span>
+            </label>
+          </div>
+
+          <!-- Register button -->
+          <button type="submit" class="w-full mt-3 py-3 px-4 bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 font-bold rounded-xl text-sm shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2 transition duration-150">
+            <i class="fa-solid fa-user-check text-xs"></i>
+            <span>Completar Registro y Entrar</span>
+          </button>
+
+        </form>
+
+        <!-- Footer switch to login -->
+        <div class="text-center pt-4 border-t border-[#1b2640] text-xs text-slate-400 mt-4">
+          ¿Ya tienes una cuenta creada? 
+          <a href="#" class="text-cyan-400 hover:text-cyan-300 font-semibold ml-1">Iniciar Sesión</a>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="border-t border-[#1b2640] bg-[#070e1c] px-6 py-3 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+    <div>
+      © 2024 PC Builder Ops™ · Todos los derechos reservados
+    </div>
+    <div class="flex items-center gap-4 text-xs font-mono">
+      <span class="text-slate-400">Protección de Datos Grado Industrial</span>
+      <span>·</span>
+      <span class="text-cyan-500 flex items-center gap-1">
+        <i class="fa-solid fa-shield-halved text-[10px]"></i> Certificado SSL 256-bit
+      </span>
+    </div>
+  </footer>
+
+</body>
+</html>
