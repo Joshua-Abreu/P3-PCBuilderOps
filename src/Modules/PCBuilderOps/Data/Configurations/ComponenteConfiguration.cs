@@ -6,6 +6,9 @@ namespace PCBuilderOps.Data.Configurations;
 
 public class ComponenteConfiguration : IEntityTypeConfiguration<Componente>
 {
+    private const int ImagenArchivoMaximo = 64;
+    private const int ImagenTipoContenidoMaximo = 20;
+
     public void Configure(EntityTypeBuilder<Componente> builder)
     {
         builder.ToTable("Componentes");
@@ -32,6 +35,12 @@ public class ComponenteConfiguration : IEntityTypeConfiguration<Componente>
 
         builder.Property(c => c.TipoMemoria)
             .HasMaxLength(Componente.TipoMemoriaMaximo);
+
+        builder.Property(c => c.ImagenArchivo)
+            .HasMaxLength(ImagenArchivoMaximo);
+
+        builder.Property(c => c.ImagenTipoContenido)
+            .HasMaxLength(ImagenTipoContenidoMaximo);
 
         builder.Property(c => c.Precio)
             .HasPrecision(18, 2)

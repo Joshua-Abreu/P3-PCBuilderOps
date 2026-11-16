@@ -1,5 +1,6 @@
 using Core.Auth.Domain;
 using Core.Data;
+using Core.Documentos.Services;
 using Core.Permisos.Services;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,9 @@ public sealed class BaseDeDatosDelNegocio : IDisposable
     public GestionPermisosService NuevaGestionPermisos() => new(NuevoContextoCore(), Reloj);
 
     public OrdenesService NuevoServicioOrdenes() => new(NuevoContextoNegocio(), NuevaGestionPermisos(), Reloj);
+
+    public CatalogoService NuevoServicioCatalogo(IAlmacenamientoArchivos almacenamiento) =>
+        new(NuevoContextoNegocio(), almacenamiento);
 
     public Guid CrearUsuario(RolUsuario rol)
     {

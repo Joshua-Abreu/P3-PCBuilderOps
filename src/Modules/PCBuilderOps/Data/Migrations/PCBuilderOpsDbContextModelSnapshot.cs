@@ -77,10 +77,21 @@ namespace PCBuilderOps.Data.Migrations
                     b.Property<int>("ConsumoWatts")
                         .HasColumnType("int");
 
+                    b.Property<bool>("EstaActivo")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Fabricante")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ImagenArchivo")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("ImagenTipoContenido")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -119,6 +130,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a1000000-0000-0000-0000-000000000001"),
                             Categoria = 1,
                             ConsumoWatts = 105,
+                            EstaActivo = true,
                             Fabricante = "AMD",
                             Nombre = "Ryzen 7 7700X",
                             Precio = 299.00m,
@@ -130,6 +142,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a1000000-0000-0000-0000-000000000002"),
                             Categoria = 1,
                             ConsumoWatts = 125,
+                            EstaActivo = true,
                             Fabricante = "Intel",
                             Nombre = "Core i5-13600K",
                             Precio = 279.00m,
@@ -141,6 +154,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a2000000-0000-0000-0000-000000000001"),
                             Categoria = 2,
                             ConsumoWatts = 40,
+                            EstaActivo = true,
                             Fabricante = "ASUS",
                             Nombre = "TUF Gaming B650-Plus",
                             Precio = 189.00m,
@@ -154,6 +168,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a2000000-0000-0000-0000-000000000002"),
                             Categoria = 2,
                             ConsumoWatts = 40,
+                            EstaActivo = true,
                             Fabricante = "MSI",
                             Nombre = "PRO Z790-P",
                             Precio = 199.00m,
@@ -167,6 +182,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a3000000-0000-0000-0000-000000000001"),
                             Categoria = 3,
                             ConsumoWatts = 115,
+                            EstaActivo = true,
                             Fabricante = "MSI",
                             Nombre = "GeForce RTX 4060 Ventus",
                             Precio = 299.00m,
@@ -178,6 +194,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a3000000-0000-0000-0000-000000000002"),
                             Categoria = 3,
                             ConsumoWatts = 450,
+                            EstaActivo = true,
                             Fabricante = "ASUS",
                             Nombre = "GeForce RTX 4090 TUF",
                             Precio = 1799.00m,
@@ -189,6 +206,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a4000000-0000-0000-0000-000000000001"),
                             Categoria = 4,
                             ConsumoWatts = 10,
+                            EstaActivo = true,
                             Fabricante = "Corsair",
                             Nombre = "Vengeance 32 GB DDR5",
                             Precio = 109.00m,
@@ -200,6 +218,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a5000000-0000-0000-0000-000000000001"),
                             Categoria = 5,
                             ConsumoWatts = 8,
+                            EstaActivo = true,
                             Fabricante = "Samsung",
                             Nombre = "990 Pro 1 TB",
                             Precio = 99.00m,
@@ -211,6 +230,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a6000000-0000-0000-0000-000000000001"),
                             Categoria = 6,
                             ConsumoWatts = 0,
+                            EstaActivo = true,
                             Fabricante = "Corsair",
                             Nombre = "RM850x",
                             PotenciaWatts = 850,
@@ -223,6 +243,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a6000000-0000-0000-0000-000000000002"),
                             Categoria = 6,
                             ConsumoWatts = 0,
+                            EstaActivo = true,
                             Fabricante = "EVGA",
                             Nombre = "450 BR",
                             PotenciaWatts = 450,
@@ -235,6 +256,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a1000000-0000-0000-0000-000000000003"),
                             Categoria = 1,
                             ConsumoWatts = 65,
+                            EstaActivo = true,
                             Fabricante = "AMD",
                             Nombre = "Ryzen 5 5600",
                             Precio = 129.00m,
@@ -246,6 +268,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a2000000-0000-0000-0000-000000000003"),
                             Categoria = 2,
                             ConsumoWatts = 35,
+                            EstaActivo = true,
                             Fabricante = "Gigabyte",
                             Nombre = "B550M DS3H",
                             Precio = 99.00m,
@@ -259,6 +282,7 @@ namespace PCBuilderOps.Data.Migrations
                             Id = new Guid("a4000000-0000-0000-0000-000000000002"),
                             Categoria = 4,
                             ConsumoWatts = 8,
+                            EstaActivo = true,
                             Fabricante = "Kingston",
                             Nombre = "Fury Beast 16 GB DDR4",
                             Precio = 45.00m,

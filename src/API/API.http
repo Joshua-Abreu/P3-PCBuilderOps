@@ -904,3 +904,151 @@ Content-Type: application/json
 }
 
 ###
+
+### 89. RF-NEG-01: el Administrador crea un componente (esperar 201, estaActivo: true)
+# @name componenteNuevo
+POST {{API_HostAddress}}/api/componentes
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "nombre": "Ryzen 5 7600",
+  "categoria": "Cpu",
+  "fabricante": "AMD",
+  "socketOInterfaz": "AM5",
+  "consumoWatts": 65,
+  "precio": 199.99,
+  "stockDisponible": 8
+}
+
+###
+
+### 90. RD-06: el cliente no puede crear componentes (esperar 403)
+POST {{API_HostAddress}}/api/componentes
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "nombre": "Ryzen 5 7600",
+  "categoria": "Cpu",
+  "fabricante": "AMD",
+  "socketOInterfaz": "AM5",
+  "consumoWatts": 65,
+  "precio": 199.99,
+  "stockDisponible": 8
+}
+
+###
+
+### 91. RD-07: potencia en algo que no es fuente (esperar 400 con el mensaje)
+POST {{API_HostAddress}}/api/componentes
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "nombre": "Ryzen 5 7600",
+  "categoria": "Cpu",
+  "fabricante": "AMD",
+  "socketOInterfaz": "AM5",
+  "consumoWatts": 65,
+  "potenciaWatts": 500,
+  "precio": 199.99,
+  "stockDisponible": 8
+}
+
+###
+
+### 92. RF-NEG-01: editar precio y existencias (esperar 200; las órdenes ya cotizadas conservan su precio)
+PUT {{API_HostAddress}}/api/componentes/{{componenteNuevo.response.body.id}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "nombre": "Ryzen 5 7600",
+  "categoria": "Cpu",
+  "fabricante": "AMD",
+  "socketOInterfaz": "AM5",
+  "consumoWatts": 65,
+  "precio": 189.50,
+  "stockDisponible": 2
+}
+
+###
+
+### 93. RF-DOC-01: subir la foto del componente (esperar 200 con imagenUrl)
+# @name componenteFoto
+PUT {{API_HostAddress}}/api/componentes/{{componenteNuevo.response.body.id}}/imagen
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data; boundary=LimiteImagen
+
+--LimiteImagen
+Content-Disposition: form-data; name="archivo"; filename="componente.png"
+Content-Type: image/png
+
+< ./ejemplos/componente.png
+--LimiteImagen--
+
+###
+
+### 94. RD-07: un texto con extensión .png no es una imagen (esperar 400)
+PUT {{API_HostAddress}}/api/componentes/{{componenteNuevo.response.body.id}}/imagen
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data; boundary=LimiteImagen
+
+--LimiteImagen
+Content-Disposition: form-data; name="archivo"; filename="falsa.png"
+Content-Type: image/png
+
+Esto no es una imagen.
+--LimiteImagen--
+
+###
+
+### 95. FN-01: el cliente descarga la foto (esperar 200 con Content-Type: image/png)
+GET {{API_HostAddress}}{{componenteFoto.response.body.imagenUrl}}
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 96. RF-DOC-04: quitar la foto (esperar 200 con imagenUrl: null)
+DELETE {{API_HostAddress}}/api/componentes/{{componenteNuevo.response.body.id}}/imagen
+Authorization: Bearer {{authToken}}
+
+###
+
+### 97. RF-NEG-01: retirar el componente (esperar 200 con estaActivo: false; el cliente deja de verlo)
+PATCH {{API_HostAddress}}/api/componentes/{{componenteNuevo.response.body.id}}/estado
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "estaActivo": false
+}
+
+###
+
+### 98. FN-01: cotizar con un componente retirado (esperar 400 «ya no está disponible»)
+POST {{API_HostAddress}}/api/ordenes
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "componentes": [
+    { "componenteId": "{{componenteNuevo.response.body.id}}", "cantidad": 1 },
+    { "componenteId": "{{placaAm5}}", "cantidad": 1 },
+    { "componenteId": "{{fuente850}}", "cantidad": 1 }
+  ]
+}
+
+###
+
+### 99. RF-NEG-01: reactivar el componente (esperar 200 con estaActivo: true)
+PATCH {{API_HostAddress}}/api/componentes/{{componenteNuevo.response.body.id}}/estado
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "estaActivo": true
+}
+
+###

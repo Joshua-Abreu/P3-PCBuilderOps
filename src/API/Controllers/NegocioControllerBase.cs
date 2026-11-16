@@ -36,6 +36,14 @@ public abstract class NegocioControllerBase : ControllerBase
         {
             return NotFound(new MensajeRespuesta(ex.Message));
         }
+        catch (ComponenteNoEncontradoException ex)
+        {
+            return NotFound(new MensajeRespuesta(ex.Message));
+        }
+        catch (ImagenNoEncontradaException ex)
+        {
+            return NotFound(new MensajeRespuesta(ex.Message));
+        }
         catch (TransicionOrdenNoPermitidaException ex)
         {
             return Conflict(new MensajeRespuesta(ex.Message));

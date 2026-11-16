@@ -24,29 +24,6 @@ public class OrdenesService : IOrdenesService
     private DateTime AhoraUtc => _reloj.GetUtcNow().UtcDateTime;
 
     // FN-01
-    public async Task<IReadOnlyList<ComponenteResumen>> ListarComponentesAsync(CancellationToken ct = default)
-    {
-        var componentes = await _dbContext.Componentes
-            .AsNoTracking()
-            .OrderBy(c => c.Categoria)
-            .ThenBy(c => c.Nombre)
-            .ToListAsync(ct);
-
-        return componentes.Select(c => new ComponenteResumen(
-            c.Id,
-            c.Nombre,
-            c.Categoria.ToString(),
-            c.Fabricante,
-            c.SocketOInterfaz,
-            c.ConsumoWatts,
-            c.PotenciaWatts,
-            c.Precio,
-            c.StockDisponible,
-            c.TipoMemoria,
-            c.RanurasMemoria)).ToList();
-    }
-
-    // FN-01
     public async Task<OrdenDetalle> CotizarAsync(Guid clienteId, IReadOnlyCollection<LineaCotizacion> lineas, CancellationToken ct = default)
     {
         var componentes = await ResolverComponentesAsync(lineas, ct);
@@ -202,6 +179,9 @@ public class OrdenesService : IOrdenesService
 
         if (componentes.Count != ids.Count)
             throw new ValidacionException("La cotización incluye un componente que no existe.");
+
+        if (componentes.Values.FirstOrDefault(c => !c.EstaActivo) is { } retirado)
+            throw new ValidacionException($"El componente {retirado.Nombre} ya no está disponible.");
 
         return lineas.Select(l => (componentes[l.ComponenteId], l.Cantidad)).ToList();
     }
