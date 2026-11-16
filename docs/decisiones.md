@@ -126,6 +126,10 @@ Los enlaces de activación y recuperación se generan solo en `UrlBaseAplicacion
 El rechazo por bloqueo dice cuántos minutos faltan («Intenta de nuevo en 15 minutos.»), como promete la guía del README para RF-CA-19. Restablecer la contraseña con el enlace del correo o cambiarla con sesión limpia `BloqueadoHastaUtc` además de `IntentosFallidos`. `DebeCambiarPassword` se mantiene como indicador de restablecimiento forzado pendiente, visible en el listado de usuarios del Administrador: ningún flujo lo devuelve en `true` al iniciar sesión, porque el restablecimiento forzado cambia la contraseña por una aleatoria y el enlace del correo lo apaga.
 **Por qué:** el bloqueo frena a quien adivina contraseñas; quien usa el enlace demostró que controla el correo, que es una prueba más fuerte. El código ya reiniciaba los intentos al restablecer y olvidaba la fecha de bloqueo, así que el usuario no podía entrar con su contraseña nueva durante 15 minutos. Activar `DebeCambiarPassword` al crear usuarios desde el Administrador cambiaría las peticiones de `API.http` que usa la revisión acumulada, por eso queda para más adelante.
 
+### 2026-11-14 · El catálogo del frontend exige sesión; se descarta el cambio B1 (RF-NEG-06, FN-01)
+`GET /api/componentes` sigue respondiendo `401` sin sesión y la pantalla `/catalogo` del frontend lleva al inicio de sesión. La portada invita al visitante a crear una cuenta para ver el catálogo.
+**Por qué:** RF-NEG-06 exige que ninguna operación del módulo de negocio se ejecute sin sesión válida, y el catálogo es parte de FN-01. Un catálogo público, como el de una tienda, podría leerse como incumplimiento en la revisión acumulada o el proyecto final. Si el profesor confirma que un catálogo público no rompe RF-NEG-06, basta con `[AllowAnonymous]` en ese endpoint y quitar la ruta protegida en el frontend.
+
 ## Pendientes
 
 - **Fechas leídas de la base sin `Z` (RD-11).** `fechaCreacionUtc` sale con `Z` al crearse pero sin ella al leerse de SQL Server (`DateTimeKind.Unspecified`). Unificar marcando las fechas como UTC al leerlas.

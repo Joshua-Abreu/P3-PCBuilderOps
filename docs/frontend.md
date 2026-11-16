@@ -62,7 +62,7 @@ src/Web/
 
 | Rol en la interfaz | Cómo se reconoce | Menú |
 |--------------------|------------------|------|
-| Visitante | Sin sesión | Inicio, Catálogo, Iniciar sesión, Registrarse |
+| Visitante | Sin sesión | Inicio, Catálogo y Armar mi PC (llevan al inicio de sesión), Iniciar sesión, Registrarse |
 | Cliente | Rol `Estandar` | Catálogo, Armar mi PC, Mis órdenes, Mis documentos, Mis solicitudes de permiso, Mi cuenta |
 | Técnico | Rol `Estandar` con el permiso `OperarTaller` aprobado | Lo del cliente, más Taller |
 | Administrador | Rol `Administrador` | Catálogo, Taller, Asignar técnicos, Solicitudes de permiso, Usuarios, Documentos, Mi cuenta |
@@ -74,7 +74,7 @@ El Administrador no cotiza (la API responde `403` a `POST /api/ordenes`), por es
 | Ruta | Rol | Qué hace | Endpoints |
 |------|-----|----------|-----------|
 | `/` | Todos | Presentación del taller y acceso al catálogo y al armador. | — |
-| `/catalogo` | Todos | Componentes con filtros por categoría, fabricante y socket, precio y existencia. | `GET /api/componentes` (**cambio B1**) |
+| `/catalogo` | Con sesión | Componentes con filtros por categoría, fabricante, socket, búsqueda y existencias, y orden por precio; los filtros viven en la URL. El visitante va al inicio de sesión (RF-NEG-06). | `GET /api/componentes` |
 | `/registro` | Visitante | Registro con nombre, correo y contraseña; indica que llegó un correo de activación. | `POST /api/auth/registro` |
 | `/activar?token=` | Visitante | Destino del enlace del correo: activa la cuenta y lleva al inicio de sesión. | `GET /api/auth/activar` (**cambio B3**) |
 | `/reenviar-activacion` | Visitante | Pide otro correo de activación. | `POST /api/auth/reenviar-activacion` |
@@ -110,7 +110,7 @@ Cada uno va en su propia rama, con pruebas, sin romper ninguna petición de `API
 
 | Id | Cambio | Por qué lo necesita el frontend | Requisito |
 |----|--------|---------------------------------|-----------|
-| B1 | `GET /api/componentes` sin sesión (`[AllowAnonymous]`). | El catálogo se puede consultar sin registrarse. Solo expone datos públicos del catálogo. | FN-01, RF-NEG-06 (las operaciones siguen protegidas) |
+| B1 ❌ | ~~`GET /api/componentes` sin sesión~~. **Descartado:** RF-NEG-06 exige sesión en toda operación del negocio; el catálogo pide iniciar sesión (ver `docs/decisiones.md`). | — | RF-NEG-06 |
 | B2 | `POST /api/componentes/validar`: recibe las líneas del armado y responde si es compatible, el consumo, la potencia, el total y el problema si lo hay, sin crear la orden. Reutiliza `VerificadorCompatibilidad`. | Avisar en vivo sin duplicar la regla en el navegador. Un armado incompleto se informa como pendiente, no como error. | FN-01, RD-02 |
 | B3 ✅ | Los enlaces de los correos apuntan a las pantallas del frontend (`/activar?token=`, `/restablecer?token=`) cuando se configura una URL del frontend; sin ella siguen apuntando a la API como hoy. Los `GET` de la API se mantienen. | Que el enlace abra una pantalla y no un JSON. | RF-CA-16, RF-CA-10, sección 8 de `AGENTS.md` |
 | B4 ✅ | `GET /api/auth/yo` incluye los permisos aprobados del usuario. | Saber si mostrar el menú Taller sin provocar un `403`. | RF-GP-05 |
@@ -133,7 +133,7 @@ Opcional, más adelante: descripción e imagen de cada componente para un catál
 |------|-----------|------------|
 | 1 | Crear `src/Web` con Vite, TypeScript, Tailwind, oxlint, Prettier y el proxy; cliente HTTP con manejo de `{"mensaje"}` y `401`; diseño base (cabecera, menú, mensajes). | — |
 | 2 | Sesión: login, registro, activación, reenvío, recuperación, cambio de contraseña, cierre de sesión y rutas protegidas por rol. | B3, B4 |
-| 3 | Catálogo con filtros. | B1 |
+| 3 | Catálogo con filtros, solo con sesión. | — |
 | 4 | Armador de PC y cotización. | B2 |
 | 5 | Mis órdenes con detalle, línea de estados, pruebas y conversión de moneda; Mis documentos; Mis solicitudes. | B7 |
 | 6 | Taller y pantallas del Administrador. | B5, B6, B7 |
@@ -144,14 +144,14 @@ Opcional, más adelante: descripción e imagen de cada componente para un catál
 - **Tiempo frente a las entregas:** el frontend se pausa cuando se habilite una práctica o asignación.
 - **Cambios de la API por las Piezas 4 a 6:** se agregan endpoints nuevos; los existentes no cambian de forma incompatible, así que las pantallas hechas no se rehacen.
 - **El token en `localStorage`:** aceptable para este proyecto por el escape de React y la revocación en el servidor; si se exige más, se cambia a una cookie `HttpOnly`, lo que obliga a modificar la autenticación de la API.
-- **Revisión acumulada:** cada cambio del backend (B1 a B7) se verifica con las peticiones de `API.http` antes de fusionarlo.
+- **Revisión acumulada:** cada cambio del backend (B2 a B7) se verifica con las peticiones de `API.http` antes de fusionarlo.
 
 ## 12. Checklist
 
 - [x] Ficha creada
 - [x] Fase 1: base del proyecto
 - [x] Fase 2: sesión (con B3 y B4)
-- [ ] Fase 3: catálogo (con B1)
+- [x] Fase 3: catálogo (con sesión; B1 descartado)
 - [ ] Fase 4: armador de PC (con B2)
 - [ ] Fase 5: pantallas del cliente (con B7)
 - [ ] Fase 6: taller y Administrador (con B5 y B6)

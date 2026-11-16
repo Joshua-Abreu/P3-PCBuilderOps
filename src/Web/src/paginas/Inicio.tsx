@@ -58,6 +58,14 @@ export function Inicio() {
             Ver catálogo
           </Link>
         </div>
+        {!usuario && (
+          <p className="mt-4 text-sm text-slate-600">
+            <Link to="/registro" className="font-medium text-teal-700 hover:underline">
+              Crea tu cuenta gratis
+            </Link>{' '}
+            para ver el catálogo, cotizar y seguir tus órdenes.
+          </p>
+        )}
       </section>
 
       <section aria-labelledby="ventajas" className="grid gap-4 sm:grid-cols-3">
