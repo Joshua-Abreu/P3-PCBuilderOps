@@ -1,5 +1,6 @@
 import type { Componente } from '../api/componentes'
 import { etiquetaCategoria } from './filtros'
+import { IlustracionCategoria } from './IlustracionCategoria'
 import { formatearPrecio } from './formato'
 
 const POCAS_EXISTENCIAS = 3
@@ -26,6 +27,8 @@ export function TarjetaComponente({ componente }: { componente: Componente }) {
 
   return (
     <article className="flex flex-col gap-4 rounded-xl border border-borde bg-superficie p-5 transition-colors hover:border-borde-fuerte">
+      <IlustracionCategoria categoria={componente.categoria} />
+
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-semibold tracking-wider text-acento-texto uppercase">
           {etiquetaCategoria(componente.categoria)}

@@ -47,6 +47,12 @@ Los estados de la orden usan su color **y** su nombre, para no depender solo del
 - **JetBrains Mono** solo para cifras y códigos: precios, watts, sockets y el código de seguimiento (`ORD-…`).
 - Ambas se instalan con `@fontsource-variable` y se sirven desde la propia aplicación, sin pedir nada a Google Fonts.
 
+## Imágenes de los componentes
+
+- Cada tarjeta muestra una **ilustración propia de su categoría** (procesador, placa base, gráfica, RAM, almacenamiento y fuente), dibujada en SVG con el acento cian. Están en `src/Web/src/catalogo/ilustraciones.tsx`; una categoría desconocida muestra un dibujo genérico.
+- No se copian fotos de tiendas ni de fabricantes: tienen derechos de autor y dependerían de otro sitio.
+- Cuando exista la administración del catálogo, el Administrador podrá subir la foto real de cada componente; la tarjeta mostrará la foto y, si no hay, la ilustración.
+
 ## Reglas al hacer pantallas nuevas
 
 1. Usar las clases de la tabla; no escribir colores sueltos (`text-slate-…`, `#…`) en los componentes.

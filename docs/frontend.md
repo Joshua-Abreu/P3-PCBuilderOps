@@ -156,6 +156,8 @@ Opcional, más adelante: descripción e imagen de cada componente para un catál
 - [x] Fase 2: sesión (con B3 y B4)
 - [x] Fase 3: catálogo (con sesión; B1 descartado)
 - [x] Diseño visual: tema oscuro de Stitch afinado en Claude Design y aplicado a las pantallas hechas
+- [x] Ilustración por categoría en las tarjetas del catálogo (las fotos reales llegan con la administración del catálogo)
+- [ ] Administración del catálogo con foto de cada componente
 - [ ] Fase 4: armador de PC (con B2)
 - [ ] Fase 5: pantallas del cliente (con B7)
 - [ ] Fase 6: taller y Administrador (con B5 y B6)
