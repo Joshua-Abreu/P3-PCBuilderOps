@@ -11,11 +11,13 @@ PC Builder Ops gestiona el ciclo de computadoras personalizadas a pedido: cotiza
 | Entidad | Atributos | Relaciones |
 |---------|-----------|------------|
 | `OrdenEnsamble` | `Id`, `CodigoSeguimiento`, `ClienteUsuarioId`, `TecnicoAsignadoId?`, `Estado`, `CostoTotal`, `FechaCreacionUtc` | 1 cliente (Usuario) · 0..1 técnico (Usuario) · N `DetalleEnsamble` · N `PruebaRendimiento` |
-| `Componente` | `Id`, `Nombre`, `Categoria`, `Fabricante`, `SocketOInterfaz`, `ConsumoWatts`, `PotenciaWatts?`, `Precio`, `StockDisponible`, `TipoMemoria?`, `RanurasMemoria?` | N `DetalleEnsamble` |
+| `Componente` | `Id`, `Nombre`, `Categoria`, `Fabricante`, `SocketOInterfaz`, `ConsumoWatts`, `PotenciaWatts?`, `Precio`, `StockDisponible`, `TipoMemoria?`, `RanurasMemoria?`, `EstaActivo`, `ImagenArchivo?`, `ImagenTipoContenido?` | N `DetalleEnsamble` |
 | `DetalleEnsamble` | `Id`, `OrdenEnsambleId`, `ComponenteId`, `Cantidad`, `PrecioUnitario` | 1 `OrdenEnsamble` · 1 `Componente` |
 | `PruebaRendimiento` | `Id`, `OrdenEnsambleId`, `TipoSoftwarePrueba`, `TemperaturaMaximaCpu`, `TemperaturaMaximaGpu`, `PuntajeBenchmark`, `EsAprobada`, `FechaEjecucionUtc` | 1 `OrdenEnsamble` |
 
 `Fabricante` se agrega a `Componente` porque el reporte de negocio agrupa "piezas más utilizadas por fabricante". `PotenciaWatts` solo aplica a las fuentes de poder y permite comprobar que cubren el consumo (FN-01). `TipoMemoria` (`DDR4`, `DDR5`) y `RanurasMemoria` solo aplican a las placas base: indican qué memoria aceptan y cuántos módulos caben. En la RAM, su tipo de memoria es su `SocketOInterfaz`.
+
+El Administrador administra el catálogo: crea y edita componentes (la categoría no cambia), los retira o reactiva y les sube una foto. `EstaActivo = false` oculta el componente al cliente e impide cotizarlo, pero lo conserva en las órdenes que ya lo usan; por eso un componente nunca se borra. La foto se guarda en el almacenamiento de documentos con un nombre generado (`ImagenArchivo`).
 
 ## 2. Máquina de estados de `OrdenEnsamble` (RF-NEG-03, 04, 05, 09)
 

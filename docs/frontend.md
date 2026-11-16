@@ -119,6 +119,7 @@ Cada uno va en su propia rama, con pruebas, sin romper ninguna petición de `API
 | B5 | `GET /api/taller/ordenes/{id}`: detalle de cualquier orden para el técnico con `OperarTaller` o el Administrador. | Hoy el detalle solo lo ve el cliente dueño; el técnico necesita ver piezas y pruebas para trabajar. | FN-03, FN-04, RF-GP-05 |
 | B6 | `GET /api/taller/tecnicos` (Administrador): usuarios activos con `OperarTaller`. | Elegir técnico de una lista en vez de pegar un identificador. | FN-02 |
 | B7 | Nombres de cliente y técnico en `OrdenResumen` y `OrdenDetalle`. | Mostrar «Técnico: Juan Pérez» en vez de un identificador. | FN-05 |
+| B9 ✅ | Administración del catálogo para el Administrador: `POST`, `PUT /api/componentes/{id}`, `PATCH .../estado` (retirar o reactivar) y foto con `PUT`/`DELETE .../imagen`; `GET .../imagen` con sesión. `GET /api/componentes` agrega `estaActivo` e `imagenUrl`, y al Administrador también le lista los retirados. | Pantalla de catálogo del Administrador y fotos en las tarjetas (la foto se pide con el token y se muestra como blob, porque `<img>` no envía la cabecera `Authorization`). | RF-NEG-01, RD-06, RD-07 |
 | B8 ✅ | `TipoMemoria` y `RanurasMemoria` en las placas (también en `GET /api/componentes`); la compatibilidad revisa el tipo de RAM y las ranuras, y `POST /api/componentes/validar` agrega `advertencias` (fuente con menos del 20 % de margen). La semilla suma una plataforma AM4 con DDR4. | Que el armador filtre la RAM por la placa y avise del margen de la fuente. | FN-01, RD-02 |
 
 Opcional, más adelante: descripción e imagen de cada componente para un catálogo más visual.
@@ -157,7 +158,8 @@ Opcional, más adelante: descripción e imagen de cada componente para un catál
 - [x] Fase 3: catálogo (con sesión; B1 descartado)
 - [x] Diseño visual: tema oscuro de Stitch afinado en Claude Design y aplicado a las pantallas hechas
 - [x] Ilustración por categoría en las tarjetas del catálogo (las fotos reales llegan con la administración del catálogo)
-- [ ] Administración del catálogo con foto de cada componente
+- [x] Administración del catálogo en la API (B9)
+- [ ] Pantalla de administración del catálogo y fotos en las tarjetas
 - [ ] Fase 4: armador de PC (con B2)
 - [ ] Fase 5: pantallas del cliente (con B7)
 - [ ] Fase 6: taller y Administrador (con B5 y B6)
