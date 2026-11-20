@@ -2,6 +2,8 @@
 **Asignatura:** Programación III (TDS-007) · ITLA · 2026-C-3  
 **Ecosistema:** C# / .NET 10 (ASP.NET Core Web API), Entity Framework Core, SQL Server
 
+**Propósito:** PC Builder Ops es una API web para un taller de computadoras armadas a pedido. El cliente cotiza un equipo con verificación de compatibilidad, el taller lo arma y lo somete a pruebas de estrés y benchmarking, y lo entrega certificado. Se apoya en un Core reutilizable de seis piezas (control de acceso, permisos, documentos, notificaciones, reportes y auditoría).
+
 Este archivo es la fuente única de instrucciones para cualquier agente (opencode lee `AGENTS.md`; Claude Code lo importa desde `CLAUDE.md`). Se mantiene corto: el detalle vive en `docs/` y aquí solo se indica dónde está.
 
 ---
@@ -17,8 +19,8 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | 2. Gestión de permisos | 6–8 | ✅ Asignación 2 (etiqueta `asignacion-2`, PR #20) y Práctica 2, variante C (etiqueta `practica-2`, PR #21). |
 | Máquina de estados del negocio (pruebas) | 8 | ✅ Práctica 3 (etiqueta `practica-3`, PR #22). Ver `docs/entregas/practica-3.md`. Notificaciones y reportes del negocio (RF-NEG-07 y RF-NEG-08) siguen pendientes. |
 | 3. Manejador de documentos | 9 | ✅ Práctica 4 (etiqueta `practica-4`, PR #24): documentos RF-DOC-01 a 05, proyecto en contenedores con `docker compose up --build` (puerto 5206, volúmenes `documentos` y `sqldata`) y API externa de tasa de cambio. Ver `docs/entregas/practica-4.md`. Auditoría de documentos (RF-DOC-06) pendiente con la Pieza 6. |
-| 4. Notificaciones y cola de correos | 11–12 | Parcial: existe la cola mínima de la Práctica 1, enviada por la API cada 30 s desde la Práctica 4 (sin reintentos, estado fallido ni bandeja interna). |
-| 5. Reportes con agregación | 12 | Pendiente. |
+| 4. Notificaciones y cola de correos | 11–12 | ⏳ Práctica 5 en curso. Existe la cola mínima de la Práctica 1, enviada por la API cada 30 s desde la Práctica 4 (sin reintentos, estado fallido ni bandeja interna). Criterios de aceptación en `docs/criterios-notificaciones-reportes.md`; ver `docs/entregas/practica-5.md`. |
+| 5. Reportes con agregación | 12 | ⏳ Práctica 5 en curso, con los mismos criterios. |
 | 6. Auditoría | 14 | Pendiente. |
 | Frontend web (extra, no calificado) | — | ⏳ Fases 1 (base), 2 (sesión) y 3 (catálogo con sesión) hechas, con el diseño visual de `docs/diseno/README.md`; sigue la fase 4 (armador de PC, con el cambio B2): ver `docs/frontend.md`. Cede ante cualquier entrega del curso. |
 
@@ -35,6 +37,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 |---------|----------------|
 | `docs/requisitos/core.md` | Todos los RD y RF del Core con su criterio de aceptación. Fuente de verdad del contrato del curso. |
 | `docs/requisitos/negocio.md` | Dominio propio: entidades, máquina de estados objetivo, funcionalidades, notificación y reporte del negocio. |
+| `docs/criterios-notificaciones-reportes.md` | Criterios de aceptación de notificaciones, cola de correos y reportes (Práctica 5), escritos antes de programarlos. Un cambio de esas piezas se acepta solo si los cumple. |
 | `docs/entregas/<entrega>.md` | Una por asignación o práctica: alcance, rúbrica, qué revisa el maestro y checklist de estado. |
 | `docs/entregas/_plantilla.md` | Plantilla para crear el archivo de una entrega nueva. |
 | `docs/decisiones.md` | Decisiones de diseño tomadas y por qué. Consultar antes de cambiar algo que parezca "raro". |
@@ -124,6 +127,7 @@ Detalle en `docs/requisitos/negocio.md`:
   4. *Qué NO incluye*
 
 ## 7. Comandos Estándar de Ejecución y Validación
+- Ejecutar todo en contenedores (el comando que usa el maestro): copiar `.env.example` a `.env` y `docker compose up --build`. Detener con `docker compose down` (sin `-v`, para conservar datos y documentos).
 - Compilar solución: `dotnet build P3-PCBuilderOps.slnx`
 - Ejecutar pruebas: `dotnet test P3-PCBuilderOps.slnx` (sin variables de entorno ni SQL Server; SQLite en memoria)
 - Migraciones del Core (Crear): `dotnet ef migrations add <Nombre> --project src/Core --startup-project src/API --output-dir Data/Migrations --context AppDbContext`
@@ -153,3 +157,13 @@ Detalle en `docs/requisitos/negocio.md`:
 
 ## 10. Regla Operativa del Asistente
 - Antes de dar por terminada cualquier tarea o refactorización, ejecuta siempre `dotnet build P3-PCBuilderOps.slnx` y confirma 0 errores y 0 advertencias.
+- Un trabajo delegado con criterios de aceptación escritos (por ejemplo, `docs/criterios-notificaciones-reportes.md`) está terminado solo cuando cada criterio se comprobó. Si un criterio no se puede cumplir tal como está escrito, se avisa al usuario; nunca se reescribe el criterio para que coincida con el código.
+
+## 11. Restricciones del Agente (innegociables)
+- **Secretos:** nunca leer, mostrar, copiar ni modificar `.env` ni `src/API/Properties/launchSettings.json`. Para conocer las variables, usar `.env.example` y la sección 8. Nunca escribir contraseñas, cadenas de conexión, llaves de API ni credenciales SMTP en código, pruebas, documentación, commits ni en el chat; los valores de ejemplo van solo en `.env.example` y deben ser falsos.
+- **Etiquetas:** nunca crear, mover ni borrar etiquetas de entregas (`practica-*`, `asignacion-*`); las crea el usuario. Nunca fusionar a `main` ni "corregir" las etiquetas `*-defecto-N`.
+- **Migraciones:** nunca editar ni borrar una migración que ya está en `main`; los cambios de esquema van en una migración nueva.
+- **Git:** nunca hacer commit, push, PR ni fusión sin la confirmación del usuario, ni reescribir el historial publicado (`push --force`, `rebase` de ramas subidas).
+- **Datos del usuario:** nunca usar la base `PCBuilderOps` del usuario ni su volumen `sqldata` para pruebas (ver "Pruebas manuales del agente").
+- **Alcance:** no tocar piezas fuera de la entrega en curso; lo que no entra se anota en `docs/entregas/<entrega>.md`. `src/Web` es trabajo extra y no se modifica durante una práctica salvo que el usuario lo pida.
+- **Configuración del equipo:** no cambiar configuraciones de seguridad del sistema operativo (por ejemplo, Smart App Control).
