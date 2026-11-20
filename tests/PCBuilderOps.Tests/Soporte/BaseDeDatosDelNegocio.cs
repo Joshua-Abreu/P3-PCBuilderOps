@@ -41,7 +41,13 @@ public sealed class BaseDeDatosDelNegocio : IDisposable
         return new(contexto, Reloj, new Notificador(contexto, new EncoladorCorreos(contexto, Reloj), Reloj));
     }
 
-    public OrdenesService NuevoServicioOrdenes() => new(NuevoContextoNegocio(), NuevaGestionPermisos(), Reloj);
+    public OrdenesService NuevoServicioOrdenes() => new(NuevoContextoNegocio(), NuevaGestionPermisos(), Reloj, NuevoNotificador());
+
+    public Notificador NuevoNotificador()
+    {
+        var contexto = NuevoContextoCore();
+        return new(contexto, new EncoladorCorreos(contexto, Reloj), Reloj);
+    }
 
     public CatalogoService NuevoServicioCatalogo(IAlmacenamientoArchivos almacenamiento) =>
         new(NuevoContextoNegocio(), almacenamiento);
