@@ -17,17 +17,17 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | 1. Control de acceso | 2–4 | ✅ Entregada (etiqueta `practica-1`, ya calificada), corregida en el PR #16 y con `Usuario.Nombre` desde el PR #18. |
 | Máquina de estados del negocio (estructura) | 4 | ✅ Entregada en `practica-1`; sus desviaciones se corrigieron en la Práctica 3. |
 | 2. Gestión de permisos | 6–8 | ✅ Asignación 2 (etiqueta `asignacion-2`, PR #20) y Práctica 2, variante C (etiqueta `practica-2`, PR #21). |
-| Máquina de estados del negocio (pruebas) | 8 | ✅ Práctica 3 (etiqueta `practica-3`, PR #22). Ver `docs/entregas/practica-3.md`. Notificaciones y reportes del negocio (RF-NEG-07 y RF-NEG-08) siguen pendientes. |
+| Máquina de estados del negocio (pruebas) | 8 | ✅ Práctica 3 (etiqueta `practica-3`, PR #22). Ver `docs/entregas/practica-3.md`. Su notificación y su reporte (RF-NEG-07 y RF-NEG-08) llegaron en la Práctica 5. |
 | 3. Manejador de documentos | 9 | ✅ Práctica 4 (etiqueta `practica-4`, PR #24): documentos RF-DOC-01 a 05, proyecto en contenedores con `docker compose up --build` (puerto 5206, volúmenes `documentos` y `sqldata`) y API externa de tasa de cambio. Ver `docs/entregas/practica-4.md`. Auditoría de documentos (RF-DOC-06) pendiente con la Pieza 6. |
-| 4. Notificaciones y cola de correos | 11–12 | ⏳ Práctica 5 en curso. Existe la cola mínima de la Práctica 1, enviada por la API cada 30 s desde la Práctica 4 (sin reintentos, estado fallido ni bandeja interna). Criterios de aceptación en `docs/criterios-notificaciones-reportes.md`; ver `docs/entregas/practica-5.md`. |
-| 5. Reportes con agregación | 12 | ⏳ Práctica 5 en curso, con los mismos criterios. |
+| 4. Notificaciones y cola de correos | 11–12 | ✅ Práctica 5 (etiqueta `practica-5`, PR #37 a #41): bandeja interna con preferencia de correo, avisos de permisos y del negocio (`EnPruebas`, `Entregada`), cola con 3 reintentos, estado `Fallido`, reserva atómica y consulta del Administrador. Mailpit (`http://localhost:8025`) y `docker compose run --rm despachador` vienen en el contenedor. Criterios en `docs/criterios-notificaciones-reportes.md`; ver `docs/entregas/practica-5.md`. |
+| 5. Reportes con agregación | 12 | ✅ Práctica 5: solicitudes por estado y mes, y fabricantes por piezas y valor, agregados en SQL, con rango de fechas obligatorio y alcance por rol. El reporte de tiempo de ensamble por técnico espera la Auditoría. |
 | 6. Auditoría | 14 | Pendiente. |
 | Frontend web (extra, no calificado) | — | ⏳ Fases 1 (base), 2 (sesión) y 3 (catálogo con sesión) hechas, con el diseño visual de `docs/diseno/README.md`; sigue la fase 4 (armador de PC, con el cambio B2): ver `docs/frontend.md`. Cede ante cualquier entrega del curso. |
 
 ### Desviaciones conocidas (no corregir sin que el usuario lo pida)
 - Gestión de permisos (`tests/Core.Tests`) y el negocio (`tests/PCBuilderOps.Tests`) tienen pruebas automatizadas; Control de acceso solo las tiene para los enlaces de correo y el bloqueo por intentos (`tests/Core.Tests/Auth`), no para registro, activación ni sesiones (RD-12).
 - Las etiquetas `practica-2-defecto-N` y `practica-3-defecto-N` contienen defectos plantados a propósito: nunca se fusionan a `main` ni se "corrigen".
-- Las etiquetas de entregas (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`, `practica-4`) no se mueven: se evalúa el punto etiquetado.
+- Las etiquetas de entregas (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`, `practica-4`, `practica-5`) no se mueven: se evalúa el punto etiquetado.
 
 ---
 

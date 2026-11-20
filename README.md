@@ -83,7 +83,7 @@ git clone https://github.com/Joshua-Abreu/P3-PCBuilderOps.git
 cd P3-PCBuilderOps
 ```
 ```bash
-git checkout practica-4
+git checkout practica-5
 ```
 
 ### 1. Copiar el archivo de variables
@@ -425,10 +425,10 @@ La forma recomendada es la de [Contenedor](#contenedor). Estos pasos sirven para
 ```bash
 git clone https://github.com/Joshua-Abreu/P3-PCBuilderOps.git
 cd P3-PCBuilderOps
-git checkout practica-4
+git checkout practica-5
 ```
 
-Use la etiqueta de la entrega que se revisa (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`, `practica-4`). El módulo de negocio funcionando y su suite existen a partir de `practica-3`; el contenedor, los documentos y la API externa, a partir de `practica-4`.
+Use la etiqueta de la entrega que se revisa (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`, `practica-4`, `practica-5`). El módulo de negocio funcionando y su suite existen a partir de `practica-3`; el contenedor, los documentos y la API externa, a partir de `practica-4`; las notificaciones, la cola con reintentos, Mailpit y los reportes, a partir de `practica-5`.
 
 ### 2. Restaurar dependencias
 
