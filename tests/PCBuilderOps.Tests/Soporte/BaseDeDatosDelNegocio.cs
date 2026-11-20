@@ -1,6 +1,7 @@
 using Core.Auth.Domain;
 using Core.Data;
 using Core.Documentos.Services;
+using Core.Notifications.Services;
 using Core.Permisos.Services;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +35,11 @@ public sealed class BaseDeDatosDelNegocio : IDisposable
     public PCBuilderOpsDbContext NuevoContextoNegocio() =>
         Registrar(new PCBuilderOpsDbContext(new DbContextOptionsBuilder<PCBuilderOpsDbContext>().UseSqlite(_conexion).Options));
 
-    public GestionPermisosService NuevaGestionPermisos() => new(NuevoContextoCore(), Reloj);
+    public GestionPermisosService NuevaGestionPermisos()
+    {
+        var contexto = NuevoContextoCore();
+        return new(contexto, Reloj, new Notificador(contexto, new EncoladorCorreos(contexto, Reloj), Reloj));
+    }
 
     public OrdenesService NuevoServicioOrdenes() => new(NuevoContextoNegocio(), NuevaGestionPermisos(), Reloj);
 

@@ -21,16 +21,16 @@ public sealed class BaseDeDatosEnMemoria : IDisposable
     public AppDbContext NuevoContexto() =>
         new(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(_conexion).Options);
 
-    public Guid CrearUsuario(RolUsuario rol)
+    public Guid CrearUsuario(RolUsuario rol, string nombre = "Usuario de prueba", bool estaActivo = true)
     {
         var usuario = new Usuario
         {
             Id = Guid.NewGuid(),
-            Nombre = "Usuario de prueba",
+            Nombre = nombre,
             Correo = $"{Guid.NewGuid():N}@prueba.com",
             PasswordHash = "hash",
             Rol = rol,
-            EstaActivo = true,
+            EstaActivo = estaActivo,
             FechaCreacionUtc = new DateTime(2026, 10, 1, 0, 0, 0, DateTimeKind.Utc)
         };
 

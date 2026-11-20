@@ -1,5 +1,6 @@
 using Core.Auth.Domain;
 using Core.Auth.Exceptions;
+using Core.Notifications.Services;
 using Core.Permisos.Domain;
 using Core.Permisos.Exceptions;
 using Core.Permisos.Services;
@@ -26,7 +27,11 @@ public sealed class GestionPermisosServiceTests : IDisposable
 
     public void Dispose() => _baseDeDatos.Dispose();
 
-    private GestionPermisosService NuevoServicio() => new(_baseDeDatos.NuevoContexto(), _reloj);
+    private GestionPermisosService NuevoServicio()
+    {
+        var contexto = _baseDeDatos.NuevoContexto();
+        return new(contexto, _reloj, new Notificador(contexto, new EncoladorCorreos(contexto, _reloj), _reloj));
+    }
 
     private async Task<Guid> CrearSolicitudPendienteAsync(Guid solicitanteId)
     {

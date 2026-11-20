@@ -21,6 +21,8 @@ public class AppDbContext : DbContext
     public DbSet<SolicitudPermiso> SolicitudesPermiso => Set<SolicitudPermiso>();
     public DbSet<PermisoUsuario> PermisosUsuario => Set<PermisoUsuario>();
     public DbSet<Documento> Documentos => Set<Documento>();
+    public DbSet<Notificacion> Notificaciones => Set<Notificacion>();
+    public DbSet<PreferenciaNotificacion> PreferenciasNotificacion => Set<PreferenciaNotificacion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
