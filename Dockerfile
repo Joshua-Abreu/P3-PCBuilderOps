@@ -5,10 +5,13 @@ WORKDIR /src
 COPY src/API/API.csproj src/API/
 COPY src/Core/Core.csproj src/Core/
 COPY src/Modules/PCBuilderOps/PCBuilderOps.csproj src/Modules/PCBuilderOps/
-RUN dotnet restore src/API/API.csproj
+COPY src/Workers/EmailDispatcher/EmailDispatcher.csproj src/Workers/EmailDispatcher/
+RUN dotnet restore src/API/API.csproj && dotnet restore src/Workers/EmailDispatcher/EmailDispatcher.csproj
 
 COPY src/ src/
 RUN dotnet publish src/API/API.csproj -c Release -o /app/publicado --no-restore
+# RF-NOT-09: el despachador independiente viaja en la misma imagen y se ejecuta con su propio comando.
+RUN dotnet publish src/Workers/EmailDispatcher/EmailDispatcher.csproj -c Release -o /app/publicado/despachador --no-restore
 
 # Etapa 2: solo el runtime de ASP.NET Core y lo publicado. Sin secretos: llegan como variables desde .env.
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS ejecucion

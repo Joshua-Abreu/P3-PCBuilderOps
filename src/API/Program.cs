@@ -54,7 +54,10 @@ builder.Services.AddSingleton<IAlmacenamientoArchivos>(new AlmacenamientoArchivo
 builder.Services.AddScoped<IDocumentosService, DocumentosService>();
 builder.Services.AddSingleton(configuracionJwt);
 builder.Services.AddSingleton<IJwtService, JwtService>();
+builder.Services.AddSingleton(ConfiguracionSmtp.DesdeEntorno());
+builder.Services.AddSingleton(ConfiguracionColaCorreo.DesdeEntorno());
 builder.Services.AddSingleton<ISmtpEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<IEncoladorCorreos, EncoladorCorreos>();
 builder.Services.AddScoped<IColaCorreoService, ColaCorreoService>();
 // RF-NOT-08: la cola se envía en segundo plano, sin bloquear las operaciones.
 builder.Services.AddHostedService<EmailQueueWorker>();

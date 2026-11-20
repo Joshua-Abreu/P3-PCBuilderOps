@@ -20,6 +20,7 @@ services:
 
   api:
     build: .
+    image: pcbuilderops-app
     depends_on:
       db:
         condition: service_healthy
@@ -32,6 +33,27 @@ services:
     volumes:
       - documentos:/app/documentos
     restart: unless-stopped
+
+  # Servidor de correo de pruebas: recibe todo y lo muestra en http://localhost:8025 sin enviarlo a internet.
+  # Para simular un servidor caído: docker compose stop mailpit
+  mailpit:
+    image: axllent/mailpit:v1.27.11
+    ports:
+      - "8025:8025"
+    restart: unless-stopped
+
+  # RF-NOT-09: procesador independiente de la cola. Corre una vez y termina: docker compose run --rm despachador
+  despachador:
+    build: .
+    image: pcbuilderops-app
+    profiles: ["herramientas"]
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      CONNECTION_STRING: "Server=db,1433;Database=PCBuilderOps;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True"
+    entrypoint: ["dotnet", "/app/despachador/EmailDispatcher.dll"]
 
 volumes:
   sqldata:

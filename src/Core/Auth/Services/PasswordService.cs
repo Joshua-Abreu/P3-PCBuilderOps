@@ -1,6 +1,6 @@
 using Core.Auth.Domain;
 using Core.Data;
-using Core.Notifications.Domain;
+using Core.Notifications.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -12,17 +12,20 @@ public class PasswordService : IPasswordService
     private readonly IPasswordHasher _passwordHasher;
     private readonly IInputValidator _inputValidator;
     private readonly IConfiguration _configuration;
+    private readonly IEncoladorCorreos _encolador;
 
     public PasswordService(
         AppDbContext dbContext,
         IPasswordHasher passwordHasher,
         IInputValidator inputValidator,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IEncoladorCorreos encolador)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
         _inputValidator = inputValidator;
         _configuration = configuration;
+        _encolador = encolador;
     }
 
     public async Task OlvidePasswordAsync(string correo, CancellationToken ct = default)
@@ -199,17 +202,7 @@ public class PasswordService : IPasswordService
         };
 
         var enlaceRecuperacion = UrlBaseAplicacion.EnlaceRecuperacion(_configuration, tokenRecuperacion.Token);
-        var correoEnCola = new CorreoEnCola
-        {
-            Id = Guid.NewGuid(),
-            Destinatario = usuario.Correo,
-            Asunto = asunto,
-            Cuerpo = $"{mensaje}: {enlaceRecuperacion}",
-            Estado = "Pendiente",
-            FechaCreacionUtc = DateTime.UtcNow
-        };
-
         _dbContext.TokensRecuperacion.Add(tokenRecuperacion);
-        _dbContext.CorreosEnCola.Add(correoEnCola);
+        _encolador.Encolar(usuario.Correo, asunto, $"{mensaje}: {enlaceRecuperacion}");
     }
 }

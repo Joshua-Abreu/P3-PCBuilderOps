@@ -1,7 +1,7 @@
 using Core.Auth.Domain;
 using Core.Auth.Exceptions;
 using Core.Data;
-using Core.Notifications.Domain;
+using Core.Notifications.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -13,17 +13,20 @@ public class UsuarioAdminService : IUsuarioAdminService
     private readonly IPasswordHasher _passwordHasher;
     private readonly IInputValidator _inputValidator;
     private readonly IConfiguration _configuration;
+    private readonly IEncoladorCorreos _encolador;
 
     public UsuarioAdminService(
         AppDbContext dbContext,
         IPasswordHasher passwordHasher,
         IInputValidator inputValidator,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IEncoladorCorreos encolador)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
         _inputValidator = inputValidator;
         _configuration = configuration;
+        _encolador = encolador;
     }
 
     public async Task<PaginacionUsuarios> ListarAsync(int pagina, int tamanoPagina, RolUsuario? rol, bool? activo, CancellationToken ct = default)
@@ -107,18 +110,8 @@ public class UsuarioAdminService : IUsuarioAdminService
                 };
 
                 var enlaceActivacion = UrlBaseAplicacion.EnlaceActivacion(_configuration, tokenActivacion.Token);
-                var correoEnCola = new CorreoEnCola
-                {
-                    Id = Guid.NewGuid(),
-                    Destinatario = correo,
-                    Asunto = "Activa tu cuenta",
-                    Cuerpo = $"Haz clic en el siguiente enlace para activar tu cuenta: {enlaceActivacion}",
-                    Estado = "Pendiente",
-                    FechaCreacionUtc = DateTime.UtcNow
-                };
-
                 _dbContext.TokensActivacion.Add(tokenActivacion);
-                _dbContext.CorreosEnCola.Add(correoEnCola);
+                _encolador.Encolar(correo, "Activa tu cuenta", $"Haz clic en el siguiente enlace para activar tu cuenta: {enlaceActivacion}");
             }
 
             await _dbContext.SaveChangesAsync(ct);

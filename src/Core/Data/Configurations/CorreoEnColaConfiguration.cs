@@ -26,6 +26,10 @@ public class CorreoEnColaConfiguration : IEntityTypeConfiguration<CorreoEnCola>
             .HasMaxLength(32)
             .HasDefaultValue("Pendiente");
 
+        builder.Property(c => c.Intentos).IsRequired();
+
+        builder.Property(c => c.UltimoError).HasMaxLength(CorreoEnCola.LargoMaximoError);
+
         builder.Property(c => c.FechaCreacionUtc).IsRequired();
 
         builder.HasIndex(c => c.Estado)

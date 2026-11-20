@@ -1,7 +1,7 @@
 using Core.Auth.Domain;
 using Core.Auth.Exceptions;
 using Core.Data;
-using Core.Notifications.Domain;
+using Core.Notifications.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -17,19 +17,22 @@ public class AuthService : IAuthService
     private readonly IInputValidator _inputValidator;
     private readonly IJwtService _jwtService;
     private readonly IConfiguration _configuration;
+    private readonly IEncoladorCorreos _encolador;
 
     public AuthService(
         AppDbContext dbContext,
         IPasswordHasher passwordHasher,
         IInputValidator inputValidator,
         IJwtService jwtService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IEncoladorCorreos encolador)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
         _inputValidator = inputValidator;
         _jwtService = jwtService;
         _configuration = configuration;
+        _encolador = encolador;
     }
 
     public async Task RegistrarAsync(string nombre, string correo, string password, CancellationToken ct = default)
@@ -68,23 +71,13 @@ public class AuthService : IAuthService
         };
 
         var enlaceActivacion = UrlBaseAplicacion.EnlaceActivacion(_configuration, tokenActivacion.Token);
-        var correoEnCola = new CorreoEnCola
-        {
-            Id = Guid.NewGuid(),
-            Destinatario = correo,
-            Asunto = "Activa tu cuenta",
-            Cuerpo = $"Haz clic en el siguiente enlace para activar tu cuenta: {enlaceActivacion}",
-            Estado = "Pendiente",
-            FechaCreacionUtc = DateTime.UtcNow
-        };
-
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
 
         try
         {
             _dbContext.Usuarios.Add(usuario);
             _dbContext.TokensActivacion.Add(tokenActivacion);
-            _dbContext.CorreosEnCola.Add(correoEnCola);
+            _encolador.Encolar(correo, "Activa tu cuenta", $"Haz clic en el siguiente enlace para activar tu cuenta: {enlaceActivacion}");
 
             await _dbContext.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
@@ -158,22 +151,12 @@ public class AuthService : IAuthService
         };
 
         var enlaceActivacion = UrlBaseAplicacion.EnlaceActivacion(_configuration, nuevoToken.Token);
-        var correoEnCola = new CorreoEnCola
-        {
-            Id = Guid.NewGuid(),
-            Destinatario = correo,
-            Asunto = "Activa tu cuenta",
-            Cuerpo = $"Haz clic en el siguiente enlace para activar tu cuenta: {enlaceActivacion}",
-            Estado = "Pendiente",
-            FechaCreacionUtc = DateTime.UtcNow
-        };
-
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
 
         try
         {
             _dbContext.TokensActivacion.Add(nuevoToken);
-            _dbContext.CorreosEnCola.Add(correoEnCola);
+            _encolador.Encolar(correo, "Activa tu cuenta", $"Haz clic en el siguiente enlace para activar tu cuenta: {enlaceActivacion}");
 
             await _dbContext.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
