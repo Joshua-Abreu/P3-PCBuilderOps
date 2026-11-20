@@ -206,10 +206,10 @@ Formato: **Dado** (estado previo) · **Cuando** (acción) · **Entonces** (resul
 Una orden cae en el período de su `FechaCreacionUtc`.
 
 ### CA-REP-01 · RF-REP-01, RF-REP-03 — El reporte del Core agrupa
-- **Dado:** 5 solicitudes de este mes: 2 pendientes, 2 aprobadas y 1 rechazada.
+- **Dado:** 5 solicitudes de este mes: 2 pendientes, 2 aprobadas y 1 rechazada. Una solicitud aprobada queda en estado `Aplicada`, porque aprobarla otorga el permiso en la misma operación (RF-GP-05).
 - **Cuando:** un Administrador consulta el reporte con un rango que cubre este mes.
 - **Entonces:**
-  - Recibe 3 filas para este mes (`Pendiente` 2, `Aprobada` 2, `Rechazada` 1) con `total = 5`.
+  - Recibe 3 filas para este mes (`Pendiente` 2, `Aplicada` 2, `Rechazada` 1) con `total = 5`.
   - Son menos filas que las 5 solicitudes, y ninguna fila trae ids ni datos de una solicitud individual.
 - **Comprobación:** la petición de `API.http` y la prueba automatizada.
 
