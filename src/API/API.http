@@ -1214,3 +1214,68 @@ GET {{API_HostAddress}}/api/correos?destinatario={{clienteCorreo}}
 Authorization: Bearer {{loginAdminPermisos.response.body.token}}
 
 ###
+
+# Reportes (Práctica 5). Preparación: peticiones 16 a 62 y 106 (solicitudes y órdenes).
+# Ajustar @reporteDesde y @reporteHasta para que incluyan el día de hoy (UTC), y @reporteHastaAyer para que termine ayer.
+@reporteDesde = 2026-01-01
+@reporteHasta = 2026-12-31
+@reporteHastaAyer = 2026-01-31
+
+### 121. RF-REP-01, RF-REP-03: solicitudes por estado y mes, como Administrador (esperar filas {periodo, estado, cantidad} y total)
+GET {{API_HostAddress}}/api/reportes/solicitudes?desde={{reporteDesde}}&hasta={{reporteHasta}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 122. RF-REP-02, RF-REP-03: fabricantes por piezas y valor, como Administrador (esperar filas {fabricante, unidades, valorUsd, ordenes})
+GET {{API_HostAddress}}/api/reportes/fabricantes?desde={{reporteDesde}}&hasta={{reporteHasta}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 123. RF-REP-05: solicitudes con un rango que termina antes de los datos (esperar filas vacías y total 0)
+GET {{API_HostAddress}}/api/reportes/solicitudes?desde={{reporteDesde}}&hasta={{reporteHastaAyer}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 124. RF-REP-05: fabricantes con el mismo rango anterior (esperar filas vacías y totales en 0)
+GET {{API_HostAddress}}/api/reportes/fabricantes?desde={{reporteDesde}}&hasta={{reporteHastaAyer}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 125. RF-REP-04: el cliente solo cuenta sus solicitudes (la de la petición 106)
+GET {{API_HostAddress}}/api/reportes/solicitudes?desde={{reporteDesde}}&hasta={{reporteHasta}}
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 126. RF-REP-04: el cliente solo resume los componentes de sus órdenes
+GET {{API_HostAddress}}/api/reportes/fabricantes?desde={{reporteDesde}}&hasta={{reporteHasta}}
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 127. RF-REP-04: el id del técnico en la URL no cambia el resultado del cliente (esperar lo mismo que la 126)
+GET {{API_HostAddress}}/api/reportes/fabricantes?desde={{reporteDesde}}&hasta={{reporteHasta}}&clienteId={{crearTecnico.response.body.id}}&usuarioId={{crearTecnico.response.body.id}}
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 128. RD-07: sin rango (esperar 400 "Indica desde y hasta con el formato yyyy-MM-dd.")
+GET {{API_HostAddress}}/api/reportes/solicitudes
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 129. RD-07: desde posterior a hasta (esperar 400 "La fecha desde no puede ser posterior a hasta.")
+GET {{API_HostAddress}}/api/reportes/fabricantes?desde=2026-12-31&hasta=2026-01-01
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 130. RD-06: sin sesión (esperar 401)
+GET {{API_HostAddress}}/api/reportes/solicitudes?desde={{reporteDesde}}&hasta={{reporteHasta}}
+
+###
