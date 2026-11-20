@@ -7,6 +7,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 using PCBuilderOps.Data;
 using PCBuilderOps.Services;
 
@@ -34,6 +35,12 @@ public sealed class BaseDeDatosDelNegocio : IDisposable
 
     public PCBuilderOpsDbContext NuevoContextoNegocio() =>
         Registrar(new PCBuilderOpsDbContext(new DbContextOptionsBuilder<PCBuilderOpsDbContext>().UseSqlite(_conexion).Options));
+
+    public PCBuilderOpsDbContext NuevoContextoNegocioQueRegistraSql(ICollection<string> sentencias) =>
+        Registrar(new PCBuilderOpsDbContext(new DbContextOptionsBuilder<PCBuilderOpsDbContext>()
+            .UseSqlite(_conexion)
+            .LogTo(sentencias.Add, [DbLoggerCategory.Database.Command.Name], LogLevel.Information)
+            .Options));
 
     public GestionPermisosService NuevaGestionPermisos()
     {

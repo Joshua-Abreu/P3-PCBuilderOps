@@ -9,6 +9,7 @@ using Core.Documentos.Services;
 using Core.Notifications.Services;
 using Core.Notifications.Workers;
 using Core.Permisos.Services;
+using Core.Reportes.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using PCBuilderOps.Data;
@@ -60,6 +61,8 @@ builder.Services.AddSingleton<ISmtpEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IEncoladorCorreos, EncoladorCorreos>();
 builder.Services.AddScoped<INotificador, Notificador>();
 builder.Services.AddScoped<INotificacionesService, NotificacionesService>();
+builder.Services.AddScoped<IReportesService, ReportesService>();
+builder.Services.AddScoped<IReporteFabricantesService, ReporteFabricantesService>();
 builder.Services.AddScoped<IColaCorreoService, ColaCorreoService>();
 // RF-NOT-08: la cola se envía en segundo plano, sin bloquear las operaciones.
 builder.Services.AddHostedService<EmailQueueWorker>();
