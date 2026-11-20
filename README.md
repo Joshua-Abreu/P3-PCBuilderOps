@@ -110,6 +110,8 @@ La API responde en **`http://localhost:5206`**. Por ejemplo, `POST http://localh
 |----------|--------|--------|---------|
 | `api` | Construida con el `Dockerfile` (.NET 10, usuario sin privilegios) | `5206` en la máquina → `8080` en el contenedor | `documentos` → `/app/documentos` (archivos subidos) |
 | `db` | `mcr.microsoft.com/mssql/server:2022-latest` | Ninguno: solo la API lo alcanza, por el nombre `db` | `sqldata` → `/var/opt/mssql` (base de datos) |
+| `mailpit` | `axllent/mailpit:v1.27.11` (servidor de correo de pruebas) | `8025`: bandeja web en `http://localhost:8025` | Ninguno |
+| `despachador` | La misma imagen que `api` | Ninguno. No arranca con `up`: se ejecuta aparte (ver [Notificaciones](#notificaciones)) | Ninguno |
 
 > **Windows con Docker Desktop:** si `http://localhost:5206` se queda cargando sin responder (suele pasar tras recrear el contenedor varias veces), use `http://127.0.0.1:5206`. Es un fallo conocido del reenvío de puertos de WSL. Para corregirlo, cierre Docker Desktop, ejecute `wsl --shutdown` y vuelva a abrirlo.
 
@@ -129,13 +131,53 @@ docker compose down -v
 
 ### Correos dentro del contenedor
 
-La API envía la cola de correos por sí sola cada 30 segundos (`EMAIL_WORKER_INTERVALO_SEGUNDOS`). Con el SMTP de ejemplo (`smtp.ejemplo.invalid`) el envío falla de forma controlada: la operación que generó el correo responde con normalidad (RF-NOT-08) y el correo queda en `CorreosEnCola`. Para leer el enlace de activación o de recuperación sin SMTP real, con el proyecto levantado:
+Con `.env.example`, todos los correos van al servidor de pruebas **Mailpit**, que los recibe sin enviarlos a internet. Para leerlos, abra **`http://localhost:8025`** en el navegador: ahí llegan los correos de activación y de recuperación, con su enlace absoluto (`http://localhost:5206/api/auth/...`) listo para abrir. La API envía la cola por sí sola cada 30 segundos (`EMAIL_WORKER_INTERVALO_SEGUNDOS`), así que un correo tarda hasta medio minuto en aparecer. Para no esperar, ejecute el procesador de la cola (ver [Notificaciones](#notificaciones)).
+
+También se puede ver la cola directamente en la base de datos, con el proyecto levantado:
 
 ```bash
 docker compose exec db bash /scripts/ver-correos.sh
 ```
 
-Muestra los últimos 10 correos con su destinatario, asunto, estado y enlace. Para filtrar por destinatario, agregue el correo al final del comando: `docker compose exec db bash /scripts/ver-correos.sh usuario@correo.com`. El enlace es absoluto (`http://localhost:5206/api/auth/...`) y puede abrirse en el navegador.
+Muestra los últimos 10 correos con su destinatario, asunto, estado, intentos y enlace. Para filtrar por destinatario, agregue el correo al final del comando: `docker compose exec db bash /scripts/ver-correos.sh usuario@correo.com`.
+
+---
+
+## Notificaciones
+
+### Cola de correos
+
+Ningún correo se envía dentro de la operación que lo origina (RF-NOT-08): el registro, la recuperación de contraseña y demás operaciones guardan el correo en la cola, en estado `Pendiente`, y responden de inmediato. Un procesador aparte lo envía después (RF-NOT-09). Cada correo registra su estado (`Pendiente`, `Enviado` o `Fallido`), sus intentos, sus fechas y el último error (RF-NOT-11).
+
+| Dato | Valor |
+|------|-------|
+| **Máximo de intentos** | **3** (`CORREO_MAX_INTENTOS`). Cada pasada del procesador que no logra enviar un correo suma un intento y guarda el error. Al tercer intento fallido el correo queda `Fallido` y no se vuelve a intentar (RF-NOT-10). |
+| Procesador automático | La API procesa la cola cada 30 segundos (`EMAIL_WORKER_INTERVALO_SEGUNDOS`). |
+| Procesador independiente | `docker compose run --rm despachador`. Procesa la cola una vez, informa `Enviados: N. Con error: M.` y termina. Sin contenedor: `dotnet run --project src/Workers/EmailDispatcher`. |
+| Sin duplicados | Antes de enviar un correo, el procesador lo reserva en la base de datos. Si los dos procesadores corren a la vez, solo uno lo envía, y un correo `Enviado` no se vuelve a tomar (RF-NOT-12). |
+| Consulta de la cola | `GET /api/correos`, solo para el Administrador; un Estándar recibe `403`. Filtros opcionales: `?estado=Pendiente\|Enviado\|Fallido` y `?destinatario=correo`. No muestra el cuerpo del correo, porque contiene enlaces de activación y recuperación. |
+
+**Ejecutar el procesador** con el proyecto levantado, desde otra terminal en la carpeta del proyecto:
+
+```bash
+docker compose run --rm despachador
+```
+
+Ejecutarlo dos veces seguidas no duplica envíos: la segunda vez informa `Enviados: 0` y Mailpit no recibe copias (RF-NOT-12).
+
+**Provocar un fallo de envío** apagando el servidor de correo:
+
+1. Apagar Mailpit:
+   ```bash
+   docker compose stop mailpit
+   ```
+2. Registrar un usuario (`POST /api/auth/registro`, petición 100 de `src/API/API.http`). Responde `201` aunque el servidor de correo esté caído (RF-NOT-08).
+3. Ejecutar `docker compose run --rm despachador` varias veces y consultar `GET /api/correos?estado=Fallido` como Administrador (petición 102). Cada pasada informa `Con error: 1` y suma un intento, con el último error («Name or service not known»). Al tercer intento el correo queda `Fallido`, y las pasadas siguientes ya no lo tocan. La pasada automática de la API también cuenta, así que entre dos ejecuciones manuales el número de intentos puede subir de dos en dos; nunca pasa de 3.
+4. Volver a encender Mailpit:
+   ```bash
+   docker compose start mailpit
+   ```
+   Los correos `Pendiente` que todavía no llegaron a 3 intentos se envían en la siguiente pasada. Los `Fallido` quedan como registro de lo que pasó.
 
 ---
 
@@ -208,6 +250,7 @@ Las `SMTP_*` solo hacen falta para que los correos lleguen a una bandeja real, y
 | `TASA_CAMBIO_URL_BASE` | No (`https://v6.exchangerate-api.com/v6/`) | Dirección base de ExchangeRate-API. |
 | `DOCUMENTOS_RUTA` | No | Carpeta donde se guardan los archivos subidos. En el contenedor es `/app/documentos` (volumen `documentos`); sin contenedor, `src/API/almacenamiento/documentos`. |
 | `EMAIL_WORKER_INTERVALO_SEGUNDOS` | No (`30`) | Cada cuántos segundos la API envía los correos pendientes de la cola. |
+| `CORREO_MAX_INTENTOS` | No (`3`) | Intentos de envío por correo antes de marcarlo `Fallido` (RF-NOT-10). Debe ser un entero mayor que cero. |
 
 ### URL pública de los enlaces
 
@@ -248,9 +291,9 @@ Un valor adecuado para `JWT_SECRET` puede generarse en PowerShell con:
 
 | Variable | Alternativa | Propósito |
 |----------|-------------|-----------|
-| `SMTP_HOST` | — | Host del servidor SMTP (ej. smtp.gmail.com). |
-| `SMTP_PORT` | — | Puerto de conexión al servidor SMTP (465 para SSL, 587 para STARTTLS). |
-| `SMTP_USER` | — | Usuario o cuenta de correo autenticada ante el servidor SMTP. |
+| `SMTP_HOST` | — | Host del servidor SMTP. En el contenedor, `mailpit` (servidor de pruebas); para bandejas reales, por ejemplo, `smtp.gmail.com`. |
+| `SMTP_PORT` | — | Puerto de conexión al servidor SMTP (1025 para Mailpit, 465 para SSL, 587 para STARTTLS). |
+| `SMTP_USER` | — | Usuario o cuenta de correo autenticada ante el servidor SMTP. Vacío: se envía sin autenticarse, como lo acepta Mailpit. |
 | `SMTP_PASS` | `SMTP_PASSWORD` | Contraseña de aplicación o token de autenticación SMTP. |
 | `SMTP_FROM` | — | Dirección de remitente que figurará en el encabezado de los correos salientes. |
 
@@ -423,7 +466,7 @@ Los defectos de la Práctica 2 se describen en el README de la etiqueta `practic
 
 ## Guía de Verificación de Criterios de Aceptación
 
-Para reproducir los criterios se provee `src/API/API.http`, que puede ejecutarse desde Visual Studio Code (extensión REST Client) o importarse en Postman. Sirve igual con el contenedor que sin él: en ambos casos la API responde en `http://localhost:5206`. Los enlaces de activación y recuperación llegan por correo; sin SMTP real, en el contenedor se leen con `docker compose exec db bash /scripts/ver-correos.sh` (ver [Correos dentro del contenedor](#correos-dentro-del-contenedor)) y, sin contenedor, en la tabla `CorreosEnCola`.
+Para reproducir los criterios se provee `src/API/API.http`, que puede ejecutarse desde Visual Studio Code (extensión REST Client) o importarse en Postman. Sirve igual con el contenedor que sin él: en ambos casos la API responde en `http://localhost:5206`. Los enlaces de activación y recuperación llegan por correo: en el contenedor se leen en la bandeja de Mailpit, `http://localhost:8025` (ver [Correos dentro del contenedor](#correos-dentro-del-contenedor)), y, sin contenedor ni SMTP real, en la tabla `CorreosEnCola`.
 
 ### 1. Registro y activación (Bloque 1.1)
 
@@ -473,9 +516,11 @@ Para reproducir los criterios se provee `src/API/API.http`, que puede ejecutarse
 
 | Criterio | Cómo provocarlo | Resultado esperado |
 |----------|-----------------|--------------------|
-| **RF-NOT-08** (La operación no depende del SMTP) | Dejar `SMTP_HOST` vacío o apuntando a un servidor inaccesible y registrar un usuario. | El registro responde `201` y el correo queda `Pendiente` en `CorreosEnCola`. |
-| **RF-NOT-09** (Proceso independiente) | Con SMTP configurado, ejecutar `dotnet run --project src/Workers/EmailDispatcher`. | Envía los pendientes, los marca `Enviado` con `FechaEnvioUtc` y termina. El correo llega a la bandeja real. |
-| **RF-NOT-12** (Sin duplicados) | Ejecutar el despachador dos veces seguidas. | La segunda ejecución no reenvía ningún correo ya enviado. |
+| **RF-NOT-08** (La operación no depende del SMTP) | `docker compose stop mailpit` y registrar un usuario. | El registro responde `201` y el correo queda `Pendiente` con `intentos: 0` en `GET /api/correos` (peticiones 100 y 103). |
+| **RF-NOT-09** (Proceso independiente) | Con Mailpit encendido, `docker compose run --rm despachador`. | Informa `Enviados: N`, marca los correos `Enviado` con `fechaEnvioUtc` y termina. El correo aparece en `http://localhost:8025`. |
+| **RF-NOT-10** (Reintentos limitados) | Con Mailpit apagado, ejecutar el despachador tres veces (ver [Notificaciones](#notificaciones)). | El correo suma un intento por pasada con su `ultimoError` y al tercero queda `Fallido`; las pasadas siguientes no lo tocan. |
+| **RF-NOT-11** (Consulta de la cola) | `GET /api/correos` como Administrador (peticiones 101 a 103) y como Estándar (104). | El Administrador ve estado, intentos, fechas y último error de cada correo; el Estándar recibe `403`. |
+| **RF-NOT-12** (Sin duplicados) | Ejecutar el despachador dos veces seguidas. | La segunda ejecución informa `Enviados: 0` y Mailpit no recibe copias. |
 | **RF-NOT-13** y **RD-10** (Credenciales fuera del repositorio) | Revisar el código y `git log -p`. | SMTP, JWT, cadena de conexión y Administrador inicial se leen solo de variables de entorno. |
 
 ### 6. Persistencia (RD-09)
