@@ -145,6 +145,27 @@ Muestra los últimos 10 correos con su destinatario, asunto, estado, intentos y 
 
 ## Notificaciones
 
+### Bandeja interna y canal de correo
+
+Cada evento crea una notificación en la bandeja interna del destinatario y, además, encola un correo con el mismo asunto y el mismo contenido (RF-NOT-06). Cada usuario puede apagar el canal de correo: la notificación interna sigue llegando y no se encola correo (RF-NOT-07). Los correos de activación y recuperación de contraseña no son notificaciones: se envían siempre y no aparecen en la bandeja.
+
+| Endpoint (todos con sesión; sin ella, `401`) | Qué hace |
+|----------|----------|
+| `GET /api/notificaciones` | Las notificaciones propias, de la más reciente a la más antigua, cada una con `esLeida`, y el total `noLeidas`. Con `?soloNoLeidas=true`, solo las no leídas (RF-NOT-04). |
+| `PATCH /api/notificaciones/{id}/leida` | Marca como leída una notificación propia. La de otro usuario responde `404` «La notificación no existe.», igual que un id inexistente (RF-NOT-05). |
+| `GET /api/notificaciones/preferencias` | `{"correoActivo": true}` por defecto. |
+| `PUT /api/notificaciones/preferencias` | `{"correoActivo": false}` apaga el canal de correo; `true` lo vuelve a encender (RF-NOT-07). |
+
+**Eventos que notifican y cómo provocarlos** (peticiones 106 a 118 de `src/API/API.http`, después de la 16 a la 18 y la 35 a la 36):
+
+| Evento | Quién recibe | Cómo provocarlo |
+|--------|--------------|-----------------|
+| Se crea una solicitud de permiso (RF-NOT-01) | Todos los Administradores activos, salvo el propio solicitante. Nadie más. | Un Estándar ejecuta `POST /api/permisos/solicitudes` con `{"permiso": "OperarTaller"}` (petición 106). La notificación nombra al solicitante y el permiso (petición 107). |
+| Se aprueba una solicitud (RF-NOT-02) | El solicitante. | Un Administrador ejecuta `POST /api/permisos/solicitudes/{id}/aprobar` (petición 30; el técnico lo ve en la petición 108). El mensaje dice que fue **aprobada** y nombra el permiso. |
+| Se rechaza una solicitud (RF-NOT-02) | El solicitante. | Un Administrador ejecuta `POST /api/permisos/solicitudes/{id}/rechazar` con `{"motivo": "..."}` (petición 111). El mensaje dice que fue **rechazada** e incluye el motivo (petición 112). |
+
+Para comprobar el canal de correo, consultar `GET /api/correos?destinatario=<correo>` como Administrador y ejecutar `docker compose run --rm despachador`: el correo de la notificación llega a `http://localhost:8025`. Con el canal apagado (petición 109), el rechazo aparece en la bandeja y no se encola correo (petición 113).
+
 ### Cola de correos
 
 Ningún correo se envía dentro de la operación que lo origina (RF-NOT-08): el registro, la recuperación de contraseña y demás operaciones guardan el correo en la cola, en estado `Pendiente`, y responden de inmediato. Un procesador aparte lo envía después (RF-NOT-09). Cada correo registra su estado (`Pendiente`, `Enviado` o `Fallido`), sus intentos, sus fechas y el último error (RF-NOT-11).
@@ -389,7 +410,7 @@ Desde la raíz del repositorio, con el SDK de .NET 10 instalado:
 dotnet test P3-PCBuilderOps.slnx
 ```
 
-Ejecuta las dos suites (xUnit): `tests/Core.Tests` para Gestión de permisos y el Manejador de documentos, y `tests/PCBuilderOps.Tests` para el módulo de negocio y la API externa. **No requiere variables de entorno, SQL Server, Docker, red ni levantar la API** (RD-12): las máquinas de estados se prueban en memoria, los servicios usan una base SQLite en memoria nueva por cada prueba, los documentos se guardan en una carpeta temporal y ExchangeRate-API se reemplaza por respuestas fijas. Las pruebas son independientes entre sí y del orden de ejecución.
+Ejecuta las dos suites (xUnit): `tests/Core.Tests` para Gestión de permisos, el Manejador de documentos y las Notificaciones, y `tests/PCBuilderOps.Tests` para el módulo de negocio y la API externa. **No requiere variables de entorno, SQL Server, Docker, red ni levantar la API** (RD-12): las máquinas de estados se prueban en memoria, los servicios usan una base SQLite en memoria nueva por cada prueba, los documentos se guardan en una carpeta temporal y ExchangeRate-API se reemplaza por respuestas fijas. Las pruebas son independientes entre sí y del orden de ejecución.
 
 ### API externa
 
@@ -415,6 +436,15 @@ Ejecuta las dos suites (xUnit): `tests/Core.Tests` para Gestión de permisos y e
 | `tests/PCBuilderOps.Tests/Services/DetectorImagenTests.cs` | Reconoce JPG, PNG y WebP por su firma y rechaza GIF, SVG y otros archivos (RD-07). |
 | `tests/PCBuilderOps.Tests/Services/OrdenesServiceTests.cs` | Cada funcionalidad por separado, verificada sobre lo **guardado** en la base (RF-NEG-02, FN-01 a 05). |
 | `tests/PCBuilderOps.Tests/Integracion/OperarTallerIntegracionTests.cs` | **Prueba de integración:** Gestión de permisos y el módulo reales, sin dobles y sin levantar la aplicación. `RegistrarPrueba_SeRechazaAntesDeAprobarLaSolicitudYSePermiteDespues` verifica las dos caras (RF-GP-05, FN-03). |
+
+### Notificaciones y cola de correos
+
+Cada prueba cita en un comentario el criterio de `docs/criterios-notificaciones-reportes.md` que verifica.
+
+| Archivo | Qué verifica |
+|---------|--------------|
+| `tests/Core.Tests/Notifications/NotificacionesTests.cs` | Crear una solicitud notifica solo a los Administradores activos (CA-NOT-01); aprobar y rechazar notifican al solicitante con el resultado y el motivo (CA-NOT-02, 03); cada usuario ve solo las suyas, con `noLeidas` y el filtro de no leídas (CA-NOT-06); marcar la propia guarda la fecha una sola vez y la de otro se rechaza como inexistente (CA-NOT-07, 08); cada notificación encola un correo igual (CA-NOT-10); con el correo apagado queda la interna sin correo, la preferencia es personal y la recuperación de contraseña se encola igual (CA-NOT-11, 12, 13). |
+| `tests/Core.Tests/Notifications/ColaCorreoServiceTests.cs` | Reintentos hasta `Fallido` con el último error, sin duplicados con uno o dos procesadores a la vez, y la consulta con filtros (CA-COLA-01 a 08). |
 
 ### Gestión de permisos
 
@@ -632,3 +662,17 @@ Ver la sección [API externa](#api-externa). Las peticiones 78 a 80 de `src/API/
 | **API caída** | Poner `TASA_CAMBIO_URL_BASE=http://127.0.0.1:9/` en `.env`, `docker compose up -d` y repetir. | `503` "El servicio de tasa de cambio no responde. Intenta más tarde." |
 | **Con una clave real** | Colocar una clave propia en `TASA_CAMBIO_API_KEY`, `docker compose up -d` y repetir. | `200` con el costo convertido, como el ejemplo real de la sección API externa. |
 | **Validación y acceso** | Sin `?moneda`, con `?moneda=DO`, y con el token de otro Estándar. | `400`, `400` y `404`. |
+
+### 13. Notificaciones (Práctica 5)
+
+**Preparación:** peticiones 16 a 18 y 35 a 36 de `src/API/API.http` (Administrador, técnico y cliente). Las peticiones 106 a 118 siguen el orden de esta tabla. Los criterios completos están en [`docs/criterios-notificaciones-reportes.md`](docs/criterios-notificaciones-reportes.md).
+
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **RF-NOT-01** (Solicitud nueva) | El cliente crea una solicitud (106). Consultar la bandeja del Administrador (107) y la del técnico (108). | El Administrador tiene una notificación sin leer que nombra a «Cliente de Prueba» y `OperarTaller`. El técnico, que es Estándar, no la recibe. Un Administrador desactivado tampoco. |
+| **RF-NOT-02** (Resolución) | El Administrador rechaza con un motivo (111) y el cliente consulta su bandeja (112). La aprobación se ve con el técnico (30 y 108). | Una notificación «rechazada» con el motivo, o «aprobada» con el permiso, solo para el solicitante. |
+| **RF-NOT-04** (Solo las propias) | `GET /api/notificaciones` con cada token, y `?soloNoLeidas=true`. | Cada usuario ve solo las suyas, de la más reciente a la más antigua, con `esLeida` y `noLeidas`. |
+| **RF-NOT-05** (Marcar como leída) | El cliente marca la suya (114) y el técnico intenta marcar la del cliente (115). | `200` con `esLeida: true` y `fechaLecturaUtc`; repetirlo no cambia la fecha. El técnico recibe `404` «La notificación no existe.» y la del cliente no cambia. |
+| **RF-NOT-06** (Dos canales) | Con el correo activo, provocar cualquier evento, consultar `GET /api/correos?destinatario=` y ejecutar `docker compose run --rm despachador`. | La notificación está en la bandeja y su correo, con el mismo asunto y contenido, llega a `http://localhost:8025`. |
+| **RF-NOT-07** (Apagar el correo) | El cliente apaga el correo (109 y 110) antes del rechazo (111) y luego se consulta la cola (113). Reactivarlo con la 118. | El rechazo aparece en la bandeja y no hay correo nuevo para el cliente. La recuperación de contraseña se encola igual. |
+| **RD-06** y **RD-07** | Sin token (116), con un token cerrado con `logout` y con `{}` en la preferencia (117). | `401`, `401` y `400` con `{"mensaje": "..."}`. |

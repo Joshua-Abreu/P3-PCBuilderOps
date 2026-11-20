@@ -287,6 +287,55 @@ namespace Core.Data.Migrations
                     b.ToTable("CorreosEnCola", (string)null);
                 });
 
+            modelBuilder.Entity("Core.Notifications.Domain.Notificacion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Asunto")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("FechaCreacionUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaLecturaUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Mensaje")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId", "FechaCreacionUtc")
+                        .HasDatabaseName("IX_Notificaciones_UsuarioId_FechaCreacionUtc");
+
+                    b.ToTable("Notificaciones", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Notifications.Domain.PreferenciaNotificacion", b =>
+                {
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("CorreoActivo")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("FechaActualizacionUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UsuarioId");
+
+                    b.ToTable("PreferenciasNotificacion", (string)null);
+                });
+
             modelBuilder.Entity("Core.Permisos.Domain.PermisoUsuario", b =>
                 {
                     b.Property<Guid>("UsuarioId")
@@ -359,6 +408,24 @@ namespace Core.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SubidoPorId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Core.Notifications.Domain.Notificacion", b =>
+                {
+                    b.HasOne("Core.Auth.Domain.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Core.Notifications.Domain.PreferenciaNotificacion", b =>
+                {
+                    b.HasOne("Core.Auth.Domain.Usuario", null)
+                        .WithOne()
+                        .HasForeignKey("Core.Notifications.Domain.PreferenciaNotificacion", "UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
