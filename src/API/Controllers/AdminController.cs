@@ -19,7 +19,12 @@ public class AdminController : ControllerBase
     [HttpPost("correos/despachar")]
     public async Task<IActionResult> DespacharCorreos(CancellationToken ct)
     {
-        var enviados = await _colaCorreoService.DespacharPendientesAsync(ct);
-        return Ok(new { mensaje = $"Se enviaron {enviados} correos pendientes.", enviados });
+        var resultado = await _colaCorreoService.DespacharPendientesAsync(ct);
+        return Ok(new
+        {
+            mensaje = $"Enviados: {resultado.Enviados}. Con error: {resultado.ConError}.",
+            enviados = resultado.Enviados,
+            conError = resultado.ConError
+        });
     }
 }

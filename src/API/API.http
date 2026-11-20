@@ -1052,3 +1052,45 @@ Content-Type: application/json
 }
 
 ###
+
+### 100. RF-NOT-08: registrar un usuario; el correo de activación queda en la cola (esperar 201 aunque Mailpit esté apagado)
+POST {{API_HostAddress}}/api/auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Usuario Cola",
+  "correo": "usuario.cola@itla.edu.do",
+  "password": "Cola12345"
+}
+
+###
+
+### 101. RF-NOT-11: el Administrador consulta la cola (estado, intentos, fechas y último error de cada correo)
+GET {{API_HostAddress}}/api/correos
+Authorization: Bearer {{authToken}}
+
+###
+
+### 102. RF-NOT-10: correos que agotaron sus intentos (esperar estado Fallido, intentos 3 y ultimoError)
+GET {{API_HostAddress}}/api/correos?estado=Fallido
+Authorization: Bearer {{authToken}}
+
+###
+
+### 103. RF-NOT-11: qué pasó con el correo de la petición 100
+GET {{API_HostAddress}}/api/correos?destinatario=usuario.cola@itla.edu.do
+Authorization: Bearer {{authToken}}
+
+###
+
+### 104. RF-NOT-11, RD-06: un Estándar no puede consultar la cola (esperar 403)
+GET {{API_HostAddress}}/api/correos
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 105. RD-07: estado desconocido (esperar 400 con {"mensaje": "El estado no es válido..."})
+GET {{API_HostAddress}}/api/correos?estado=Perdido
+Authorization: Bearer {{authToken}}
+
+###

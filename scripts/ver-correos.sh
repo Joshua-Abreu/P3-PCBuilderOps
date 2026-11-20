@@ -7,6 +7,6 @@ if [ -n "$1" ]; then
 fi
 
 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -d PCBuilderOps -W -s " | " -Q "SET NOCOUNT ON;
-SELECT TOP 10 Destinatario, Asunto, Estado, SUBSTRING(Cuerpo, CHARINDEX('http', Cuerpo), 1000) AS Enlace
+SELECT TOP 10 Destinatario, Asunto, Estado, Intentos, SUBSTRING(Cuerpo, CHARINDEX('http', Cuerpo), 1000) AS Enlace
 FROM CorreosEnCola $filtro
 ORDER BY FechaCreacionUtc DESC"

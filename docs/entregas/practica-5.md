@@ -103,16 +103,16 @@ Se copia `.env.example` a `.env` y se arranca con el comando del README. Se comp
 - **Reclamo atómico del correo antes de enviarlo.** Así el procesador de la API y el despachador no envían dos veces el mismo correo.
 - **Reporte del negocio: fabricantes por piezas y valor.** El tiempo promedio por técnico necesita las fechas de cada transición, que hoy no se guardan; queda para la Auditoría.
 - **Los correos de activación y recuperación no son notificaciones.** Se encolan siempre, sin pasar por la preferencia ni por la bandeja: un usuario sin activar no tiene sesión para verlos.
-- **Control de acceso deja de escribir en `CorreosEnCola` directamente** y usa una operación de encolar de `IColaCorreoService` (RD-01).
+- **Control de acceso deja de escribir en `CorreosEnCola` directamente** y encola con `IEncoladorCorreos`, la interfaz pública de Notificaciones (RD-01). Está separada de `IColaCorreoService` (despacho y consulta) para que quien encola no dependa del SMTP.
 - **Marcar la notificación de otro usuario responde 404**, igual que un id inexistente, para no revelar que existe.
 
 ## 5. Checklist de estado
 
 Marcar cada punto solo después de verificarlo contra el código en ejecución.
 
-- [ ] `AGENTS.md` y `docs/criterios-notificaciones-reportes.md` fusionados a `main` antes del primer commit del motor
-- [ ] Cola: intentos, último error, estado `Fallido`, reclamo atómico (CA-COLA-01 a 09)
-- [ ] Mailpit y despachador en `docker-compose.yml`
+- [x] `AGENTS.md` y `docs/criterios-notificaciones-reportes.md` fusionados a `main` antes del primer commit del motor (PR #37, commit `340acb9`)
+- [x] Cola: intentos, último error, estado `Fallido`, reserva atómica y consulta del Administrador (CA-COLA-01 a 08), con pruebas y verificada contra SQL Server y Mailpit en un contenedor aislado
+- [x] Mailpit y despachador en `docker-compose.yml`
 - [ ] Bandeja interna, preferencia de correo y notificaciones de permisos (CA-NOT-01 a 03, 06 a 13)
 - [ ] Evento del negocio: `EnPruebas` y `Entregada` (CA-NOT-04, 05)
 - [ ] Reportes del Core y del negocio (CA-REP-01 a 07)

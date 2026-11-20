@@ -1,6 +1,7 @@
 using Core.Auth.Domain;
 using Core.Auth.Exceptions;
 using Core.Auth.Services;
+using Core.Notifications.Services;
 using Core.Tests.Soporte;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -42,15 +43,23 @@ public sealed class BloqueoCuentaTests : IDisposable
 
     public void Dispose() => _baseDeDatos.Dispose();
 
-    private AuthService NuevoAuthService() => new(
-        _baseDeDatos.NuevoContexto(),
-        new HashSimple(),
-        new InputValidator(),
-        new JwtService(new ConfiguracionJwt("clave-de-pruebas-con-mas-de-32-bytes-1234567", "Pruebas", "Pruebas", 60)),
-        _configuracion);
+    private AuthService NuevoAuthService()
+    {
+        var contexto = _baseDeDatos.NuevoContexto();
+        return new AuthService(
+            contexto,
+            new HashSimple(),
+            new InputValidator(),
+            new JwtService(new ConfiguracionJwt("clave-de-pruebas-con-mas-de-32-bytes-1234567", "Pruebas", "Pruebas", 60)),
+            _configuracion,
+            new EncoladorCorreos(contexto, TimeProvider.System));
+    }
 
-    private PasswordService NuevoPasswordService() =>
-        new(_baseDeDatos.NuevoContexto(), new HashSimple(), new InputValidator(), _configuracion);
+    private PasswordService NuevoPasswordService()
+    {
+        var contexto = _baseDeDatos.NuevoContexto();
+        return new PasswordService(contexto, new HashSimple(), new InputValidator(), _configuracion, new EncoladorCorreos(contexto, TimeProvider.System));
+    }
 
     private Task<LoginResultado> IniciarSesionAsync(string password) =>
         NuevoAuthService().LoginAsync(Correo, password);
