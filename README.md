@@ -215,6 +215,75 @@ Ejecutarlo dos veces seguidas no duplica envíos: la segunda vez informa `Enviad
 
 ---
 
+## Reportes
+
+Los dos reportes exigen sesión (sin ella, `401`) y un rango de fechas obligatorio: `desde` y `hasta` en formato `yyyy-MM-dd`, en UTC, con los dos días completos incluidos (RF-REP-05). Sin alguna de las fechas, con una fecha mal escrita o con `desde` posterior a `hasta`, responden `400` con `{"mensaje": "..."}`. La agrupación y las sumas se calculan en SQL Server con `GROUP BY` y no se cargan los registros para resumirlos en memoria (RF-REP-03).
+
+**Quién ve qué (RF-REP-04):** el Administrador ve los datos de todos. Un Estándar ve solo los suyos: sus solicitudes y los componentes de sus órdenes. El filtro sale de su sesión, así que agregar a la URL el id de otro usuario no cambia el resultado.
+
+### Reporte del Core: solicitudes de permiso por estado y mes (RF-REP-01)
+
+**Pregunta:** ¿cuántas solicitudes de permiso hay en cada estado, mes por mes? Cada solicitud cuenta en el mes de su fecha de creación.
+
+```http
+GET http://localhost:5206/api/reportes/solicitudes?desde=2026-11-01&hasta=2026-11-30
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "desde": "2026-11-01",
+  "hasta": "2026-11-30",
+  "total": 5,
+  "filas": [
+    { "periodo": "2026-11", "estado": "Pendiente", "cantidad": 2 },
+    { "periodo": "2026-11", "estado": "Aplicada", "cantidad": 2 },
+    { "periodo": "2026-11", "estado": "Rechazada", "cantidad": 1 }
+  ]
+}
+```
+
+Una solicitud aprobada aparece como `Aplicada`, porque aprobarla otorga el permiso en la misma operación (RF-GP-05).
+
+### Reporte del negocio: fabricantes por piezas y valor (RF-REP-02, RF-NEG-08)
+
+**Pregunta:** ¿qué fabricantes concentran más piezas y más valor en las órdenes del período? Sirve para decidir con qué marcas negociar existencias. Cada orden cuenta según su fecha de creación, en cualquier estado.
+
+```http
+GET http://localhost:5206/api/reportes/fabricantes?desde=2026-11-01&hasta=2026-11-30
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "desde": "2026-11-01",
+  "hasta": "2026-11-30",
+  "totalUnidades": 14,
+  "totalValorUsd": 2996.00,
+  "filas": [
+    { "fabricante": "Corsair", "unidades": 5, "valorUsd": 635.00, "ordenes": 3 },
+    { "fabricante": "AMD", "unidades": 3, "valorUsd": 897.00, "ordenes": 3 }
+  ]
+}
+```
+
+| Campo | Cálculo |
+|-------|---------|
+| `unidades` | Suma de las cantidades de sus componentes. |
+| `valorUsd` | Suma de cantidad × precio unitario guardado en la orden al cotizarla, aunque el catálogo cambie después. |
+| `ordenes` | Órdenes distintas en las que aparece. |
+
+Las filas van de más a menos unidades; si empatan, primero el que aparece en más órdenes y luego por nombre.
+
+**Cómo consultar ambos con dos rangos** (peticiones 121 a 130 de `src/API/API.http`, después de la 16 a la 62 y la 106):
+
+1. Como Administrador, consultar los dos reportes con un rango que incluya hoy (peticiones 121 y 122): devuelven filas.
+2. Repetirlos con un rango que termine antes de los datos (123 y 124): no devuelven filas y los totales son `0`.
+3. Repetirlos como cliente (125 y 126): solo sus solicitudes y sus órdenes. Con `?usuarioId=` o `?clienteId=` de otro usuario (127) el resultado no cambia.
+4. Sin fechas (128), con `desde` posterior a `hasta` (129) y sin token (130): `400`, `400` y `401`.
+
+---
+
 ## API externa
 
 | Dato | Valor |
@@ -449,6 +518,14 @@ Ejecuta las dos suites (xUnit): `tests/Core.Tests` para Gestión de permisos, el
 | `tests/PCBuilderOps.Tests/Services/DetectorImagenTests.cs` | Reconoce JPG, PNG y WebP por su firma y rechaza GIF, SVG y otros archivos (RD-07). |
 | `tests/PCBuilderOps.Tests/Services/OrdenesServiceTests.cs` | Cada funcionalidad por separado, verificada sobre lo **guardado** en la base (RF-NEG-02, FN-01 a 05). |
 | `tests/PCBuilderOps.Tests/Integracion/OperarTallerIntegracionTests.cs` | **Prueba de integración:** Gestión de permisos y el módulo reales, sin dobles y sin levantar la aplicación. `RegistrarPrueba_SeRechazaAntesDeAprobarLaSolicitudYSePermiteDespues` verifica las dos caras (RF-GP-05, FN-03). |
+
+### Reportes
+
+| Archivo | Qué verifica |
+|---------|--------------|
+| `tests/Core.Tests/Reportes/ReportesServiceTests.cs` | Solicitudes agrupadas por mes y estado en menos filas que las solicitudes (CA-REP-01); la consulta ejecutada lleva `GROUP BY` (CA-REP-03); un Estándar solo cuenta las suyas (CA-REP-04); un rango que termina antes no da filas, dos meses dan resultados distintos y `hasta` incluye el día completo (CA-REP-05). |
+| `tests/PCBuilderOps.Tests/Services/ReporteFabricantesServiceTests.cs` | Unidades, valor y órdenes por fabricante con su orden (CA-REP-02); la consulta lleva `GROUP BY` y `COUNT(DISTINCT` (CA-REP-03); un cliente solo resume sus órdenes (CA-REP-04); rangos sin datos y dos meses distintos (CA-REP-05). |
+| `tests/Core.Tests/Reportes/RangoFechasTests.cs` | El rango obligatorio, el formato `yyyy-MM-dd`, fechas imposibles y `desde` posterior a `hasta`, con su mensaje (CA-REP-06). |
 
 ### Notificaciones y cola de correos
 
@@ -691,3 +768,15 @@ Ver la sección [API externa](#api-externa). Las peticiones 78 a 80 de `src/API/
 | **RF-NOT-06** (Dos canales) | Con el correo activo, provocar cualquier evento, consultar `GET /api/correos?destinatario=` y ejecutar `docker compose run --rm despachador`. | La notificación está en la bandeja y su correo, con el mismo asunto y contenido, llega a `http://localhost:8025`. |
 | **RF-NOT-07** (Apagar el correo) | El cliente apaga el correo (109 y 110) antes del rechazo (111) y luego se consulta la cola (113). Reactivarlo con la 118. | El rechazo aparece en la bandeja y no hay correo nuevo para el cliente. La recuperación de contraseña se encola igual. |
 | **RD-06** y **RD-07** | Sin token (116), con un token cerrado con `logout` y con `{}` en la preferencia (117). | `401`, `401` y `400` con `{"mensaje": "..."}`. |
+
+### 14. Reportes (Práctica 5)
+
+**Preparación:** peticiones 16 a 62 y 106 de `src/API/API.http`, que crean solicitudes y órdenes. Las peticiones 121 a 130 siguen el orden de esta tabla. Ver la sección [Reportes](#reportes).
+
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **RF-REP-01** y **RF-REP-03** (Core agrupado) | Como Administrador, `GET /api/reportes/solicitudes` con un rango que incluya hoy (121). | Una fila por mes y estado con su `cantidad`, y el `total`. Hay menos filas que solicitudes y ninguna trae ids. |
+| **RF-REP-02** y **RF-REP-03** (Negocio agrupado) | Como Administrador, `GET /api/reportes/fabricantes` con el mismo rango (122). | Una fila por fabricante con `unidades`, `valorUsd` y `ordenes`, de más a menos unidades. Hay menos filas que componentes en las órdenes. |
+| **RF-REP-05** (Rango de fechas) | Los dos reportes con un rango que termina ayer (123 y 124). | Sin filas y con los totales en `0`; con el rango de hoy sí hay filas. |
+| **RF-REP-04** (Rol) | Los dos reportes como cliente (125 y 126) y con `?usuarioId=` y `?clienteId=` de otro usuario (127). | Solo sus solicitudes y los componentes de sus órdenes; el parámetro extra no cambia nada. |
+| **RD-07** y **RD-06** | Sin fechas, con `desde` posterior a `hasta` (128 y 129) y sin token (130). | `400` con `{"mensaje": "..."}` que explica el problema, y `401`. |

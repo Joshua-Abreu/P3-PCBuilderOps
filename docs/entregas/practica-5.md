@@ -104,6 +104,7 @@ Se copia `.env.example` a `.env` y se arranca con el comando del README. Se comp
 - **Reporte del negocio: fabricantes por piezas y valor.** El tiempo promedio por técnico necesita las fechas de cada transición, que hoy no se guardan; queda para la Auditoría.
 - **Los correos de activación y recuperación no son notificaciones.** Se encolan siempre, sin pasar por la preferencia ni por la bandeja: un usuario sin activar no tiene sesión para verlos.
 - **Control de acceso deja de escribir en `CorreosEnCola` directamente** y encola con `IEncoladorCorreos`, la interfaz pública de Notificaciones (RD-01). Está separada de `IColaCorreoService` (despacho y consulta) para que quien encola no dependa del SMTP.
+- **CA-REP-01 corregido a `Aplicada`.** El criterio esperaba una fila `Aprobada`, pero en este sistema una solicitud aprobada pasa a `Aplicada` en la misma operación (RF-GP-05), así que `Aprobada` nunca queda guardada. Lo detectó el agente al implementar el reporte. El usuario decidió corregir el criterio en un commit propio (`docs(criterios)`), visible en `git log`, en lugar de deformar el reporte.
 - **Marcar la notificación de otro usuario responde 404**, igual que un id inexistente, para no revelar que existe.
 - **La notificación se guarda con la operación que la origina.** `INotificador` agrega la notificación y su correo al mismo `SaveChanges` de la solicitud: si la operación falla, no queda aviso.
 - **La preferencia vive en Notificaciones** (`PreferenciasNotificacion`), no en `Usuario`; sin fila, el correo está activo.
@@ -117,9 +118,9 @@ Marcar cada punto solo después de verificarlo contra el código en ejecución.
 - [x] Mailpit y despachador en `docker-compose.yml`
 - [x] Bandeja interna, preferencia de correo y notificaciones de permisos (CA-NOT-01 a 03, 06 a 13), con pruebas y verificada contra SQL Server y Mailpit en un contenedor aislado
 - [x] Evento del negocio: `EnPruebas` y `Entregada` (CA-NOT-04, 05), con pruebas y verificado contra SQL Server y Mailpit en un contenedor aislado
-- [ ] Reportes del Core y del negocio (CA-REP-01 a 07)
-- [ ] Pruebas automatizadas que citan cada criterio
-- [ ] README: secciones Notificaciones y Reportes, y la guía de verificación
+- [x] Reportes del Core y del negocio (CA-REP-01 a 07), con pruebas y verificados contra SQL Server en un contenedor aislado
+- [x] Pruebas automatizadas que citan cada criterio
+- [x] README: secciones Notificaciones y Reportes, y la guía de verificación (secciones 13 y 14)
 - [ ] Búsqueda de credenciales en todo el historial
 - [ ] Revisión acumulada: los seis frentes (CA-ACU-01)
 - [ ] Commits citan sus IDs; PR con las cuatro secciones
