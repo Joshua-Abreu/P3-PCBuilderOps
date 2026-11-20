@@ -1094,3 +1094,108 @@ GET {{API_HostAddress}}/api/correos?estado=Perdido
 Authorization: Bearer {{authToken}}
 
 ###
+
+# Bandeja interna y notificaciones de permisos (Práctica 5).
+# Preparación: peticiones 16 a 18 (Administrador y técnico) y 35 a 36 (cliente Estándar sin solicitudes).
+
+### 106. RF-NOT-01: el cliente solicita OperarTaller (esperar 201)
+# @name solicitudCliente
+POST {{API_HostAddress}}/api/permisos/solicitudes
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "permiso": "OperarTaller"
+}
+
+###
+
+### 107. RF-NOT-01: el Administrador tiene la notificación nueva, sin leer, que nombra a "Cliente de Prueba" y el permiso
+GET {{API_HostAddress}}/api/notificaciones?soloNoLeidas=true
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 108. RF-NOT-01, RF-NOT-04: el técnico (Estándar) no recibe la notificación de la solicitud del cliente
+GET {{API_HostAddress}}/api/notificaciones
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 109. RF-NOT-07: el cliente desactiva el canal de correo (esperar {"correoActivo": false})
+PUT {{API_HostAddress}}/api/notificaciones/preferencias
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "correoActivo": false
+}
+
+###
+
+### 110. RF-NOT-07: consultar la preferencia (esperar {"correoActivo": false})
+GET {{API_HostAddress}}/api/notificaciones/preferencias
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 111. RF-NOT-02: el Administrador rechaza la solicitud con un motivo (esperar 200)
+POST {{API_HostAddress}}/api/permisos/solicitudes/{{solicitudCliente.response.body.id}}/rechazar
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "motivo": "Falta experiencia en taller"
+}
+
+###
+
+### 112. RF-NOT-02, RF-NOT-04: el cliente ve "rechazada" con el motivo, esLeida y el total noLeidas
+# @name bandejaCliente
+GET {{API_HostAddress}}/api/notificaciones
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 113. RF-NOT-07: con el correo desactivado no se encoló el correo del rechazo (la lista no lo incluye)
+GET {{API_HostAddress}}/api/correos?destinatario={{clienteCorreo}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 114. RF-NOT-05: marcar como leída una notificación propia (esperar 200, esLeida true y fechaLecturaUtc)
+PATCH {{API_HostAddress}}/api/notificaciones/{{bandejaCliente.response.body.$.notificaciones[0].id}}/leida
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 115. RF-NOT-05: el técnico intenta marcar la notificación del cliente (esperar 404 "La notificación no existe.")
+PATCH {{API_HostAddress}}/api/notificaciones/{{bandejaCliente.response.body.$.notificaciones[0].id}}/leida
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 116. RD-06: sin sesión (esperar 401)
+GET {{API_HostAddress}}/api/notificaciones
+
+###
+
+### 117. RD-07: preferencia sin valor (esperar 400 con {"mensaje": "Indica correoActivo con true o false."})
+PUT {{API_HostAddress}}/api/notificaciones/preferencias
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{}
+
+###
+
+### 118. RF-NOT-07: el cliente reactiva el canal de correo (esperar {"correoActivo": true})
+PUT {{API_HostAddress}}/api/notificaciones/preferencias
+Authorization: Bearer {{loginCliente.response.body.token}}
+Content-Type: application/json
+
+{
+  "correoActivo": true
+}
+
+###
