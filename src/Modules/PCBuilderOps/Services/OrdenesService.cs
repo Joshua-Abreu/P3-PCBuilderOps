@@ -1,4 +1,5 @@
 using Core.Auth.Exceptions;
+using Core.Notifications.Services;
 using Core.Permisos.Domain;
 using Core.Permisos.Services;
 using Microsoft.EntityFrameworkCore;
@@ -13,12 +14,18 @@ public class OrdenesService : IOrdenesService
     private readonly PCBuilderOpsDbContext _dbContext;
     private readonly IVerificadorPermisos _verificadorPermisos;
     private readonly TimeProvider _reloj;
+    private readonly INotificador _notificador;
 
-    public OrdenesService(PCBuilderOpsDbContext dbContext, IVerificadorPermisos verificadorPermisos, TimeProvider reloj)
+    public OrdenesService(
+        PCBuilderOpsDbContext dbContext,
+        IVerificadorPermisos verificadorPermisos,
+        TimeProvider reloj,
+        INotificador notificador)
     {
         _dbContext = dbContext;
         _verificadorPermisos = verificadorPermisos;
         _reloj = reloj;
+        _notificador = notificador;
     }
 
     private DateTime AhoraUtc => _reloj.GetUtcNow().UtcDateTime;
@@ -82,6 +89,13 @@ public class OrdenesService : IOrdenesService
         orden.PasarAPruebas();
         await _dbContext.SaveChangesAsync(ct);
 
+        // RF-NEG-07, RF-NOT-03
+        await _notificador.NotificarYGuardarAsync(
+            orden.ClienteUsuarioId,
+            $"Tu orden {orden.CodigoSeguimiento} está en pruebas",
+            $"La orden {orden.CodigoSeguimiento} pasó al estado {orden.Estado}: el armado terminó y el equipo está en pruebas de estrés y benchmarking.",
+            ct);
+
         return ADetalle(orden);
     }
 
@@ -114,6 +128,13 @@ public class OrdenesService : IOrdenesService
 
         orden.Entregar();
         await _dbContext.SaveChangesAsync(ct);
+
+        // RF-NEG-07, RF-NOT-03
+        await _notificador.NotificarYGuardarAsync(
+            orden.ClienteUsuarioId,
+            $"Tu orden {orden.CodigoSeguimiento} fue entregada",
+            $"La orden {orden.CodigoSeguimiento} pasó al estado {orden.Estado}: el equipo aprobó sus pruebas y quedó entregado.",
+            ct);
 
         return ADetalle(orden);
     }

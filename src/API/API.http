@@ -1199,3 +1199,18 @@ Content-Type: application/json
 }
 
 ###
+
+# Evento del negocio (RF-NOT-03, RF-NEG-07): la orden de la petición 39 notifica al cliente al pasar a EnPruebas (51) y al quedar Entregada (56).
+# Las transiciones rechazadas (46, 52, 54 y 57) no notifican.
+
+### 119. RF-NOT-03: notificaciones del cliente tras las peticiones 39 a 58 (esperar "EnPruebas" y "Entregada" con el código de la orden)
+GET {{API_HostAddress}}/api/notificaciones
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 120. RF-NOT-03, RF-NOT-06: los correos de esas notificaciones están en la cola
+GET {{API_HostAddress}}/api/correos?destinatario={{clienteCorreo}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###

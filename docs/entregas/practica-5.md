@@ -116,7 +116,7 @@ Marcar cada punto solo después de verificarlo contra el código en ejecución.
 - [x] Cola: intentos, último error, estado `Fallido`, reserva atómica y consulta del Administrador (CA-COLA-01 a 08), con pruebas y verificada contra SQL Server y Mailpit en un contenedor aislado
 - [x] Mailpit y despachador en `docker-compose.yml`
 - [x] Bandeja interna, preferencia de correo y notificaciones de permisos (CA-NOT-01 a 03, 06 a 13), con pruebas y verificada contra SQL Server y Mailpit en un contenedor aislado
-- [ ] Evento del negocio: `EnPruebas` y `Entregada` (CA-NOT-04, 05)
+- [x] Evento del negocio: `EnPruebas` y `Entregada` (CA-NOT-04, 05), con pruebas y verificado contra SQL Server y Mailpit en un contenedor aislado
 - [ ] Reportes del Core y del negocio (CA-REP-01 a 07)
 - [ ] Pruebas automatizadas que citan cada criterio
 - [ ] README: secciones Notificaciones y Reportes, y la guía de verificación

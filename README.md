@@ -163,6 +163,19 @@ Cada evento crea una notificación en la bandeja interna del destinatario y, ade
 | Se crea una solicitud de permiso (RF-NOT-01) | Todos los Administradores activos, salvo el propio solicitante. Nadie más. | Un Estándar ejecuta `POST /api/permisos/solicitudes` con `{"permiso": "OperarTaller"}` (petición 106). La notificación nombra al solicitante y el permiso (petición 107). |
 | Se aprueba una solicitud (RF-NOT-02) | El solicitante. | Un Administrador ejecuta `POST /api/permisos/solicitudes/{id}/aprobar` (petición 30; el técnico lo ve en la petición 108). El mensaje dice que fue **aprobada** y nombra el permiso. |
 | Se rechaza una solicitud (RF-NOT-02) | El solicitante. | Un Administrador ejecuta `POST /api/permisos/solicitudes/{id}/rechazar` con `{"motivo": "..."}` (petición 111). El mensaje dice que fue **rechazada** e incluye el motivo (petición 112). |
+| La orden pasa a `EnPruebas` (RF-NOT-03, RF-NEG-07) | El cliente dueño de la orden. | Con una orden en `EnArmado`, el técnico ejecuta `POST /api/taller/ordenes/{id}/pasar-a-pruebas` (petición 51). El mensaje trae el código de seguimiento y el estado `EnPruebas`. |
+| La orden queda `Entregada` (RF-NOT-03, RF-NEG-07) | El cliente dueño de la orden. | El técnico registra una prueba aprobada y ejecuta `POST /api/taller/ordenes/{id}/entregar` (peticiones 55 y 56). El mensaje trae el código de seguimiento y el estado `Entregada`. |
+
+**Evento del negocio paso a paso** (las peticiones 16 a 18, 35 a 36 y 39 a 58 de `src/API/API.http` ya lo recorren):
+
+1. El cliente cotiza una orden (`POST /api/ordenes`, petición 39).
+2. Intentar entregarla directamente (`POST /api/taller/ordenes/{id}/entregar`, petición 46) responde `409`, la orden sigue `Cotizada` y el cliente no recibe nada.
+3. El Administrador inicia el armado con el técnico (`POST /api/ordenes/{id}/iniciar-armado`, petición 50).
+4. El técnico la pasa a pruebas (petición 51): el cliente recibe la primera notificación.
+5. El técnico registra una prueba aprobada y la entrega (peticiones 55 y 56): el cliente recibe la segunda.
+6. El cliente consulta su bandeja (petición 119) y el Administrador, la cola (petición 120). Con `docker compose run --rm despachador` los dos correos llegan a `http://localhost:8025`.
+
+Las transiciones rechazadas (entregar sin pruebas o con la última reprobada, salir de `Entregada`) no notifican.
 
 Para comprobar el canal de correo, consultar `GET /api/correos?destinatario=<correo>` como Administrador y ejecutar `docker compose run --rm despachador`: el correo de la notificación llega a `http://localhost:8025`. Con el canal apagado (petición 109), el rechazo aparece en la bandeja y no se encola correo (petición 113).
 
@@ -444,6 +457,7 @@ Cada prueba cita en un comentario el criterio de `docs/criterios-notificaciones-
 | Archivo | Qué verifica |
 |---------|--------------|
 | `tests/Core.Tests/Notifications/NotificacionesTests.cs` | Crear una solicitud notifica solo a los Administradores activos (CA-NOT-01); aprobar y rechazar notifican al solicitante con el resultado y el motivo (CA-NOT-02, 03); cada usuario ve solo las suyas, con `noLeidas` y el filtro de no leídas (CA-NOT-06); marcar la propia guarda la fecha una sola vez y la de otro se rechaza como inexistente (CA-NOT-07, 08); cada notificación encola un correo igual (CA-NOT-10); con el correo apagado queda la interna sin correo, la preferencia es personal y la recuperación de contraseña se encola igual (CA-NOT-11, 12, 13). |
+| `tests/PCBuilderOps.Tests/Services/NotificacionesOrdenTests.cs` | Pasar a `EnPruebas` y entregar notifican solo al cliente, con el código y el estado, y encolan su correo salvo que lo haya apagado (CA-NOT-04, 10, 11). Entregar desde `Cotizada`, con la última prueba reprobada o sin permiso de taller se rechaza sin notificar (CA-NOT-05). |
 | `tests/Core.Tests/Notifications/ColaCorreoServiceTests.cs` | Reintentos hasta `Fallido` con el último error, sin duplicados con uno o dos procesadores a la vez, y la consulta con filtros (CA-COLA-01 a 08). |
 
 ### Gestión de permisos
@@ -671,6 +685,7 @@ Ver la sección [API externa](#api-externa). Las peticiones 78 a 80 de `src/API/
 |----------|-----------------|--------------------|
 | **RF-NOT-01** (Solicitud nueva) | El cliente crea una solicitud (106). Consultar la bandeja del Administrador (107) y la del técnico (108). | El Administrador tiene una notificación sin leer que nombra a «Cliente de Prueba» y `OperarTaller`. El técnico, que es Estándar, no la recibe. Un Administrador desactivado tampoco. |
 | **RF-NOT-02** (Resolución) | El Administrador rechaza con un motivo (111) y el cliente consulta su bandeja (112). La aprobación se ve con el técnico (30 y 108). | Una notificación «rechazada» con el motivo, o «aprobada» con el permiso, solo para el solicitante. |
+| **RF-NOT-03** (Evento del negocio) | Peticiones 39 a 58 y luego la 119 (ver [Notificaciones](#notificaciones)). | El cliente tiene dos notificaciones con el código de seguimiento: `EnPruebas` y `Entregada`. La entrega directa desde `Cotizada` (46) responde `409` y no notifica. Ningún otro cliente recibe nada. |
 | **RF-NOT-04** (Solo las propias) | `GET /api/notificaciones` con cada token, y `?soloNoLeidas=true`. | Cada usuario ve solo las suyas, de la más reciente a la más antigua, con `esLeida` y `noLeidas`. |
 | **RF-NOT-05** (Marcar como leída) | El cliente marca la suya (114) y el técnico intenta marcar la del cliente (115). | `200` con `esLeida: true` y `fechaLecturaUtc`; repetirlo no cambia la fecha. El técnico recibe `404` «La notificación no existe.» y la del cliente no cambia. |
 | **RF-NOT-06** (Dos canales) | Con el correo activo, provocar cualquier evento, consultar `GET /api/correos?destinatario=` y ejecutar `docker compose run --rm despachador`. | La notificación está en la bandeja y su correo, con el mismo asunto y contenido, llega a `http://localhost:8025`. |
