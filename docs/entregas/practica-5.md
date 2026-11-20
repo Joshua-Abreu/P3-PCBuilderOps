@@ -121,7 +121,7 @@ Marcar cada punto solo después de verificarlo contra el código en ejecución.
 - [x] Reportes del Core y del negocio (CA-REP-01 a 07), con pruebas y verificados contra SQL Server en un contenedor aislado
 - [x] Pruebas automatizadas que citan cada criterio
 - [x] README: secciones Notificaciones y Reportes, y la guía de verificación (secciones 13 y 14)
-- [ ] Búsqueda de credenciales en todo el historial
-- [ ] Revisión acumulada: los seis frentes (CA-ACU-01)
-- [ ] Commits citan sus IDs; PR con las cuatro secciones
-- [ ] `AGENTS.md` sección 0 actualizada; etiqueta `practica-5` creada por el usuario
+- [x] Búsqueda de credenciales en todo el historial
+- [x] Revisión acumulada: los seis frentes (CA-ACU-01). Desde una copia limpia de `main` con `.env.example` y el comando del README, contra SQL Server y Mailpit: registro con activación por Mailpit; login, logout, `401` y `403`; recuperación con el enlace del correo; solicitudes con sus transiciones inválidas; una orden de `Cotizada` a `Entregada` con `Cotizada → Entregada` rechazada; y un documento que sigue descargándose igual tras `docker compose down` (sin `-v`) y `up`. Las 323 pruebas pasan.
+- [x] Commits citan sus IDs; PR con las cuatro secciones (PR #37 a #41)
+- [ ] `AGENTS.md` sección 0 actualizada (hecho en `docs/cierre-practica-5`); etiqueta `practica-5` creada por el usuario
