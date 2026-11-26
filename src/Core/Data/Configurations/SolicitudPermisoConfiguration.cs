@@ -42,5 +42,14 @@ public class SolicitudPermisoConfiguration : IEntityTypeConfiguration<SolicitudP
 
         builder.HasIndex(s => s.Estado)
             .HasDatabaseName("IX_SolicitudesPermiso_Estado");
+
+        builder.HasIndex(s => s.SolicitanteId)
+            .HasDatabaseName("IX_SolicitudesPermiso_SolicitanteId");
+
+        // Hallazgo 2 (Asignación 3), RF-GP-01
+        builder.HasIndex(s => new { s.SolicitanteId, s.Permiso })
+            .IsUnique()
+            .HasFilter($"[Estado] = {(int)EstadoSolicitud.Pendiente}")
+            .HasDatabaseName("UX_SolicitudesPermiso_UnaPendientePorPermiso");
     }
 }

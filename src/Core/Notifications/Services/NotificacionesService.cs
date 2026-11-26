@@ -71,12 +71,27 @@ public class NotificacionesService : INotificacionesService
         var preferencia = await _dbContext.PreferenciasNotificacion
             .FirstOrDefaultAsync(p => p.UsuarioId == usuarioId, ct);
 
-        if (preferencia is null)
-            _dbContext.PreferenciasNotificacion.Add(PreferenciaNotificacion.Para(usuarioId, correoActivo, AhoraUtc));
-        else
+        if (preferencia is not null)
+        {
             preferencia.CambiarCorreo(correoActivo, AhoraUtc);
+            await _dbContext.SaveChangesAsync(ct);
+            return new PreferenciasNotificacion(correoActivo);
+        }
 
-        await _dbContext.SaveChangesAsync(ct);
+        _dbContext.PreferenciasNotificacion.Add(PreferenciaNotificacion.Para(usuarioId, correoActivo, AhoraUtc));
+
+        try
+        {
+            await _dbContext.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            // Hallazgo 2 (Asignación 3)
+            _dbContext.ChangeTracker.Clear();
+            var creadaEnParalelo = await _dbContext.PreferenciasNotificacion.SingleAsync(p => p.UsuarioId == usuarioId, ct);
+            creadaEnParalelo.CambiarCorreo(correoActivo, AhoraUtc);
+            await _dbContext.SaveChangesAsync(ct);
+        }
 
         return new PreferenciasNotificacion(correoActivo);
     }

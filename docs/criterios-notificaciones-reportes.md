@@ -288,3 +288,12 @@ Se agregan a partir de los hallazgos de `docs/bitacora-asignacion-3.md`. No reem
   - La solicitud queda en el estado de la que ganó, con su aprobador y su motivo. Si quedó `Rechazada`, E1 no tiene el permiso.
   - E1 recibe exactamente una notificación, la de la resolución que ganó.
 - **Comprobación:** las dos peticiones lanzadas a la vez y `GET /api/notificaciones` con E1; prueba automatizada `ResolucionSimultaneaTests`. Lo mismo vale para dos transiciones simultáneas de una orden (`TransicionSimultaneaOrdenTests`).
+
+### CA-NOT-15 · RF-NOT-01, RF-NOT-07 — Peticiones simultáneas no duplican avisos (Hallazgo 2)
+- **Dado:** E1 sin solicitudes pendientes, dos Administradores activos y E1 sin preferencia de correo guardada.
+- **Cuando:** E1 envía dos veces a la vez `POST /api/permisos/solicitudes` con el mismo permiso, y dos veces a la vez `PUT /api/notificaciones/preferencias`.
+- **Entonces:**
+  - Una solicitud responde `201` y la otra `409` «Ya tienes una solicitud pendiente para este permiso.». E1 tiene una sola solicitud pendiente.
+  - Cada Administrador tiene exactamente una notificación y un correo por esa solicitud.
+  - Las dos preferencias responden `200`, sin `500`, y queda guardada una sola preferencia.
+- **Comprobación:** las peticiones lanzadas a la vez; pruebas automatizadas `CreacionSimultaneaTests` y `PreferenciaSimultaneaTests`.

@@ -2,6 +2,7 @@ using Core.Auth.Domain;
 using Core.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace Core.Tests.Soporte;
@@ -21,6 +22,9 @@ public sealed class BaseDeDatosEnMemoria : IDisposable
 
     public AppDbContext NuevoContexto() =>
         new(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(_conexion).Options);
+
+    public AppDbContext NuevoContexto(IInterceptor interceptor) =>
+        new(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(_conexion).AddInterceptors(interceptor).Options);
 
     public AppDbContext NuevoContextoQueRegistraSql(ICollection<string> sentencias) =>
         new(new DbContextOptionsBuilder<AppDbContext>()

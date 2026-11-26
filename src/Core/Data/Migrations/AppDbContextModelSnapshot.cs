@@ -396,7 +396,13 @@ namespace Core.Data.Migrations
                     b.HasIndex("Estado")
                         .HasDatabaseName("IX_SolicitudesPermiso_Estado");
 
-                    b.HasIndex("SolicitanteId");
+                    b.HasIndex("SolicitanteId")
+                        .HasDatabaseName("IX_SolicitudesPermiso_SolicitanteId");
+
+                    b.HasIndex("SolicitanteId", "Permiso")
+                        .IsUnique()
+                        .HasDatabaseName("UX_SolicitudesPermiso_UnaPendientePorPermiso")
+                        .HasFilter("[Estado] = 1");
 
                     b.ToTable("SolicitudesPermiso", (string)null);
                 });
