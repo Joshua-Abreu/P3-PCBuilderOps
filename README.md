@@ -494,6 +494,31 @@ dotnet test P3-PCBuilderOps.slnx
 
 Ejecuta las dos suites (xUnit): `tests/Core.Tests` para Gestión de permisos, el Manejador de documentos y las Notificaciones, y `tests/PCBuilderOps.Tests` para el módulo de negocio y la API externa. **No requiere variables de entorno, SQL Server, Docker, red ni levantar la API** (RD-12): las máquinas de estados se prueban en memoria, los servicios usan una base SQLite en memoria nueva por cada prueba, los documentos se guardan en una carpeta temporal y ExchangeRate-API se reemplaza por respuestas fijas. Las pruebas son independientes entre sí y del orden de ejecución.
 
+### Regresión de la Asignación 3
+
+Cada hallazgo de `docs/bitacora-asignacion-3.md` tiene pruebas que citan su número en un comentario. Fallan sobre el código anterior a su corrección y pasan desde su commit.
+
+| Hallazgo | Commit | Pruebas | Filtro |
+|----------|--------|---------|--------|
+| 1 · Resolución o transición simultánea | `5725f13` | `ResolucionSimultaneaTests`, `TransicionSimultaneaOrdenTests` | `FullyQualifiedName~ResolucionSimultanea\|FullyQualifiedName~TransicionSimultaneaOrden` |
+| 2 · Solicitudes y preferencias simultáneas | `8cc50a0` | `CreacionSimultaneaTests`, `PreferenciaSimultaneaTests` | `FullyQualifiedName~CreacionSimultanea\|FullyQualifiedName~PreferenciaSimultanea` |
+| 3 · Fechas de los bordes del calendario | `13ea487` | `*_ConLasFechasDeLosBordesDelCalendario_Responde` | `FullyQualifiedName~BordesDelCalendario` |
+| 4 · Fechas UTC con `Z` | `262770e` | `FechasUtcTests` (Core y módulo) | `FullyQualifiedName~FechasUtc` |
+
+Para ver que una prueba falla sin la corrección, se arma una copia con el código del commit anterior y las pruebas de la etiqueta (ejemplo con el Hallazgo 3):
+
+```bash
+git worktree add ../antes-hallazgo-3 13ea487~1
+```
+```bash
+cp -r tests ../antes-hallazgo-3/
+```
+```bash
+dotnet test ../antes-hallazgo-3/P3-PCBuilderOps.slnx --filter "FullyQualifiedName~BordesDelCalendario"
+```
+
+Falla. El mismo filtro sobre la etiqueta (`dotnet test P3-PCBuilderOps.slnx --filter ...`) pasa. Para borrar la copia: `git worktree remove --force ../antes-hallazgo-3`.
+
 ### API externa
 
 | Archivo | Qué verifica |

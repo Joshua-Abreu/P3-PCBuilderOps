@@ -56,9 +56,42 @@ La solicitud queda `Rechazada` pero el usuario tiene el permiso, lo que rompe RF
 
 **Por qué pasó.** **Criterio ausente.** Los criterios de notificaciones solo describen una resolución a la vez, y ningún criterio ni regla de `AGENTS.md` pide que una transición resista dos peticiones simultáneas. La revisión de la Práctica 5 tampoco lo probó: todas las pruebas y comprobaciones resolvían una sola vez.
 
-**Corrección.** *(pendiente)*
+**Corrección.** La hizo el agente, con esta instrucción del usuario (copiada tal cual):
 
-**Qué cambias.** *(pendiente)*
+> «Corrige el hallazgo 1: cuando 2 administradores resuelven la misma solicitud al imsmo tiempo solo una resolucion debe ganar, la otra debe recibir 409, no cambiar nada y no enviar ninguna notificacion. El solicitante o usuario no puede quedar con una solicitud rechazada y otra aprobada ni recibir 2 avisos. Resuélvelo en la base de datos, no con una comprobación en memoria, y revisa si la aprobación y el rechazo tienen el mismo problema. Agrega una prueba que falle con el código actual y pase con la corrección.»
+
+Qué hizo:
+- `SolicitudPermiso` tiene ahora una columna `Version`, configurada como token de concurrencia. Cambia en cada transición, y SQL Server solo guarda la fila si nadie la cambió desde que se leyó.
+- Si el guardado choca, `GestionPermisosService` vuelve a leer el estado y responde con `TransicionNoPermitidaException`, que el controlador ya traduce a `409`. Como la notificación y el permiso iban en el mismo `SaveChanges`, no queda nada de la resolución perdedora.
+- **La misma causa en otro lugar:** las transiciones de `OrdenEnsamble` (iniciar armado, pasar a pruebas, entregar) tenían el mismo patrón, y dos técnicos pasando la misma orden a pruebas le enviaban al cliente dos avisos. Recibieron el mismo token y el mismo manejo.
+- Migraciones nuevas: `AgregarVersionSolicitudesPermiso` (Core) y `AgregarVersionOrdenesEnsamble` (módulo).
+
+Commit: `5725f13`.
+
+Pruebas: `ResolucionSimultaneaTests` (3) y `TransicionSimultaneaOrdenTests` (1). Sobre el código anterior a la corrección:
+
+```text
+Failed ResolucionSimultaneaTests.AprobarYRechazarALaVez_SoloGanaLaPrimeraYElSolicitanteRecibeUnSoloAviso
+   Assert.Throws() Failure: No exception was thrown
+Failed ResolucionSimultaneaTests.RechazarDosVecesALaVez_ConservaElPrimerMotivoYUnSoloAviso
+   Assert.Throws() Failure: No exception was thrown
+Failed ResolucionSimultaneaTests.AprobarDosVecesALaVez_LaSegundaSeRechazaComoTransicionYNoComoErrorInterno
+   Expected: TransicionNoPermitidaException   Actual: Microsoft.EntityFrameworkCore.DbUpdateException
+Failed TransicionSimultaneaOrdenTests.PasarAPruebasDosVecesALaVez_LaSegundaSeRechazaYElClienteRecibeUnSoloAviso
+   Assert.Throws() Failure: No exception was thrown
+```
+
+Después de la corrección pasan las 4. Con la API en Docker, las mismas peticiones simultáneas dan:
+
+```text
+aprobar + rechazar   -> 200, 409 {"mensaje":"La solicitud está Aplicada y no puede pasar a Rechazada."}; 1 aviso
+rechazar + rechazar  -> 409, 200; motivo guardado = el del que ganó; 1 aviso
+aprobar + aprobar    -> 409, 200 (antes 500); 1 aviso
+```
+
+**Qué cambias.**
+- `AGENTS.md`, sección 12: regla «Hallazgo 1 · Concurrencia en las transiciones». Toda entidad con máquina de estados lleva un token de concurrencia, y toda prueba de una transición incluye el caso de dos peticiones simultáneas.
+- `docs/criterios-notificaciones-reportes.md`: criterio nuevo **CA-NOT-14** (dos resoluciones simultáneas: solo gana la primera y hay un solo aviso).
 
 ---
 
@@ -78,9 +111,32 @@ Tres peticiones pasan la comprobación antes de que la primera se guarde. Quedan
 
 **Por qué pasó.** **Criterio ausente** y **revisión insuficiente**. CA-NOT-01 se comprobó con una sola petición, y ningún criterio pedía que la regla de duplicados la garantizara la base de datos. El agente reutilizó una comprobación en memoria sin preguntarse qué pasa con peticiones simultáneas, y nadie se lo pidió.
 
-**Corrección.** *(pendiente)*
+**Corrección.** La hizo el agente, con esta instrucción del usuario (copiada tal cual):
 
-**Qué cambias.** *(pendiente)*
+> «Corrige el Hallazgo 2: Corrige el hallazgo 2: un usuario no puede tener dos solicitudes pendientes del mismo permiso aunque las envíe al mismo tiempo. Si llegan dos a la vez, una se crea y la otra recibe 409, y cada Administrador recibe un solo aviso. La regla debe garantizarla la base de datos, no solo la consulta previa. El cambio de esquema va en una migración nueva. Agrega una prueba que falle con el código actual y pase con la corrección.»
+
+Qué hizo:
+- Un índice único filtrado `UX_SolicitudesPermiso_UnaPendientePorPermiso` sobre (`SolicitanteId`, `Permiso`) con `WHERE [Estado] = 1`. Solo puede haber una pendiente; las resueltas no cuentan, y se puede volver a solicitar después de un rechazo.
+- Si el guardado choca con el índice, `CrearAsync` responde con `SolicitudDuplicadaException` (`409`) y el mismo mensaje del caso normal. Los avisos de esa petición no se guardan, porque iban en el mismo `SaveChanges`.
+- La migración `AgregarIndiceUnaSolicitudPendiente` conserva el índice de la clave foránea `IX_SolicitudesPermiso_SolicitanteId`. La primera versión que generó EF lo borraba, porque creía que el índice nuevo lo cubría, y el agente lo corrigió antes de aceptarla.
+- **La misma causa en otro lugar:** `ActualizarPreferenciasAsync` (Práctica 5) también buscaba y luego insertaba. Dos `PUT /api/notificaciones/preferencias` simultáneos de un usuario sin preferencia chocaban con la clave primaria y uno respondía `500`. Ahora, si choca, actualiza la que se acaba de crear.
+
+Commit: `8cc50a0`.
+
+Pruebas: `CreacionSimultaneaTests` y `PreferenciaSimultaneaTests`. Simulan la segunda petición con un interceptor que la ejecuta justo antes del `SaveChanges` de la primera, sin levantar la API. Sobre el código anterior a la corrección:
+
+```text
+Failed CreacionSimultaneaTests.DosSolicitudesALaVez_SoloSeCreaUnaYCadaAdministradorRecibeUnSoloAviso
+   Assert.Throws() Failure: No exception was thrown
+Failed PreferenciaSimultaneaTests.PrimeraPreferenciaGuardadaDosVecesALaVez_NoFallaYQuedaLaUltima
+   at Core.Notifications.Services.NotificacionesService.ActualizarPreferenciasAsync(...)  (DbUpdateException)
+```
+
+`UnaSolicitudResuelta_NoImpideVolverASolicitarElMismoPermiso` pasa antes y después a propósito: comprueba que el índice no bloquea una solicitud nueva tras un rechazo. Después de la corrección pasan todas. Con la API en Docker, 8 `POST` simultáneos dan `201` una vez y `409` siete veces, con 1 pendiente y 1 aviso por Administrador (antes, 3 y 3).
+
+**Qué cambias.**
+- `AGENTS.md`, sección 12: regla «Hallazgo 2 · Unicidad garantizada por la base». Toda regla de «no puede haber dos» lleva índice único o clave, el servicio maneja el choque sin `500`, y toda consulta «¿ya existe?» se piensa con dos peticiones a la vez.
+- `docs/criterios-notificaciones-reportes.md`: criterio nuevo **CA-NOT-15** (peticiones simultáneas no duplican avisos ni dan `500`).
 
 ---
 
@@ -101,9 +157,33 @@ La fecha es válida y bien escrita, y el usuario recibe un error del servidor en
 
 **Por qué pasó.** **Criterio incompleto.** CA-REP-06 enumera fechas ausentes, mal escritas y en desorden, pero no las fechas válidas en los bordes del calendario. Las pruebas de `RangoFechas` cubrieron exactamente esa lista y nada más.
 
-**Corrección.** *(pendiente)*
+**Corrección.** La hizo el agente, con esta instrucción del usuario (copiada tal cual):
 
-**Qué cambias.** *(pendiente)*
+> «Corrige hallazgo 3: Corrige el hallazgo 3: los dos reportes deben aceptar cualquier fecha válida en formato yyyy-MM-dd, incluidas 0001-01-01 y 9999-12-31, sin responder 500. El día de hasta se sigue incluyendo completo. Corrige el cálculo del rango, no agregues un límite arbitrario de años, y revisa si hay otra suma de fechas que pueda desbordarse. Agrega una prueba que falle con el código actual y pase con la corrección.»
+
+Qué hizo:
+- `RangoFechas.HastaExclusivoUtc` (`Hasta + 1 día`) se reemplazó por `HastaInclusivoUtc`, el último instante del día de `hasta` (`23:59:59.9999999`). Los dos reportes comparan ahora con `<=`. El día de `hasta` se sigue incluyendo completo y nada del día siguiente; la prueba existente `Solicitudes_HastaIncluyeElDiaCompletoYNadaDelSiguiente` lo sigue comprobando.
+- No se agregó ningún límite de años.
+- **Otras sumas de fechas:** se revisaron todas las de `src`. Las demás suman una cantidad fija a la hora actual (vencimiento de tokens y sesiones, bloqueo de 15 minutos, reserva de 5 minutos de la cola), así que ninguna depende de una entrada del usuario.
+- `RangoFechasTests` dejó de comprobar la propiedad del límite y ahora verifica las fechas leídas, para que compile también sobre el código anterior.
+
+Commit: `13ea487`.
+
+Pruebas: `Solicitudes_ConLasFechasDeLosBordesDelCalendario_Responde` y `Fabricantes_ConLasFechasDeLosBordesDelCalendario_Responde`. Sobre el código anterior a la corrección:
+
+```text
+Failed ReportesServiceTests.Solicitudes_ConLasFechasDeLosBordesDelCalendario_Responde
+   System.ArgumentOutOfRangeException : Value to add was out of range.
+   at Core.Reportes.Domain.RangoFechas.get_HastaExclusivoUtc() in RangoFechas.cs:line 21
+Failed ReporteFabricantesServiceTests.Fabricantes_ConLasFechasDeLosBordesDelCalendario_Responde
+   System.ArgumentOutOfRangeException : Value to add was out of range.
+```
+
+Después de la corrección pasan las dos. Con la API en Docker, `desde=0001-01-01&hasta=9999-12-31` responde `200` con todos los datos, y `desde=9999-12-31&hasta=9999-12-31` responde `200` con filas vacías (antes, `500` en ambos casos).
+
+**Qué cambias.**
+- `AGENTS.md`, sección 12: regla «Hallazgo 3 · Valores límite en las entradas». Toda entrada se prueba con los extremos válidos de su tipo, nada se calcula con la entrada si puede desbordarse, y una entrada válida nunca da `500`.
+- `docs/criterios-notificaciones-reportes.md`: criterio nuevo **CA-REP-08** (fechas de los bordes del calendario).
 
 ---
 
@@ -125,6 +205,54 @@ Una fecha sin `Z` la interpreta cualquier cliente (un navegador, por ejemplo) co
 
 **Por qué pasó.** **Revisión insuficiente** e **instrucción incompleta**. El agente corrigió el síntoma donde lo vio y dejó el resto como «pendiente» en lugar de corregir la causa, que es que EF Core lee las fechas sin marcarlas como UTC. Se aceptó así porque ningún criterio pedía comprobar el formato de las fechas en las respuestas, y RD-11 solo habla de cómo se guardan, no de cómo se devuelven.
 
-**Corrección.** *(pendiente)*
+**Corrección.** La hizo el agente, con esta instrucción del usuario (copiada tal cual):
 
-**Qué cambias.** *(pendiente)*
+> «Corrige el hallazgo 4: todas las fechas que devuelve la API deben salir en UTC con la Z al final, igual en todas las piezas (bandeja, cola, solicitudes, usuarios, órdenes y documentos), tanto al crearse como al leerse de la base. Corrige la causa en un solo lugar para el Core y para el módulo, no endpoint por endpoint, y quita el arreglo local que quedó en la bandeja. Agrega una prueba que falle con el código actual y pase con la corrección.»
+
+Qué hizo:
+- `src/Core/Data/ConvencionFechasUtc.cs` define `FechaUtcConverter` y la convención `UsarFechasUtc()`. La aplican `AppDbContext` y `PCBuilderOpsDbContext` en `ConfigureConventions`, así que toda propiedad `DateTime` o `DateTime?` de los dos contextos se lee marcada como UTC y se guarda en UTC.
+- Se quitó el `DateTime.SpecifyKind` local de `NotificacionesService`. Ya no queda ningún `SpecifyKind` fuera de la convención.
+- La convención no cambia las columnas: `dotnet ef migrations has-pending-model-changes` responde «No changes have been made to the model» en los dos contextos, así que no necesita migración.
+- El frontend no interpreta esas fechas (solo usa `expiracionUtc` del inicio de sesión, que ya traía `Z`), así que no se rompe nada.
+
+Commit: `262770e`.
+
+Pruebas: `FechasUtcTests` del Core y del módulo. Cada uno revisa que **toda** propiedad de fecha del contexto se lea como UTC, de modo que una fecha nueva sin la convención también falla. Además leen datos reales de la base. Sobre el código anterior a la corrección:
+
+```text
+Failed Core FechasUtcTests.SolicitudCorreoYNotificacion_LeidasDeLaBase_SalenConZ
+   Expected: "2026-11-26T22:11:15Z"   Actual: "2026-11-26T22:11:15"
+Failed Core FechasUtcTests.TodaPropiedadDeFechaDelCore_SeLeeDeLaBaseComoUtc
+   Assert.Empty() Failure: Collection was not empty
+Failed Módulo FechasUtcTests.TodaPropiedadDeFechaDelModulo_SeLeeDeLaBaseComoUtc
+   Assert.Empty() Failure: Collection was not empty
+Failed Módulo FechasUtcTests.OrdenYPrueba_LeidasDeLaBase_SonUtc
+   Expected: Utc   Actual: Unspecified
+```
+
+Después de la corrección pasan las 4. Con la API en Docker, la solicitud al crearse y al leerse, la bandeja, la cola y el usuario devuelven `...Z`.
+
+**Qué cambias.**
+- `AGENTS.md`, sección 12: regla «Hallazgo 4 · Fechas UTC también al devolverlas». RD-11 incluye la salida, la regla vive solo en `ConvencionFechasUtc`, y está prohibido corregir endpoint por endpoint o dejar un defecto como «pendiente» tras arreglar un solo lugar.
+- `docs/criterios-notificaciones-reportes.md`: criterio nuevo **CA-NOT-16** (fechas con `Z` en todas las piezas).
+- `docs/decisiones.md`: el pendiente «Fechas leídas de la base sin `Z`» queda resuelto.
+
+---
+
+## Verificación final
+
+- **Pruebas:** `dotnet test P3-PCBuilderOps.slnx` pasa con **336 pruebas** (150 del Core y 186 del módulo), 13 de ellas nuevas por los hallazgos. `dotnet build` termina con 0 advertencias.
+- **Cada prueba falla antes y pasa después.** Se armó, para cada hallazgo, el código anterior a su corrección con las pruebas finales. Todas compilan, y las del hallazgo fallan (salidas arriba); con el código final pasan. La sección «Pruebas» del README explica cómo repetirlo.
+- **Migraciones sobre datos existentes.** Se levantó `main` antes de los cambios, se le cargaron datos (usuarios, solicitudes, una orden y un documento) y se actualizó la misma base al código corregido. Las tres migraciones se aplicaron y los datos siguieron ahí.
+- **Revisión acumulada**, en un Docker limpio con el código corregido:
+  - reportes: 24 de 24;
+  - cola de correos: 19 de 19;
+  - bandeja: 46 de 46;
+  - evento del negocio: 19 de 19;
+  - prácticas anteriores: 92 de 92;
+  - los seis frentes, con el documento sobreviviendo a `docker compose down` y `up`: 37 de 37.
+
+## Observaciones fuera del alcance (no corregidas)
+
+- **Registro simultáneo con el mismo correo.** `AuthService` busca el correo con `AnyAsync` antes de insertar y no captura el choque. El índice único de la base evita el duplicado, pero la segunda petición probablemente recibiría un error del servidor en lugar de `400` (no se reprodujo). Es el patrón del Hallazgo 2, pero en Control de acceso (Práctica 1), fuera del alcance de esta auditoría de la Práctica 5; queda anotado en `docs/entregas/asignacion-3.md`.
+- **Reserva de existencias de dos órdenes distintas al mismo tiempo.** El token de la orden impide transicionar dos veces la misma orden, pero no protege la existencia de un componente que reservan dos órdenes distintas (FN-02, Práctica 3). Queda anotado para una entrega futura.

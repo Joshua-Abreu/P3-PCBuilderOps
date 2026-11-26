@@ -85,11 +85,17 @@ Un hallazgo se puede reproducir, no es una opinión de estilo. Mínimo **tres**,
 
 ## 5. Checklist de estado
 
-- [ ] Auditoría ejecutada en un entorno aislado y hallazgos registrados con evidencia
-- [ ] Un commit por hallazgo, con su prueba de regresión
-- [ ] Cada prueba falla antes de su corrección y pasa después
-- [ ] Contexto y criterios actualizados según «Qué cambias»
-- [ ] `docs/bitacora-asignacion-3.md` completa
-- [ ] `dotnet test P3-PCBuilderOps.slnx` pasa desde un clon limpio
-- [ ] Revisión acumulada: el proyecto levanta con el README y pasan los seis frentes
-- [ ] `AGENTS.md` sección 0 actualizada; etiqueta `asignacion-3` creada por el usuario
+- [x] Auditoría ejecutada en un entorno aislado y hallazgos registrados con evidencia (4 hallazgos: 2 de notificaciones, 1 de reportes y 1 de fechas en notificaciones y cola)
+- [x] Un commit por hallazgo, con su prueba de regresión
+- [x] Cada prueba falla antes de su corrección y pasa después (código anterior + pruebas finales, en un contenedor)
+- [x] Contexto y criterios actualizados según «Qué cambias» (`AGENTS.md` sección 12; CA-NOT-14, 15, 16 y CA-REP-08)
+- [x] `docs/bitacora-asignacion-3.md` completa
+- [x] `dotnet test P3-PCBuilderOps.slnx` pasa: 336 pruebas
+- [x] Revisión acumulada: el proyecto levanta con el README y pasan los seis frentes (y las 237 comprobaciones de la Práctica 5)
+- [x] `AGENTS.md` sección 0 actualizada
+- [ ] Etiqueta `asignacion-3` creada por el usuario
+
+## 6. Anotado para después (fuera del alcance)
+
+- **Registro simultáneo con el mismo correo** (Control de acceso, Práctica 1): sigue el patrón del Hallazgo 2 y podría responder con error del servidor en lugar de `400`.
+- **Reserva simultánea de la misma existencia por dos órdenes distintas** (FN-02, Práctica 3): el componente no tiene token de concurrencia.
