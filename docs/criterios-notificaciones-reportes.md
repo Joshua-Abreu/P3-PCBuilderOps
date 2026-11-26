@@ -297,3 +297,12 @@ Se agregan a partir de los hallazgos de `docs/bitacora-asignacion-3.md`. No reem
   - Cada Administrador tiene exactamente una notificación y un correo por esa solicitud.
   - Las dos preferencias responden `200`, sin `500`, y queda guardada una sola preferencia.
 - **Comprobación:** las peticiones lanzadas a la vez; pruebas automatizadas `CreacionSimultaneaTests` y `PreferenciaSimultaneaTests`.
+
+### CA-REP-08 · RF-REP-05, RD-07 — Las fechas de los bordes del calendario son válidas (Hallazgo 3)
+- **Dado:** solicitudes y órdenes creadas hoy.
+- **Cuando:** se consulta cada reporte con `desde=0001-01-01&hasta=9999-12-31`, y luego con `desde=9999-12-31&hasta=9999-12-31`.
+- **Entonces:**
+  - El primer rango responde `200` con todos los datos.
+  - El segundo responde `200` con filas vacías y totales en `0`.
+  - Ninguna fecha bien escrita produce `500`.
+- **Comprobación:** las dos peticiones con un Administrador; pruebas automatizadas `Solicitudes_ConLasFechasDeLosBordesDelCalendario_Responde` y `Fabricantes_ConLasFechasDeLosBordesDelCalendario_Responde`.

@@ -166,4 +166,21 @@ public sealed class ReportesServiceTests : IDisposable
         // Verificar
         Assert.Equal(1, reporte.Total);
     }
+
+    // Hallazgo 3 (Asignación 3) · RF-REP-05, RD-07
+    [Fact]
+    public async Task Solicitudes_ConLasFechasDeLosBordesDelCalendario_Responde()
+    {
+        // Preparar
+        GuardarCincoDeNoviembre();
+        Guardar(_estandar1, new DateTime(9999, 12, 31, 20, 0, 0, DateTimeKind.Utc), EstadoSolicitud.Rechazada);
+
+        // Actuar
+        var todo = await NuevoServicio().SolicitudesPorEstadoAsync(Rango("0001-01-01", "9999-12-31"), soloDelSolicitante: null);
+        var ultimoDia = await NuevoServicio().SolicitudesPorEstadoAsync(Rango("9999-12-31", "9999-12-31"), soloDelSolicitante: null);
+
+        // Verificar
+        Assert.Equal(6, todo.Total);
+        Assert.Equal(new[] { new FilaSolicitudes("9999-12", "Rechazada", 1) }, ultimoDia.Filas);
+    }
 }
