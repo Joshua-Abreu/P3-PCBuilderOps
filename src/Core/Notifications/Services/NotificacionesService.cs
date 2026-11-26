@@ -101,9 +101,6 @@ public class NotificacionesService : INotificacionesService
         n.Asunto,
         n.Mensaje,
         n.EsLeida,
-        ComoUtc(n.FechaCreacionUtc),
-        n.FechaLecturaUtc is { } lectura ? ComoUtc(lectura) : null);
-
-    // RD-11
-    private static DateTime ComoUtc(DateTime fecha) => DateTime.SpecifyKind(fecha, DateTimeKind.Utc);
+        n.FechaCreacionUtc,
+        n.FechaLecturaUtc);
 }

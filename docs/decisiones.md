@@ -164,4 +164,4 @@ El reporte del Core (`ReportesService`) agrupa `SolicitudesPermiso` por año, me
 
 ## Pendientes
 
-- **Fechas leídas de la base sin `Z` (RD-11).** `fechaCreacionUtc` sale con `Z` al crearse pero sin ella al leerse de SQL Server (`DateTimeKind.Unspecified`). Unificar marcando las fechas como UTC al leerlas.
+- ~~**Fechas leídas de la base sin `Z` (RD-11).**~~ Resuelto en la Asignación 3 (Hallazgo 4): `ConvencionFechasUtc` marca como UTC toda fecha que leen `AppDbContext` y `PCBuilderOpsDbContext`.

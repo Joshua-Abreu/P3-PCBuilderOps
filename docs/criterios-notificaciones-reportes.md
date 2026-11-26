@@ -306,3 +306,9 @@ Se agregan a partir de los hallazgos de `docs/bitacora-asignacion-3.md`. No reem
   - El segundo responde `200` con filas vacías y totales en `0`.
   - Ninguna fecha bien escrita produce `500`.
 - **Comprobación:** las dos peticiones con un Administrador; pruebas automatizadas `Solicitudes_ConLasFechasDeLosBordesDelCalendario_Responde` y `Fabricantes_ConLasFechasDeLosBordesDelCalendario_Responde`.
+
+### CA-NOT-16 · RD-11 — Las fechas salen en UTC con `Z` en todas las piezas (Hallazgo 4)
+- **Dado:** una solicitud creada por E1, con su notificación al Administrador y su correo en la cola.
+- **Cuando:** se consultan `GET /api/permisos/solicitudes/mias` (E1), `GET /api/notificaciones` y `GET /api/correos` (Administrador) y `GET /api/usuarios/{id}`.
+- **Entonces:** cada fecha termina en `Z` (por ejemplo, `"2026-11-26T22:11:15.1578818Z"`), y la fecha de la solicitud es la misma al crearla que al leerla.
+- **Comprobación:** las cuatro peticiones; pruebas automatizadas `FechasUtcTests` del Core y del módulo, que además revisan que toda propiedad de fecha de los dos contextos se lea como UTC.
