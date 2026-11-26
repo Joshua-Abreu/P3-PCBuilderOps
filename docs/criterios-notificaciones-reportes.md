@@ -275,3 +275,40 @@ Una orden cae en el período de su `FechaCreacionUtc`.
     5. una orden válida que avanza, y `Cotizada → Entregada` rechazada;
     6. un documento que sobrevive a `docker compose down` (sin `-v`) y `up`.
 - **Comprobación:** la guía de verificación del README, de principio a fin.
+
+## 6. Criterios agregados en la Asignación 3
+
+Se agregan a partir de los hallazgos de `docs/bitacora-asignacion-3.md`. No reemplazan a los anteriores: cubren lo que ellos no decían.
+
+### CA-NOT-14 · RF-NOT-02, RF-GP-06 — Dos resoluciones simultáneas: solo gana la primera (Hallazgo 1)
+- **Dado:** una solicitud pendiente de E1 y dos Administradores con sesión.
+- **Cuando:** los dos la resuelven al mismo tiempo (aprobar y rechazar, dos rechazos o dos aprobaciones).
+- **Entonces:**
+  - Una resolución responde `200` y la otra `409` con `{"mensaje": "..."}`; nunca `500`.
+  - La solicitud queda en el estado de la que ganó, con su aprobador y su motivo. Si quedó `Rechazada`, E1 no tiene el permiso.
+  - E1 recibe exactamente una notificación, la de la resolución que ganó.
+- **Comprobación:** las dos peticiones lanzadas a la vez y `GET /api/notificaciones` con E1; prueba automatizada `ResolucionSimultaneaTests`. Lo mismo vale para dos transiciones simultáneas de una orden (`TransicionSimultaneaOrdenTests`).
+
+### CA-NOT-15 · RF-NOT-01, RF-NOT-07 — Peticiones simultáneas no duplican avisos (Hallazgo 2)
+- **Dado:** E1 sin solicitudes pendientes, dos Administradores activos y E1 sin preferencia de correo guardada.
+- **Cuando:** E1 envía dos veces a la vez `POST /api/permisos/solicitudes` con el mismo permiso, y dos veces a la vez `PUT /api/notificaciones/preferencias`.
+- **Entonces:**
+  - Una solicitud responde `201` y la otra `409` «Ya tienes una solicitud pendiente para este permiso.». E1 tiene una sola solicitud pendiente.
+  - Cada Administrador tiene exactamente una notificación y un correo por esa solicitud.
+  - Las dos preferencias responden `200`, sin `500`, y queda guardada una sola preferencia.
+- **Comprobación:** las peticiones lanzadas a la vez; pruebas automatizadas `CreacionSimultaneaTests` y `PreferenciaSimultaneaTests`.
+
+### CA-REP-08 · RF-REP-05, RD-07 — Las fechas de los bordes del calendario son válidas (Hallazgo 3)
+- **Dado:** solicitudes y órdenes creadas hoy.
+- **Cuando:** se consulta cada reporte con `desde=0001-01-01&hasta=9999-12-31`, y luego con `desde=9999-12-31&hasta=9999-12-31`.
+- **Entonces:**
+  - El primer rango responde `200` con todos los datos.
+  - El segundo responde `200` con filas vacías y totales en `0`.
+  - Ninguna fecha bien escrita produce `500`.
+- **Comprobación:** las dos peticiones con un Administrador; pruebas automatizadas `Solicitudes_ConLasFechasDeLosBordesDelCalendario_Responde` y `Fabricantes_ConLasFechasDeLosBordesDelCalendario_Responde`.
+
+### CA-NOT-16 · RD-11 — Las fechas salen en UTC con `Z` en todas las piezas (Hallazgo 4)
+- **Dado:** una solicitud creada por E1, con su notificación al Administrador y su correo en la cola.
+- **Cuando:** se consultan `GET /api/permisos/solicitudes/mias` (E1), `GET /api/notificaciones` y `GET /api/correos` (Administrador) y `GET /api/usuarios/{id}`.
+- **Entonces:** cada fecha termina en `Z` (por ejemplo, `"2026-11-26T22:11:15.1578818Z"`), y la fecha de la solicitud es la misma al crearla que al leerla.
+- **Comprobación:** las cuatro peticiones; pruebas automatizadas `FechasUtcTests` del Core y del módulo, que además revisan que toda propiedad de fecha de los dos contextos se lea como UTC.

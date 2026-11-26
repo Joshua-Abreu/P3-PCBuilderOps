@@ -74,7 +74,7 @@ public class OrdenesService : IOrdenesService
             throw new ValidacionException("El técnico indicado no tiene el permiso OperarTaller.");
 
         orden.IniciarArmado(tecnicoId);
-        await _dbContext.SaveChangesAsync(ct);
+        await GuardarTransicionAsync(orden.Id, EstadoOrdenEnsamble.EnArmado, ct);
 
         return ADetalle(orden);
     }
@@ -87,7 +87,7 @@ public class OrdenesService : IOrdenesService
         var orden = await ObtenerAsync(ordenId, ct);
 
         orden.PasarAPruebas();
-        await _dbContext.SaveChangesAsync(ct);
+        await GuardarTransicionAsync(orden.Id, EstadoOrdenEnsamble.EnPruebas, ct);
 
         // RF-NEG-07, RF-NOT-03
         await _notificador.NotificarYGuardarAsync(
@@ -127,7 +127,7 @@ public class OrdenesService : IOrdenesService
         var orden = await ObtenerAsync(ordenId, ct);
 
         orden.Entregar();
-        await _dbContext.SaveChangesAsync(ct);
+        await GuardarTransicionAsync(orden.Id, EstadoOrdenEnsamble.Entregada, ct);
 
         // RF-NEG-07, RF-NOT-03
         await _notificador.NotificarYGuardarAsync(
@@ -173,6 +173,25 @@ public class OrdenesService : IOrdenesService
             .ToListAsync(ct);
 
         return ordenes.Select(AResumen).ToList();
+    }
+
+    // Hallazgo 1 (Asignación 3), RF-NEG-04
+    private async Task GuardarTransicionAsync(Guid ordenId, EstadoOrdenEnsamble hacia, CancellationToken ct)
+    {
+        try
+        {
+            await _dbContext.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            var estadoGuardado = await _dbContext.OrdenesEnsamble
+                .AsNoTracking()
+                .Where(o => o.Id == ordenId)
+                .Select(o => o.Estado)
+                .SingleAsync(ct);
+
+            throw new TransicionOrdenNoPermitidaException(estadoGuardado, hacia);
+        }
     }
 
     // RF-GP-05, RF-NEG-06

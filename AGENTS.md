@@ -21,13 +21,14 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | 3. Manejador de documentos | 9 | ✅ Práctica 4 (etiqueta `practica-4`, PR #24): documentos RF-DOC-01 a 05, proyecto en contenedores con `docker compose up --build` (puerto 5206, volúmenes `documentos` y `sqldata`) y API externa de tasa de cambio. Ver `docs/entregas/practica-4.md`. Auditoría de documentos (RF-DOC-06) pendiente con la Pieza 6. |
 | 4. Notificaciones y cola de correos | 11–12 | ✅ Práctica 5 (etiqueta `practica-5`, PR #37 a #41): bandeja interna con preferencia de correo, avisos de permisos y del negocio (`EnPruebas`, `Entregada`), cola con 3 reintentos, estado `Fallido`, reserva atómica y consulta del Administrador. Mailpit (`http://localhost:8025`) y `docker compose run --rm despachador` vienen en el contenedor. Criterios en `docs/criterios-notificaciones-reportes.md`; ver `docs/entregas/practica-5.md`. |
 | 5. Reportes con agregación | 12 | ✅ Práctica 5: solicitudes por estado y mes, y fabricantes por piezas y valor, agregados en SQL, con rango de fechas obligatorio y alcance por rol. El reporte de tiempo de ensamble por técnico espera la Auditoría. |
+| Auditoría de lo delegado en la Práctica 5 | 11 | ✅ Asignación 3 (etiqueta `asignacion-3`): 4 hallazgos corregidos, cada uno en su commit y con su prueba de regresión; reglas nuevas en la sección 12 y criterios CA-NOT-14 a 16 y CA-REP-08. Ver `docs/bitacora-asignacion-3.md` y `docs/entregas/asignacion-3.md`. |
 | 6. Auditoría | 14 | Pendiente. |
 | Frontend web (extra, no calificado) | — | ⏳ Fases 1 (base), 2 (sesión) y 3 (catálogo con sesión) hechas, con el diseño visual de `docs/diseno/README.md`; sigue la fase 4 (armador de PC, con el cambio B2): ver `docs/frontend.md`. Cede ante cualquier entrega del curso. |
 
 ### Desviaciones conocidas (no corregir sin que el usuario lo pida)
 - Gestión de permisos (`tests/Core.Tests`) y el negocio (`tests/PCBuilderOps.Tests`) tienen pruebas automatizadas; Control de acceso solo las tiene para los enlaces de correo y el bloqueo por intentos (`tests/Core.Tests/Auth`), no para registro, activación ni sesiones (RD-12).
 - Las etiquetas `practica-2-defecto-N` y `practica-3-defecto-N` contienen defectos plantados a propósito: nunca se fusionan a `main` ni se "corrigen".
-- Las etiquetas de entregas (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`, `practica-4`, `practica-5`) no se mueven: se evalúa el punto etiquetado.
+- Las etiquetas de entregas (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`, `practica-4`, `practica-5`, `asignacion-3`) no se mueven: se evalúa el punto etiquetado.
 
 ---
 
@@ -167,3 +168,10 @@ Detalle en `docs/requisitos/negocio.md`:
 - **Datos del usuario:** nunca usar la base `PCBuilderOps` del usuario ni su volumen `sqldata` para pruebas (ver "Pruebas manuales del agente").
 - **Alcance:** no tocar piezas fuera de la entrega en curso; lo que no entra se anota en `docs/entregas/<entrega>.md`. `src/Web` es trabajo extra y no se modifica durante una práctica salvo que el usuario lo pida.
 - **Configuración del equipo:** no cambiar configuraciones de seguridad del sistema operativo (por ejemplo, Smart App Control).
+
+## 12. Reglas aprendidas en la Asignación 3 (auditoría de la Práctica 5)
+Cada regla nace de un hallazgo de `docs/bitacora-asignacion-3.md`. Se aplican a todo código nuevo o modificado.
+- **Hallazgo 1 · Concurrencia en las transiciones:** toda entidad con máquina de estados (`SolicitudPermiso`, `OrdenEnsamble`) lleva un token de concurrencia (`Version`) que cambia en cada transición. Si dos peticiones resuelven o transicionan la misma fila a la vez, la base rechaza la segunda, el servicio responde `409` y no se guarda ni se notifica nada de ella. Toda prueba de una transición incluye el caso de dos peticiones que leyeron la fila antes de que la otra guardara.
+- **Hallazgo 2 · Unicidad garantizada por la base:** una regla de «no puede haber dos» (una solicitud pendiente por usuario y permiso, una preferencia por usuario) se garantiza con un índice único o una clave en la base, no solo con una consulta previa. El servicio captura el choque y responde como el caso normal (`409` si es un duplicado, o actualiza si es un *upsert*), nunca con `500`. Al agregar una consulta del tipo «¿ya existe?» antes de insertar, se pregunta qué pasa si dos peticiones la hacen a la vez.
+- **Hallazgo 3 · Valores límite en las entradas:** toda entrada del usuario se prueba también con los valores extremos válidos de su tipo (la primera y la última fecha del calendario, cero, el máximo), no solo con valores ausentes o mal escritos. No se calcula con la entrada del usuario algo que pueda desbordarse (por ejemplo, «hasta + 1 día»): el día de `hasta` se incluye comparando con su último instante (`<=`). Una entrada válida nunca produce `500`.
+- **Hallazgo 4 · Fechas UTC también al devolverlas:** RD-11 incluye la salida. Toda fecha que devuelve la API lleva `Z`, igual al crearse que al leerse de la base. La regla vive en un solo lugar, `ConvencionFechasUtc`, que usan `AppDbContext` y `PCBuilderOpsDbContext`; está prohibido corregirla endpoint por endpoint con `DateTime.SpecifyKind`. Un defecto que aparece en una pieza se corrige en su causa y se busca en las demás; no se deja como «pendiente» después de arreglar un solo lugar.

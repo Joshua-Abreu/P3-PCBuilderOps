@@ -21,6 +21,9 @@ public class OrdenEnsamble
     public decimal CostoTotal { get; private set; }
     public DateTime FechaCreacionUtc { get; private set; }
 
+    // Hallazgo 1 (Asignación 3)
+    public Guid Version { get; private set; }
+
     public IReadOnlyList<DetalleEnsamble> Detalles => _detalles;
     public IReadOnlyList<PruebaRendimiento> Pruebas => _pruebas;
 
@@ -38,7 +41,8 @@ public class OrdenEnsamble
             Id = Guid.NewGuid(),
             ClienteUsuarioId = clienteUsuarioId,
             Estado = EstadoOrdenEnsamble.Cotizada,
-            FechaCreacionUtc = ahoraUtc
+            FechaCreacionUtc = ahoraUtc,
+            Version = Guid.NewGuid()
         };
 
         orden.CodigoSeguimiento = $"ORD-{orden.Id:N}"[..12].ToUpperInvariant();
@@ -94,6 +98,7 @@ public class OrdenEnsamble
         alCumplirTransicion?.Invoke();
 
         Estado = hacia;
+        Version = Guid.NewGuid();
     }
 
     private void ExigirPruebaMasRecienteAprobada()

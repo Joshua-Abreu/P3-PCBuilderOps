@@ -145,4 +145,20 @@ public sealed class ReporteFabricantesServiceTests : IDisposable
         Assert.Equal(new[] { new FilaFabricante("Kingston", 4, 180.00m, 1) }, octubre.Filas);
         Assert.Equal(new[] { "AMD", "Kingston", "NVIDIA" }, noviembre.Filas.Select(f => f.Fabricante));
     }
+
+    // Hallazgo 3 (Asignación 3) · RF-REP-05, RD-07
+    [Fact]
+    public async Task Fabricantes_ConLasFechasDeLosBordesDelCalendario_Responde()
+    {
+        // Preparar
+        GuardarTresOrdenesDeNoviembre();
+
+        // Actuar
+        var todo = await NuevoServicio().FabricantesAsync(Rango("0001-01-01", "9999-12-31"), soloDelCliente: null);
+        var ultimoDia = await NuevoServicio().FabricantesAsync(Rango("9999-12-31", "9999-12-31"), soloDelCliente: null);
+
+        // Verificar
+        Assert.Equal(5, todo.TotalUnidades);
+        Assert.Empty(ultimoDia.Filas);
+    }
 }

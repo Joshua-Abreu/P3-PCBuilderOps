@@ -8,6 +8,8 @@ namespace Core.Permisos.Services;
 
 public class GestionPermisosService : IGestionPermisosService, IVerificadorPermisos
 {
+    private const string MensajePendienteDuplicada = "Ya tienes una solicitud pendiente para este permiso.";
+
     private readonly AppDbContext _dbContext;
     private readonly TimeProvider _reloj;
     private readonly INotificador _notificador;
@@ -31,15 +33,35 @@ public class GestionPermisosService : IGestionPermisosService, IVerificadorPermi
             .AnyAsync(s => s.SolicitanteId == solicitanteId && s.Permiso == permiso && s.Estado == EstadoSolicitud.Pendiente, ct);
 
         if (tienePendiente)
-            throw new SolicitudDuplicadaException("Ya tienes una solicitud pendiente para este permiso.");
+            throw new SolicitudDuplicadaException(MensajePendienteDuplicada);
 
         var solicitud = SolicitudPermiso.Crear(solicitanteId, permiso, AhoraUtc);
 
         _dbContext.SolicitudesPermiso.Add(solicitud);
         await NotificarCreacionAsync(solicitud, ct);
-        await _dbContext.SaveChangesAsync(ct);
+        await GuardarSolicitudNuevaAsync(solicitanteId, permiso, ct);
 
         return ADetalle(solicitud);
+    }
+
+    // Hallazgo 2 (Asignación 3), RF-GP-01
+    private async Task GuardarSolicitudNuevaAsync(Guid solicitanteId, TipoPermiso permiso, CancellationToken ct)
+    {
+        try
+        {
+            await _dbContext.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            var otraPendiente = await _dbContext.SolicitudesPermiso
+                .AsNoTracking()
+                .AnyAsync(s => s.SolicitanteId == solicitanteId && s.Permiso == permiso && s.Estado == EstadoSolicitud.Pendiente, ct);
+
+            if (!otraPendiente)
+                throw;
+
+            throw new SolicitudDuplicadaException(MensajePendienteDuplicada);
+        }
     }
 
     // RF-NOT-01
@@ -98,7 +120,7 @@ public class GestionPermisosService : IGestionPermisosService, IVerificadorPermi
             $"Tu solicitud del permiso {solicitud.Permiso} fue aprobada. Ya tienes el permiso.",
             ct);
 
-        await _dbContext.SaveChangesAsync(ct);
+        await GuardarResolucionAsync(solicitud.Id, EstadoSolicitud.Aprobada, ct);
 
         return ADetalle(solicitud);
     }
@@ -124,9 +146,31 @@ public class GestionPermisosService : IGestionPermisosService, IVerificadorPermi
             $"Tu solicitud del permiso {solicitud.Permiso} fue rechazada. Motivo: {solicitud.MotivoRechazo}",
             ct);
 
-        await _dbContext.SaveChangesAsync(ct);
+        await GuardarResolucionAsync(solicitud.Id, EstadoSolicitud.Rechazada, ct);
 
         return ADetalle(solicitud);
+    }
+
+    // Hallazgo 1 (Asignación 3), RF-GP-06
+    private async Task GuardarResolucionAsync(Guid solicitudId, EstadoSolicitud hacia, CancellationToken ct)
+    {
+        try
+        {
+            await _dbContext.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            var estadoGuardado = await _dbContext.SolicitudesPermiso
+                .AsNoTracking()
+                .Where(s => s.Id == solicitudId)
+                .Select(s => (EstadoSolicitud?)s.Estado)
+                .SingleOrDefaultAsync(ct);
+
+            if (estadoGuardado is not { } estado || estado == EstadoSolicitud.Pendiente)
+                throw;
+
+            throw new TransicionNoPermitidaException(estado, hacia);
+        }
     }
 
     // RF-GP-05

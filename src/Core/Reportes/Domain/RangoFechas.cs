@@ -18,7 +18,8 @@ public sealed record RangoFechas
     public DateOnly Hasta { get; }
 
     public DateTime DesdeUtc => Desde.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-    public DateTime HastaExclusivoUtc => Hasta.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+    // Hallazgo 3 (Asignación 3)
+    public DateTime HastaInclusivoUtc => Hasta.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
 
     public static RangoFechas Crear(string? desde, string? hasta)
     {

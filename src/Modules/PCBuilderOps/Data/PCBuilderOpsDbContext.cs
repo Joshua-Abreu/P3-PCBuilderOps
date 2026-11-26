@@ -1,4 +1,5 @@
 using Core.Auth.Domain;
+using Core.Data;
 using Microsoft.EntityFrameworkCore;
 using PCBuilderOps.Domain;
 
@@ -17,6 +18,9 @@ public class PCBuilderOpsDbContext : DbContext
     public DbSet<Componente> Componentes => Set<Componente>();
     public DbSet<DetalleEnsamble> DetallesEnsamble => Set<DetalleEnsamble>();
     public DbSet<PruebaRendimiento> PruebasRendimiento => Set<PruebaRendimiento>();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.UsarFechasUtc();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

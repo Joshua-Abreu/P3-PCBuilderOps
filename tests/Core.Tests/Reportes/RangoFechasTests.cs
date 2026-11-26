@@ -7,14 +7,15 @@ namespace Core.Tests.Reportes;
 public sealed class RangoFechasTests
 {
     [Fact]
-    public void Crear_RangoValido_IncluyeElDiaCompletoDeHasta()
+    public void Crear_RangoValido_ConservaLasFechasYEmpiezaEnUtc()
     {
         // Actuar
         var rango = RangoFechas.Crear("2026-11-01", "2026-11-30");
 
         // Verificar
+        Assert.Equal(new DateOnly(2026, 11, 1), rango.Desde);
+        Assert.Equal(new DateOnly(2026, 11, 30), rango.Hasta);
         Assert.Equal(new DateTime(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc), rango.DesdeUtc);
-        Assert.Equal(new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc), rango.HastaExclusivoUtc);
         Assert.Equal(DateTimeKind.Utc, rango.DesdeUtc.Kind);
     }
 
@@ -25,7 +26,7 @@ public sealed class RangoFechasTests
         var rango = RangoFechas.Crear("2026-11-19", "2026-11-19");
 
         // Verificar
-        Assert.Equal(TimeSpan.FromDays(1), rango.HastaExclusivoUtc - rango.DesdeUtc);
+        Assert.Equal(rango.Desde, rango.Hasta);
     }
 
     [Theory]

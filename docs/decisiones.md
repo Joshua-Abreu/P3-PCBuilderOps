@@ -161,7 +161,19 @@ Cada correo guarda `Intentos`, `UltimoError`, `FechaUltimoIntentoUtc` y `Reserva
 ### 2026-11-19 · Reportes agregados en SQL, con el rango obligatorio y el alcance sacado de la sesión (RF-REP-01 a 05, RF-NEG-08, RD-03, RD-06)
 El reporte del Core (`ReportesService`) agrupa `SolicitudesPermiso` por año, mes y estado. El del negocio (`ReporteFabricantesService`, en el módulo) une detalles, órdenes y componentes, agrupa por fabricante y suma cantidades y cantidad × precio unitario del detalle, con `COUNT(DISTINCT)` de órdenes. Los dos ejecutan el `GROUP BY` en la base; en memoria solo se da formato al período y se arman las filas ya agregadas. `RangoFechas` vive en el Core y lo usan los dos: `desde` y `hasta` son obligatorios en `yyyy-MM-dd`, en UTC, e incluyen el día completo de `hasta` (`< hasta + 1 día`). El controlador decide el alcance con el rol de la sesión: `null` para el Administrador y el id del token para el Estándar. No existe ningún parámetro de usuario en la URL.
 **Por qué:** agrupar en la base es lo que pide RF-REP-03 y escala con el volumen; cargar los registros para contarlos en C# no lo haría. Un rango obligatorio evita reportes sin límite y hace explícito qué período se mira. Sacar el alcance de la sesión, y no de un parámetro, hace imposible que un Estándar pida datos de otro (RD-06). El valor usa el precio guardado en el detalle porque es lo que se cotizó; el del catálogo puede cambiar después. Una solicitud aprobada se reporta como `Aplicada`, su estado real, porque aprobar otorga el permiso en la misma operación (RF-GP-05). El tiempo promedio de ensamble por técnico queda para la Auditoría, que guardará la fecha de cada transición.
+### 2026-11-26 · Concurrencia y unicidad garantizadas por la base, rango inclusivo y fechas UTC en un solo lugar (Asignación 3, Hallazgos 1 a 4; RF-NOT-01, 02, 07, RF-REP-05, RD-07, RD-11)
+- `SolicitudPermiso` y `OrdenEnsamble` llevan un token de concurrencia `Version`, un `Guid` que cambia en cada transición. Una resolución o transición que leyó la fila antes de que otra la cambiara recibe `409`, y no guarda ni notifica nada (Hallazgo 1).
+- Un índice único filtrado garantiza una sola solicitud pendiente por usuario y permiso. La preferencia de correo maneja el choque de su clave actualizando la fila existente (Hallazgo 2).
+- `RangoFechas` compara con el último instante del día de `hasta` en vez de sumar un día (Hallazgo 3).
+- `ConvencionFechasUtc` marca como UTC toda fecha de los dos contextos (Hallazgo 4).
+
+**Por qué:**
+- Las comprobaciones en memoria (leer, validar, guardar) dejan pasar dos peticiones simultáneas. Solo la base puede decidir cuál llega primero.
+- Se eligió un `Guid` y no `rowversion` porque SQLite, que usan las pruebas, no genera `rowversion`. Con un `Guid` que asigna el dominio, la misma regla funciona en SQL Server y en las pruebas.
+- El índice filtrado deja volver a solicitar un permiso tras un rechazo.
+- Sumar un día a la fecha del usuario se desborda con `9999-12-31`; comparar con el último instante del día no.
+- Corregir las fechas en cada servicio dejaba otras piezas sin corregir. Una convención del modelo cubre también las propiedades que se agreguen después.
 
 ## Pendientes
 
-- **Fechas leídas de la base sin `Z` (RD-11).** `fechaCreacionUtc` sale con `Z` al crearse pero sin ella al leerse de SQL Server (`DateTimeKind.Unspecified`). Unificar marcando las fechas como UTC al leerlas.
+- ~~**Fechas leídas de la base sin `Z` (RD-11).**~~ Resuelto en la Asignación 3 (Hallazgo 4): `ConvencionFechasUtc` marca como UTC toda fecha que leen `AppDbContext` y `PCBuilderOpsDbContext`.

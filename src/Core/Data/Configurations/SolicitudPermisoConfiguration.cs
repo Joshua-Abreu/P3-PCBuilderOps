@@ -26,6 +26,10 @@ public class SolicitudPermisoConfiguration : IEntityTypeConfiguration<SolicitudP
         builder.Property(s => s.MotivoRechazo)
             .HasMaxLength(SolicitudPermiso.MotivoRechazoMaximo);
 
+        // Hallazgo 1 (Asignación 3)
+        builder.Property(s => s.Version)
+            .IsConcurrencyToken();
+
         builder.HasOne<Usuario>()
             .WithMany()
             .HasForeignKey(s => s.SolicitanteId)
@@ -38,5 +42,14 @@ public class SolicitudPermisoConfiguration : IEntityTypeConfiguration<SolicitudP
 
         builder.HasIndex(s => s.Estado)
             .HasDatabaseName("IX_SolicitudesPermiso_Estado");
+
+        builder.HasIndex(s => s.SolicitanteId)
+            .HasDatabaseName("IX_SolicitudesPermiso_SolicitanteId");
+
+        // Hallazgo 2 (Asignación 3), RF-GP-01
+        builder.HasIndex(s => new { s.SolicitanteId, s.Permiso })
+            .IsUnique()
+            .HasFilter($"[Estado] = {(int)EstadoSolicitud.Pendiente}")
+            .HasDatabaseName("UX_SolicitudesPermiso_UnaPendientePorPermiso");
     }
 }

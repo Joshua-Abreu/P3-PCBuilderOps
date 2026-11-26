@@ -344,6 +344,10 @@ namespace PCBuilderOps.Data.Migrations
                     b.Property<Guid?>("TecnicoAsignadoId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClienteUsuarioId");

@@ -18,7 +18,7 @@ public class ReporteFabricantesService : IReporteFabricantesService
     {
         var ordenes = _dbContext.OrdenesEnsamble
             .AsNoTracking()
-            .Where(o => o.FechaCreacionUtc >= rango.DesdeUtc && o.FechaCreacionUtc < rango.HastaExclusivoUtc);
+            .Where(o => o.FechaCreacionUtc >= rango.DesdeUtc && o.FechaCreacionUtc <= rango.HastaInclusivoUtc);
 
         if (soloDelCliente is { } clienteId)
             ordenes = ordenes.Where(o => o.ClienteUsuarioId == clienteId);

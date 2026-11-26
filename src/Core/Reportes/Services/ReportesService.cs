@@ -18,7 +18,7 @@ public class ReportesService : IReportesService
     {
         var solicitudes = _dbContext.SolicitudesPermiso
             .AsNoTracking()
-            .Where(s => s.FechaCreacionUtc >= rango.DesdeUtc && s.FechaCreacionUtc < rango.HastaExclusivoUtc);
+            .Where(s => s.FechaCreacionUtc >= rango.DesdeUtc && s.FechaCreacionUtc <= rango.HastaInclusivoUtc);
 
         if (soloDelSolicitante is { } solicitanteId)
             solicitudes = solicitudes.Where(s => s.SolicitanteId == solicitanteId);

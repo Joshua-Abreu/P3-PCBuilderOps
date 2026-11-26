@@ -34,6 +34,10 @@ public class OrdenEnsambleConfiguration : IEntityTypeConfiguration<OrdenEnsamble
         builder.Property(o => o.FechaCreacionUtc)
             .IsRequired();
 
+        // Hallazgo 1 (Asignación 3)
+        builder.Property(o => o.Version)
+            .IsConcurrencyToken();
+
         builder.HasOne<Usuario>()
             .WithMany()
             .HasForeignKey(o => o.ClienteUsuarioId)
