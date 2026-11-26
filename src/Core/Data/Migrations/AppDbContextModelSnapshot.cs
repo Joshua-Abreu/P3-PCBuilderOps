@@ -385,6 +385,10 @@ namespace Core.Data.Migrations
                     b.Property<Guid>("SolicitanteId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AprobadorId");

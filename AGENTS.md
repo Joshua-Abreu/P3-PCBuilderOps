@@ -167,3 +167,7 @@ Detalle en `docs/requisitos/negocio.md`:
 - **Datos del usuario:** nunca usar la base `PCBuilderOps` del usuario ni su volumen `sqldata` para pruebas (ver "Pruebas manuales del agente").
 - **Alcance:** no tocar piezas fuera de la entrega en curso; lo que no entra se anota en `docs/entregas/<entrega>.md`. `src/Web` es trabajo extra y no se modifica durante una práctica salvo que el usuario lo pida.
 - **Configuración del equipo:** no cambiar configuraciones de seguridad del sistema operativo (por ejemplo, Smart App Control).
+
+## 12. Reglas aprendidas en la Asignación 3 (auditoría de la Práctica 5)
+Cada regla nace de un hallazgo de `docs/bitacora-asignacion-3.md`. Se aplican a todo código nuevo o modificado.
+- **Hallazgo 1 · Concurrencia en las transiciones:** toda entidad con máquina de estados (`SolicitudPermiso`, `OrdenEnsamble`) lleva un token de concurrencia (`Version`) que cambia en cada transición. Si dos peticiones resuelven o transicionan la misma fila a la vez, la base rechaza la segunda, el servicio responde `409` y no se guarda ni se notifica nada de ella. Toda prueba de una transición incluye el caso de dos peticiones que leyeron la fila antes de que la otra guardara.

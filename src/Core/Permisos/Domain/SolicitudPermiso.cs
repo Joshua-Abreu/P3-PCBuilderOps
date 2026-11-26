@@ -18,6 +18,9 @@ public class SolicitudPermiso
     public DateTime? FechaResolucionUtc { get; private set; }
     public string? MotivoRechazo { get; private set; }
 
+    // Hallazgo 1 (Asignación 3)
+    public Guid Version { get; private set; }
+
     // RF-GP-01
     public static SolicitudPermiso Crear(Guid solicitanteId, TipoPermiso permiso, DateTime ahoraUtc) => new()
     {
@@ -25,7 +28,8 @@ public class SolicitudPermiso
         SolicitanteId = solicitanteId,
         Permiso = permiso,
         Estado = EstadoSolicitud.Pendiente,
-        FechaCreacionUtc = ahoraUtc
+        FechaCreacionUtc = ahoraUtc,
+        Version = Guid.NewGuid()
     };
 
     // RF-GP-03
@@ -35,6 +39,7 @@ public class SolicitudPermiso
         MaquinaEstadosSolicitud.ValidarTransicion(Estado, EstadoSolicitud.Aprobada);
 
         Estado = EstadoSolicitud.Aprobada;
+        Version = Guid.NewGuid();
         AprobadorId = aprobadorId;
         FechaResolucionUtc = ahoraUtc;
     }
@@ -45,6 +50,7 @@ public class SolicitudPermiso
         MaquinaEstadosSolicitud.ValidarTransicion(Estado, EstadoSolicitud.Aplicada);
 
         Estado = EstadoSolicitud.Aplicada;
+        Version = Guid.NewGuid();
     }
 
     // RF-GP-04
@@ -63,6 +69,7 @@ public class SolicitudPermiso
         MaquinaEstadosSolicitud.ValidarTransicion(Estado, EstadoSolicitud.Rechazada);
 
         Estado = EstadoSolicitud.Rechazada;
+        Version = Guid.NewGuid();
         AprobadorId = aprobadorId;
         FechaResolucionUtc = ahoraUtc;
         MotivoRechazo = motivoLimpio;

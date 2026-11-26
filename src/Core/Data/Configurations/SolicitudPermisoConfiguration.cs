@@ -26,6 +26,10 @@ public class SolicitudPermisoConfiguration : IEntityTypeConfiguration<SolicitudP
         builder.Property(s => s.MotivoRechazo)
             .HasMaxLength(SolicitudPermiso.MotivoRechazoMaximo);
 
+        // Hallazgo 1 (Asignación 3)
+        builder.Property(s => s.Version)
+            .IsConcurrencyToken();
+
         builder.HasOne<Usuario>()
             .WithMany()
             .HasForeignKey(s => s.SolicitanteId)

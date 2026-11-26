@@ -98,7 +98,7 @@ public class GestionPermisosService : IGestionPermisosService, IVerificadorPermi
             $"Tu solicitud del permiso {solicitud.Permiso} fue aprobada. Ya tienes el permiso.",
             ct);
 
-        await _dbContext.SaveChangesAsync(ct);
+        await GuardarResolucionAsync(solicitud.Id, EstadoSolicitud.Aprobada, ct);
 
         return ADetalle(solicitud);
     }
@@ -124,9 +124,31 @@ public class GestionPermisosService : IGestionPermisosService, IVerificadorPermi
             $"Tu solicitud del permiso {solicitud.Permiso} fue rechazada. Motivo: {solicitud.MotivoRechazo}",
             ct);
 
-        await _dbContext.SaveChangesAsync(ct);
+        await GuardarResolucionAsync(solicitud.Id, EstadoSolicitud.Rechazada, ct);
 
         return ADetalle(solicitud);
+    }
+
+    // Hallazgo 1 (Asignación 3), RF-GP-06
+    private async Task GuardarResolucionAsync(Guid solicitudId, EstadoSolicitud hacia, CancellationToken ct)
+    {
+        try
+        {
+            await _dbContext.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            var estadoGuardado = await _dbContext.SolicitudesPermiso
+                .AsNoTracking()
+                .Where(s => s.Id == solicitudId)
+                .Select(s => (EstadoSolicitud?)s.Estado)
+                .SingleOrDefaultAsync(ct);
+
+            if (estadoGuardado is not { } estado || estado == EstadoSolicitud.Pendiente)
+                throw;
+
+            throw new TransicionNoPermitidaException(estado, hacia);
+        }
     }
 
     // RF-GP-05

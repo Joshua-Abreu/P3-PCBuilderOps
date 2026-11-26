@@ -275,3 +275,16 @@ Una orden cae en el período de su `FechaCreacionUtc`.
     5. una orden válida que avanza, y `Cotizada → Entregada` rechazada;
     6. un documento que sobrevive a `docker compose down` (sin `-v`) y `up`.
 - **Comprobación:** la guía de verificación del README, de principio a fin.
+
+## 6. Criterios agregados en la Asignación 3
+
+Se agregan a partir de los hallazgos de `docs/bitacora-asignacion-3.md`. No reemplazan a los anteriores: cubren lo que ellos no decían.
+
+### CA-NOT-14 · RF-NOT-02, RF-GP-06 — Dos resoluciones simultáneas: solo gana la primera (Hallazgo 1)
+- **Dado:** una solicitud pendiente de E1 y dos Administradores con sesión.
+- **Cuando:** los dos la resuelven al mismo tiempo (aprobar y rechazar, dos rechazos o dos aprobaciones).
+- **Entonces:**
+  - Una resolución responde `200` y la otra `409` con `{"mensaje": "..."}`; nunca `500`.
+  - La solicitud queda en el estado de la que ganó, con su aprobador y su motivo. Si quedó `Rechazada`, E1 no tiene el permiso.
+  - E1 recibe exactamente una notificación, la de la resolución que ganó.
+- **Comprobación:** las dos peticiones lanzadas a la vez y `GET /api/notificaciones` con E1; prueba automatizada `ResolucionSimultaneaTests`. Lo mismo vale para dos transiciones simultáneas de una orden (`TransicionSimultaneaOrdenTests`).
