@@ -1,3 +1,5 @@
+using Core.Auditoria.Domain;
+using Core.Auditoria.Exceptions;
 using Core.Auth.Domain;
 using Core.Data.Configurations;
 using Core.Documentos.Domain;
@@ -23,6 +25,26 @@ public class AppDbContext : DbContext
     public DbSet<Documento> Documentos => Set<Documento>();
     public DbSet<Notificacion> Notificaciones => Set<Notificacion>();
     public DbSet<PreferenciaNotificacion> PreferenciasNotificacion => Set<PreferenciaNotificacion>();
+    public DbSet<RegistroAuditoria> RegistrosAuditoria => Set<RegistroAuditoria>();
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        RechazarCambiosAlHistorial();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        RechazarCambiosAlHistorial();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    // RF-AUD-06
+    private void RechazarCambiosAlHistorial()
+    {
+        if (ChangeTracker.Entries<RegistroAuditoria>().Any(e => e.State is EntityState.Modified or EntityState.Deleted))
+            throw new HistorialInmutableException();
+    }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
         configurationBuilder.UsarFechasUtc();

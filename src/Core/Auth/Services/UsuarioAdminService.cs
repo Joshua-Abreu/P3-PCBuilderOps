@@ -1,3 +1,5 @@
+using Core.Auditoria.Domain;
+using Core.Auditoria.Services;
 using Core.Auth.Domain;
 using Core.Auth.Exceptions;
 using Core.Data;
@@ -14,19 +16,22 @@ public class UsuarioAdminService : IUsuarioAdminService
     private readonly IInputValidator _inputValidator;
     private readonly IConfiguration _configuration;
     private readonly IEncoladorCorreos _encolador;
+    private readonly IAuditor _auditor;
 
     public UsuarioAdminService(
         AppDbContext dbContext,
         IPasswordHasher passwordHasher,
         IInputValidator inputValidator,
         IConfiguration configuration,
-        IEncoladorCorreos encolador)
+        IEncoladorCorreos encolador,
+        IAuditor auditor)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
         _inputValidator = inputValidator;
         _configuration = configuration;
         _encolador = encolador;
+        _auditor = auditor;
     }
 
     public async Task<PaginacionUsuarios> ListarAsync(int pagina, int tamanoPagina, RolUsuario? rol, bool? activo, CancellationToken ct = default)
@@ -143,6 +148,18 @@ public class UsuarioAdminService : IUsuarioAdminService
                 throw new ReglaNegocioException("No puedes remover tu rol de Administrador si eres el único admin activo.");
         }
 
+        if (usuario.Rol == nuevoRol)
+            return;
+
+        // RF-AUD-04, RF-CA-08
+        _auditor.Registrar(
+            adminId,
+            AccionAuditoria.RolCambiado,
+            EntidadAuditada.Usuario,
+            usuario.Id.ToString(),
+            new { rol = usuario.Rol.ToString() },
+            new { rol = nuevoRol.ToString() });
+
         usuario.Rol = nuevoRol;
         await _dbContext.SaveChangesAsync(ct);
     }
@@ -157,6 +174,18 @@ public class UsuarioAdminService : IUsuarioAdminService
 
         if (usuario.Id == adminId && !activar)
             throw new ReglaNegocioException("No puedes desactivarte a ti mismo.");
+
+        if (usuario.EstaActivo == activar)
+            return;
+
+        // RF-AUD-04, RF-CA-20
+        _auditor.Registrar(
+            adminId,
+            activar ? AccionAuditoria.UsuarioReactivado : AccionAuditoria.UsuarioDesactivado,
+            EntidadAuditada.Usuario,
+            usuario.Id.ToString(),
+            new { estaActivo = usuario.EstaActivo },
+            new { estaActivo = activar });
 
         usuario.EstaActivo = activar;
 

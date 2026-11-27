@@ -1,3 +1,4 @@
+using Core.Auditoria.Services;
 using Core.Auth.Domain;
 using Core.Auth.Services;
 using Core.Notifications.Domain;
@@ -45,7 +46,7 @@ public sealed class NotificacionesTests : IDisposable
     private GestionPermisosService NuevaGestion()
     {
         var contexto = _baseDeDatos.NuevoContexto();
-        return new(contexto, _reloj, new Notificador(contexto, new EncoladorCorreos(contexto, _reloj), _reloj));
+        return Servicios.GestionPermisos(contexto, _reloj);
     }
 
     private NotificacionesService NuevaBandeja() => new(_baseDeDatos.NuevoContexto(), _reloj);
@@ -351,7 +352,8 @@ public sealed class NotificacionesTests : IDisposable
             new HashSimple(),
             new InputValidator(),
             new ConfigurationBuilder().Build(),
-            new EncoladorCorreos(contexto, _reloj));
+            new EncoladorCorreos(contexto, _reloj),
+            new Auditor(contexto, _reloj));
 
         // Actuar
         await servicio.OlvidePasswordAsync(correo);

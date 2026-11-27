@@ -8,4 +8,7 @@ public class TokenRecuperacion
     public DateTime FechaCreacionUtc { get; set; }
     public DateTime ExpiracionUtc { get; set; }
     public bool FueUsado { get; set; } = false;
+
+    // RF-AUD-05
+    public bool IniciadoPorAdministrador { get; set; }
 }

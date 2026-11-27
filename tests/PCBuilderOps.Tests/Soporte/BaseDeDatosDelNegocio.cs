@@ -1,3 +1,4 @@
+using Core.Auditoria.Services;
 using Core.Auth.Domain;
 using Core.Data;
 using Core.Documentos.Services;
@@ -45,7 +46,7 @@ public sealed class BaseDeDatosDelNegocio : IDisposable
     public GestionPermisosService NuevaGestionPermisos()
     {
         var contexto = NuevoContextoCore();
-        return new(contexto, Reloj, new Notificador(contexto, new EncoladorCorreos(contexto, Reloj), Reloj));
+        return new(contexto, Reloj, new Notificador(contexto, new EncoladorCorreos(contexto, Reloj), Reloj), new Auditor(contexto, Reloj));
     }
 
     public OrdenesService NuevoServicioOrdenes() => new(NuevoContextoNegocio(), NuevaGestionPermisos(), Reloj, NuevoNotificador());

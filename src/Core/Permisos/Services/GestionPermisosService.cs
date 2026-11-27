@@ -1,3 +1,5 @@
+using Core.Auditoria.Domain;
+using Core.Auditoria.Services;
 using Core.Data;
 using Core.Notifications.Services;
 using Core.Permisos.Domain;
@@ -13,12 +15,14 @@ public class GestionPermisosService : IGestionPermisosService, IVerificadorPermi
     private readonly AppDbContext _dbContext;
     private readonly TimeProvider _reloj;
     private readonly INotificador _notificador;
+    private readonly IAuditor _auditor;
 
-    public GestionPermisosService(AppDbContext dbContext, TimeProvider reloj, INotificador notificador)
+    public GestionPermisosService(AppDbContext dbContext, TimeProvider reloj, INotificador notificador, IAuditor auditor)
     {
         _dbContext = dbContext;
         _reloj = reloj;
         _notificador = notificador;
+        _auditor = auditor;
     }
 
     private DateTime AhoraUtc => _reloj.GetUtcNow().UtcDateTime;
@@ -109,9 +113,19 @@ public class GestionPermisosService : IGestionPermisosService, IVerificadorPermi
     {
         var solicitud = await ObtenerAsync(solicitudId, ct);
         var ahora = AhoraUtc;
+        var estadoAnterior = solicitud.Estado;
 
         solicitud.Aprobar(aprobadorId, ahora);
         AplicarCambioDePermiso(solicitud, ahora);
+
+        // RF-AUD-02
+        _auditor.Registrar(
+            aprobadorId,
+            AccionAuditoria.SolicitudAprobada,
+            EntidadAuditada.SolicitudPermiso,
+            solicitud.Id.ToString(),
+            new { estado = estadoAnterior.ToString() },
+            new { estado = solicitud.Estado.ToString(), permiso = solicitud.Permiso.ToString(), solicitanteId = solicitud.SolicitanteId });
 
         // RF-NOT-02
         await _notificador.NotificarAsync(
@@ -136,8 +150,18 @@ public class GestionPermisosService : IGestionPermisosService, IVerificadorPermi
     public async Task<SolicitudDetalle> RechazarAsync(Guid solicitudId, Guid aprobadorId, string? motivo, CancellationToken ct = default)
     {
         var solicitud = await ObtenerAsync(solicitudId, ct);
+        var estadoAnterior = solicitud.Estado;
 
         solicitud.Rechazar(aprobadorId, motivo, AhoraUtc);
+
+        // RF-AUD-02
+        _auditor.Registrar(
+            aprobadorId,
+            AccionAuditoria.SolicitudRechazada,
+            EntidadAuditada.SolicitudPermiso,
+            solicitud.Id.ToString(),
+            new { estado = estadoAnterior.ToString() },
+            new { estado = solicitud.Estado.ToString(), permiso = solicitud.Permiso.ToString(), solicitanteId = solicitud.SolicitanteId, motivo = solicitud.MotivoRechazo });
 
         // RF-NOT-02
         await _notificador.NotificarAsync(

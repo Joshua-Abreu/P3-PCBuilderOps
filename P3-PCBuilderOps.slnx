@@ -10,6 +10,7 @@
     <Project Path="src/Workers/EmailDispatcher/EmailDispatcher.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/API.Tests/API.Tests.csproj" />
     <Project Path="tests/Core.Tests/Core.Tests.csproj" />
     <Project Path="tests/PCBuilderOps.Tests/PCBuilderOps.Tests.csproj" />
   </Folder>

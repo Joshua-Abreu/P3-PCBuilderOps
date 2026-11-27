@@ -1,3 +1,4 @@
+using Core.Auditoria.Services;
 using System.Text;
 using Core.Auth.Domain;
 using Core.Auth.Exceptions;
@@ -38,8 +39,11 @@ public sealed class DocumentosServiceTests : IDisposable
     private ActorDocumento OtroEstandar => new(_otroEstandarId, false);
     private ActorDocumento Administrador => new(_administradorId, true);
 
-    private DocumentosService NuevoServicio() =>
-        new(_baseDeDatos.NuevoContexto(), new AlmacenamientoArchivosLocal(_carpeta), _reloj);
+    private DocumentosService NuevoServicio()
+    {
+        var contexto = _baseDeDatos.NuevoContexto();
+        return new(contexto, new AlmacenamientoArchivosLocal(_carpeta), _reloj, new Auditor(contexto, _reloj));
+    }
 
     private static ArchivoSubido Archivo(string nombre = "benchmark.txt", string contenido = "Cinebench R23: 15000", string? tipo = "text/plain")
     {
