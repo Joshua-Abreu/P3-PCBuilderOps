@@ -49,12 +49,12 @@ public sealed class FechasUtcTests : IDisposable
         var solicitanteId = _baseDeDatos.CrearUsuario(RolUsuario.Estandar);
         var administradorId = _baseDeDatos.CrearUsuario(RolUsuario.Administrador);
         using (var contexto = _baseDeDatos.NuevoContexto())
-            await new GestionPermisosService(contexto, _reloj, new Notificador(contexto, new EncoladorCorreos(contexto, _reloj), _reloj))
+            await Servicios.GestionPermisos(contexto, _reloj)
                 .CrearAsync(solicitanteId, TipoPermiso.OperarTaller);
 
         // Actuar
         using var lectura = _baseDeDatos.NuevoContexto();
-        var solicitudes = await new GestionPermisosService(lectura, _reloj, new Notificador(lectura, new EncoladorCorreos(lectura, _reloj), _reloj))
+        var solicitudes = await Servicios.GestionPermisos(lectura, _reloj)
             .ListarDelSolicitanteAsync(solicitanteId);
         var correo = await lectura.CorreosEnCola.AsNoTracking().SingleAsync();
         var usuario = await lectura.Usuarios.AsNoTracking().SingleAsync(u => u.Id == solicitanteId);

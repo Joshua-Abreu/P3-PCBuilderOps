@@ -86,17 +86,18 @@ README, sección **Auditoría**: cómo provocar cada evento y cómo consultar el
 
 Marcar cada punto solo después de verificarlo contra el código en ejecución.
 
-- [ ] Entrega y criterios (`docs/criterios-auditoria.md`) fusionados antes del primer commit del historial
-- [ ] Registro de auditoría con todos los campos de RF-AUD-01 (CA-AUD-01)
-- [ ] Resolución de solicitudes auditada (CA-AUD-02 a 04)
-- [ ] Subida y eliminación de documentos auditadas (CA-AUD-05, 06)
-- [ ] Cambio de rol, desactivación y reactivación auditados (CA-AUD-07, 08)
-- [ ] Restablecimiento propio y forzado, y cambio de contraseña, sin secretos (CA-AUD-09 a 12)
-- [ ] Inmutabilidad (CA-AUD-13)
-- [ ] Consulta con filtros, solo Administrador, filtros inválidos `400` (CA-AUD-14 a 17)
-- [ ] Persistencia, UTC y RD-03 (CA-AUD-18 a 20)
-- [ ] Pruebas que citan cada criterio; la suite pasa con el comando del README
-- [ ] README: sección Auditoría y guía de verificación; peticiones en `API.http`
-- [ ] Revisión acumulada: el proyecto levanta con el README y siguen pasando los seis frentes
-- [ ] `docs/bitacora-asignacion-4.md` con el error del agente y el paralelo con git
-- [ ] `AGENTS.md` sección 0 actualizada; etiqueta `asignacion-4` creada por el usuario
+- [x] Entrega y criterios (`docs/criterios-auditoria.md`) fusionados antes del primer commit del historial (PR #45, commit `7a57cce`)
+- [x] Registro de auditoría con todos los campos de RF-AUD-01 (CA-AUD-01)
+- [x] Resolución de solicitudes auditada (CA-AUD-02 a 04)
+- [x] Subida y eliminación de documentos auditadas (CA-AUD-05, 06)
+- [x] Cambio de rol, desactivación y reactivación auditados (CA-AUD-07, 08)
+- [x] Restablecimiento propio y forzado, y cambio de contraseña, sin secretos (CA-AUD-09 a 12)
+- [x] Inmutabilidad (CA-AUD-13)
+- [x] Consulta con filtros, solo Administrador, filtros inválidos `400` (CA-AUD-14 a 17)
+- [x] Persistencia, UTC y RD-03 (CA-AUD-18 a 20)
+- [x] Pruebas que citan cada criterio; la suite pasa con el comando del README
+- [x] README: sección Auditoría y guía de verificación; peticiones en `API.http`
+- [x] Revisión acumulada: el proyecto levanta con el README y siguen pasando los seis frentes
+- [x] `docs/bitacora-asignacion-4.md` con el error del agente y el paralelo con git
+- [x] `AGENTS.md` sección 0 actualizada
+- [ ] Etiqueta `asignacion-4` creada por el usuario

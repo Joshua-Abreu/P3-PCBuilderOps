@@ -1,3 +1,5 @@
+using Core.Auditoria.Domain;
+using Core.Auditoria.Services;
 using Core.Auth.Domain;
 using Core.Data;
 using Core.Notifications.Services;
@@ -13,19 +15,22 @@ public class PasswordService : IPasswordService
     private readonly IInputValidator _inputValidator;
     private readonly IConfiguration _configuration;
     private readonly IEncoladorCorreos _encolador;
+    private readonly IAuditor _auditor;
 
     public PasswordService(
         AppDbContext dbContext,
         IPasswordHasher passwordHasher,
         IInputValidator inputValidator,
         IConfiguration configuration,
-        IEncoladorCorreos encolador)
+        IEncoladorCorreos encolador,
+        IAuditor auditor)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
         _inputValidator = inputValidator;
         _configuration = configuration;
         _encolador = encolador;
+        _auditor = auditor;
     }
 
     public async Task OlvidePasswordAsync(string correo, CancellationToken ct = default)
@@ -48,7 +53,8 @@ public class PasswordService : IPasswordService
             EncolarCorreoRecuperacion(
                 usuario,
                 "Recuperación de contraseña",
-                "Haz clic en el siguiente enlace para restablecer tu contraseña");
+                "Haz clic en el siguiente enlace para restablecer tu contraseña",
+                iniciadoPorAdministrador: false);
 
             await _dbContext.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
@@ -100,6 +106,19 @@ public class PasswordService : IPasswordService
         if (usuario is null)
             throw new Core.Auth.Exceptions.AutenticacionException("No se encontró el usuario asociado al token.");
 
+        // RF-AUD-05
+        _auditor.Registrar(
+            usuario.Id,
+            AccionAuditoria.ContrasenaRestablecida,
+            EntidadAuditada.Usuario,
+            usuario.Id.ToString(),
+            new { debeCambiarPassword = usuario.DebeCambiarPassword },
+            new
+            {
+                debeCambiarPassword = false,
+                iniciadoPor = tokenRecuperacion.IniciadoPorAdministrador ? IniciadoPor.Administrador : IniciadoPor.Usuario
+            });
+
         usuario.PasswordHash = _passwordHasher.Hash(nuevaPassword);
         tokenRecuperacion.FueUsado = true;
         usuario.DebeCambiarPassword = false;
@@ -120,13 +139,22 @@ public class PasswordService : IPasswordService
     }
 
     // RF-CA-13
-    public async Task ForzarRestablecimientoAsync(Guid usuarioId, CancellationToken ct = default)
+    public async Task ForzarRestablecimientoAsync(Guid usuarioId, Guid administradorId, CancellationToken ct = default)
     {
         var usuario = await _dbContext.Usuarios
             .FirstOrDefaultAsync(u => u.Id == usuarioId, ct);
 
         if (usuario is null)
             throw new Core.Auth.Exceptions.AutenticacionException("Usuario no encontrado.");
+
+        // RF-AUD-05
+        _auditor.Registrar(
+            administradorId,
+            AccionAuditoria.RestablecimientoForzado,
+            EntidadAuditada.Usuario,
+            usuario.Id.ToString(),
+            new { debeCambiarPassword = usuario.DebeCambiarPassword },
+            new { debeCambiarPassword = true, iniciadoPor = IniciadoPor.Administrador });
 
         usuario.PasswordHash = _passwordHasher.Hash(Guid.NewGuid().ToString("N"));
         usuario.DebeCambiarPassword = true;
@@ -143,7 +171,8 @@ public class PasswordService : IPasswordService
         EncolarCorreoRecuperacion(
             usuario,
             "Restablecimiento de contraseña requerido",
-            "Un administrador restableció tu contraseña. Define una nueva desde el siguiente enlace");
+            "Un administrador restableció tu contraseña. Define una nueva desde el siguiente enlace",
+            iniciadoPorAdministrador: true);
 
         var sesionesActivas = await _dbContext.SesionesUsuario
             .Where(s => s.UsuarioId == usuarioId && !s.EstaRevocada)
@@ -171,6 +200,15 @@ public class PasswordService : IPasswordService
 
         _inputValidator.ValidarPassword(nuevaPassword);
 
+        // RF-AUD-05
+        _auditor.Registrar(
+            usuario.Id,
+            AccionAuditoria.ContrasenaCambiada,
+            EntidadAuditada.Usuario,
+            usuario.Id.ToString(),
+            new { debeCambiarPassword = usuario.DebeCambiarPassword },
+            new { debeCambiarPassword = false, iniciadoPor = IniciadoPor.Usuario });
+
         usuario.PasswordHash = _passwordHasher.Hash(nuevaPassword);
         usuario.DebeCambiarPassword = false;
         usuario.IntentosFallidos = 0;
@@ -189,7 +227,7 @@ public class PasswordService : IPasswordService
         await _dbContext.SaveChangesAsync(ct);
     }
 
-    private void EncolarCorreoRecuperacion(Usuario usuario, string asunto, string mensaje)
+    private void EncolarCorreoRecuperacion(Usuario usuario, string asunto, string mensaje, bool iniciadoPorAdministrador)
     {
         var tokenRecuperacion = new TokenRecuperacion
         {
@@ -198,7 +236,8 @@ public class PasswordService : IPasswordService
             Token = Guid.NewGuid().ToString("N"),
             FechaCreacionUtc = DateTime.UtcNow,
             ExpiracionUtc = DateTime.UtcNow.AddHours(2),
-            FueUsado = false
+            FueUsado = false,
+            IniciadoPorAdministrador = iniciadoPorAdministrador
         };
 
         var enlaceRecuperacion = UrlBaseAplicacion.EnlaceRecuperacion(_configuration, tokenRecuperacion.Token);

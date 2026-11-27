@@ -28,7 +28,7 @@ public sealed class CreacionSimultaneaTests : IDisposable
     public void Dispose() => _baseDeDatos.Dispose();
 
     private GestionPermisosService ServicioSobre(AppDbContext contexto) =>
-        new(contexto, _reloj, new Notificador(contexto, new EncoladorCorreos(contexto, _reloj), _reloj));
+        Servicios.GestionPermisos(contexto, _reloj);
 
     private async Task CrearEnOtraPeticionAsync()
     {

@@ -133,7 +133,7 @@ public class UsuariosController : ControllerBase
     {
         try
         {
-            await _passwordService.ForzarRestablecimientoAsync(id, ct);
+            await _passwordService.ForzarRestablecimientoAsync(id, ObtenerAdminId(), ct);
             return Ok(new MensajeRespuesta("Contraseña restablecida. El usuario recibirá un correo para definir una nueva."));
         }
         catch (AutenticacionException ex)

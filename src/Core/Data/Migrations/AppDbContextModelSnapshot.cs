@@ -22,6 +22,60 @@ namespace Core.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Core.Auditoria.Domain.RegistroAuditoria", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Accion")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Entidad")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("EntidadId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("FechaUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ValorAnterior")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ValorNuevo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FechaUtc")
+                        .HasDatabaseName("IX_RegistrosAuditoria_FechaUtc");
+
+                    b.HasIndex("Entidad", "FechaUtc")
+                        .HasDatabaseName("IX_RegistrosAuditoria_Entidad_FechaUtc");
+
+                    b.HasIndex("UsuarioId", "FechaUtc")
+                        .HasDatabaseName("IX_RegistrosAuditoria_UsuarioId_FechaUtc");
+
+                    b.ToTable("RegistrosAuditoria", null, t =>
+                        {
+                            t.HasTrigger("TR_RegistrosAuditoria_Inmutable");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Core.Auth.Domain.SesionUsuario", b =>
                 {
                     b.Property<Guid>("Id")
@@ -107,6 +161,9 @@ namespace Core.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
+
+                    b.Property<bool>("IniciadoPorAdministrador")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Token")
                         .IsRequired()
@@ -405,6 +462,15 @@ namespace Core.Data.Migrations
                         .HasFilter("[Estado] = 1");
 
                     b.ToTable("SolicitudesPermiso", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Auditoria.Domain.RegistroAuditoria", b =>
+                {
+                    b.HasOne("Core.Auth.Domain.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Core.Documentos.Domain.Documento", b =>

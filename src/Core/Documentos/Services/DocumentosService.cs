@@ -1,4 +1,6 @@
 using System.Net.Http.Headers;
+using Core.Auditoria.Domain;
+using Core.Auditoria.Services;
 using Core.Auth.Exceptions;
 using Core.Data;
 using Core.Documentos.Domain;
@@ -15,12 +17,14 @@ public class DocumentosService : IDocumentosService
     private readonly AppDbContext _dbContext;
     private readonly IAlmacenamientoArchivos _almacenamiento;
     private readonly TimeProvider _reloj;
+    private readonly IAuditor _auditor;
 
-    public DocumentosService(AppDbContext dbContext, IAlmacenamientoArchivos almacenamiento, TimeProvider reloj)
+    public DocumentosService(AppDbContext dbContext, IAlmacenamientoArchivos almacenamiento, TimeProvider reloj, IAuditor auditor)
     {
         _dbContext = dbContext;
         _almacenamiento = almacenamiento;
         _reloj = reloj;
+        _auditor = auditor;
     }
 
     private DateTime AhoraUtc => _reloj.GetUtcNow().UtcDateTime;
@@ -60,6 +64,16 @@ public class DocumentosService : IDocumentosService
         try
         {
             _dbContext.Documentos.Add(documento);
+
+            // RF-AUD-03, RF-DOC-06
+            _auditor.Registrar(
+                usuarioId,
+                AccionAuditoria.DocumentoSubido,
+                EntidadAuditada.Documento,
+                documento.Id.ToString(),
+                new { estado = "NoExistia" },
+                new { estado = "Activo", nombre = documento.NombreOriginal, tipoContenido = documento.TipoContenido, tamanoBytes = documento.TamanoBytes });
+
             await _dbContext.SaveChangesAsync(ct);
         }
         catch
@@ -115,6 +129,15 @@ public class DocumentosService : IDocumentosService
 
         documento.ValidarAcceso(actor.UsuarioId, actor.EsAdministrador);
         documento.Eliminar(actor.UsuarioId, AhoraUtc);
+
+        // RF-AUD-03, RF-DOC-06
+        _auditor.Registrar(
+            actor.UsuarioId,
+            AccionAuditoria.DocumentoEliminado,
+            EntidadAuditada.Documento,
+            documento.Id.ToString(),
+            new { estado = "Activo", nombre = documento.NombreOriginal },
+            new { estado = "Eliminado", nombre = documento.NombreOriginal });
 
         await _dbContext.SaveChangesAsync(ct);
     }

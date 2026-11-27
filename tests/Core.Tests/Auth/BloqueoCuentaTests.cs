@@ -1,3 +1,4 @@
+using Core.Auditoria.Services;
 using Core.Auth.Domain;
 using Core.Auth.Exceptions;
 using Core.Auth.Services;
@@ -58,7 +59,13 @@ public sealed class BloqueoCuentaTests : IDisposable
     private PasswordService NuevoPasswordService()
     {
         var contexto = _baseDeDatos.NuevoContexto();
-        return new PasswordService(contexto, new HashSimple(), new InputValidator(), _configuracion, new EncoladorCorreos(contexto, TimeProvider.System));
+        return new PasswordService(
+            contexto,
+            new HashSimple(),
+            new InputValidator(),
+            _configuracion,
+            new EncoladorCorreos(contexto, TimeProvider.System),
+            new Auditor(contexto, TimeProvider.System));
     }
 
     private Task<LoginResultado> IniciarSesionAsync(string password) =>

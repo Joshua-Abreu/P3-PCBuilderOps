@@ -30,7 +30,7 @@ public sealed class GestionPermisosServiceTests : IDisposable
     private GestionPermisosService NuevoServicio()
     {
         var contexto = _baseDeDatos.NuevoContexto();
-        return new(contexto, _reloj, new Notificador(contexto, new EncoladorCorreos(contexto, _reloj), _reloj));
+        return Servicios.GestionPermisos(contexto, _reloj);
     }
 
     private async Task<Guid> CrearSolicitudPendienteAsync(Guid solicitanteId)
