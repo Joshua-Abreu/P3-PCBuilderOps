@@ -39,6 +39,7 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | `docs/requisitos/core.md` | Todos los RD y RF del Core con su criterio de aceptación. Fuente de verdad del contrato del curso. |
 | `docs/requisitos/negocio.md` | Dominio propio: entidades, máquina de estados objetivo, funcionalidades, notificación y reporte del negocio. |
 | `docs/criterios-notificaciones-reportes.md` | Criterios de aceptación de notificaciones, cola de correos y reportes (Práctica 5), escritos antes de programarlos. Un cambio de esas piezas se acepta solo si los cumple. |
+| `docs/criterios-auditoria.md` | Criterios de aceptación del historial de auditoría (Asignación 4, Pieza 6), escritos antes de programarlo. Un cambio de la auditoría se acepta solo si los cumple. |
 | `docs/entregas/<entrega>.md` | Una por asignación o práctica: alcance, rúbrica, qué revisa el maestro y checklist de estado. |
 | `docs/entregas/_plantilla.md` | Plantilla para crear el archivo de una entrega nueva. |
 | `docs/decisiones.md` | Decisiones de diseño tomadas y por qué. Consultar antes de cambiar algo que parezca "raro". |
