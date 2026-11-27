@@ -1279,3 +1279,150 @@ Authorization: Bearer {{loginAdminPermisos.response.body.token}}
 GET {{API_HostAddress}}/api/reportes/solicitudes?desde={{reporteDesde}}&hasta={{reporteHasta}}
 
 ###
+
+# Historial de auditoría (Asignación 4). Los eventos ya provocados antes también quedan auditados:
+# rol (7), desactivación (8), cambio de la propia contraseña (12), restablecimiento forzado (14),
+# rechazo (27, 111) y aprobación (30) de solicitudes, subida (63) y eliminación (75) de documentos.
+# Ajustar @auditoriaDesde y @auditoriaHasta para que incluyan el día de hoy (UTC), y @auditoriaHastaAyer para que termine antes.
+@auditoriaDesde = 2026-01-01
+@auditoriaHasta = 2026-12-31
+@auditoriaHastaAyer = 2026-01-31
+@codigoRecuperacion = pega-aqui-el-token-del-enlace-que-llego-a-mailpit
+
+### 131. RF-AUD-04: reactivar el usuario desactivado en la petición 8 (queda UsuarioReactivado)
+PATCH {{API_HostAddress}}/api/usuarios/{{nuevoUsuarioId}}/estado
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "activar": true
+}
+
+###
+
+### 132. RF-AUD-04: devolver el rol a Estandar (queda RolCambiado de Administrador a Estandar)
+PUT {{API_HostAddress}}/api/usuarios/{{nuevoUsuarioId}}/rol
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "rol": "Estandar"
+}
+
+###
+
+### 133. RF-AUD-05: el cliente pide recuperar su contraseña (el enlace llega a http://localhost:8025)
+POST {{API_HostAddress}}/api/auth/olvide-password
+Content-Type: application/json
+
+{
+  "correo": "{{clienteCorreo}}"
+}
+
+###
+
+### 134. RF-AUD-05: restablecer con el código del enlace (queda ContrasenaRestablecida con iniciadoPor Usuario)
+POST {{API_HostAddress}}/api/auth/restablecer-password
+Content-Type: application/json
+
+{
+  "token": "{{codigoRecuperacion}}",
+  "nuevaPassword": "Cliente67890"
+}
+
+###
+
+### 135. RF-AUD-01, RF-AUD-07: todo el historial, del más reciente al más antiguo (los ocho datos en cada registro)
+# @name historial
+GET {{API_HostAddress}}/api/auditoria
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 136. RF-AUD-07: filtro por entidad, solicitudes de permiso (aprobaciones y rechazos)
+GET {{API_HostAddress}}/api/auditoria?entidad=SolicitudPermiso
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 137. RF-AUD-07: filtro por entidad, documentos (subidas y eliminaciones)
+GET {{API_HostAddress}}/api/auditoria?entidad=Documento
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 138. RF-AUD-07: filtro por entidad, usuarios (rol, estado y contraseñas)
+GET {{API_HostAddress}}/api/auditoria?entidad=Usuario
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 139. RF-AUD-07: filtro por usuario que actuó (el Administrador de la petición 9)
+GET {{API_HostAddress}}/api/auditoria?usuarioId={{meAdmin.response.body.id}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 140. RF-AUD-07: filtros combinados, usuario y entidad
+GET {{API_HostAddress}}/api/auditoria?usuarioId={{meAdmin.response.body.id}}&entidad=Usuario
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 141. RF-AUD-07: rango de fechas que incluye hoy (esperar los registros)
+GET {{API_HostAddress}}/api/auditoria?desde={{auditoriaDesde}}&hasta={{auditoriaHasta}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 142. RF-AUD-07: rango que termina antes de los registros (esperar total 0)
+GET {{API_HostAddress}}/api/auditoria?desde={{auditoriaDesde}}&hasta={{auditoriaHastaAyer}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 143. RF-AUD-07, RD-06: un Estándar no consulta el historial (esperar 403)
+GET {{API_HostAddress}}/api/auditoria
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 144. RD-06: sin sesión (esperar 401)
+GET {{API_HostAddress}}/api/auditoria
+
+###
+
+### 145. RD-07: entidad desconocida (esperar 400 "La entidad no es válida. Usa SolicitudPermiso, Documento, Usuario.")
+GET {{API_HostAddress}}/api/auditoria?entidad=Factura
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 146. RD-07: usuario mal escrito (esperar 400 "El filtro usuarioId no es un identificador válido.")
+GET {{API_HostAddress}}/api/auditoria?usuarioId=abc
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 147. RD-07: solo una fecha del rango (esperar 400 "Indica desde y hasta juntos...")
+GET {{API_HostAddress}}/api/auditoria?desde={{auditoriaDesde}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 148. RF-AUD-06: no existe borrar un registro (esperar 405 y el historial igual)
+DELETE {{API_HostAddress}}/api/auditoria/{{historial.response.body.$.registros[0].id}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 149. RF-AUD-06: no existe editar un registro (esperar 405 y el historial igual)
+PUT {{API_HostAddress}}/api/auditoria/{{historial.response.body.$.registros[0].id}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+Content-Type: application/json
+
+{
+  "accion": "Alterada"
+}
+
+###

@@ -173,6 +173,24 @@ El reporte del Core (`ReportesService`) agrupa `SolicitudesPermiso` por año, me
 - El índice filtrado deja volver a solicitar un permiso tras un rechazo.
 - Sumar un día a la fecha del usuario se desborda con `9999-12-31`; comparar con el último instante del día no.
 - Corregir las fechas en cada servicio dejaba otras piezas sin corregir. Una convención del modelo cubre también las propiedades que se agreguen después.
+### 2026-11-27 · Historial de auditoría escrito en la misma operación, con valores JSON e inmutable en cuatro capas (RF-AUD-01 a 07, RD-03, RD-06, RD-09, RD-11)
+- **Cuándo se escribe:** `IAuditor` agrega el `RegistroAuditoria` al mismo `AppDbContext` de la operación, sin guardar, y se guarda en el mismo `SaveChanges` que el cambio. No hay cambio sin registro ni registro sin cambio, y una operación rechazada (`400`, `403`, `409`, o la perdedora de una resolución simultánea, Hallazgo 1 de la Asignación 3) no deja nada.
+- **Formato de los valores:** el anterior y el nuevo son objetos JSON con solo los campos que cambian. En una creación, el anterior es `{"estado":"NoExistia"}`. Un cambio que no cambia nada (el mismo rol, activar a un usuario activo) no se registra.
+- **Entidades como texto:** la entidad y su id se guardan como texto, así el Core no conoce tipos del módulo (RD-03), y las entidades válidas para filtrar se pasan por constructor (`EntidadesAuditables`).
+- **Restablecimientos:** `TokenRecuperacion.IniciadoPorAdministrador` recuerda quién pidió el código, y el restablecimiento forzado recibe el Administrador que lo hizo.
+- **Inmutabilidad:**
+  - interfaces que solo registran y consultan;
+  - la entidad sin setters públicos;
+  - `AppDbContext` rechaza guardar un registro modificado o borrado;
+  - el disparador `TR_RegistrosAuditoria_Inmutable` de SQL Server rechaza `UPDATE` y `DELETE` (declarado con `HasTrigger` para que EF no use `OUTPUT`).
+- **Consulta:** solo el Administrador, con el atributo del controlador y una segunda comprobación en el servicio. El rango de fechas reutiliza `RangoFechas` (Hallazgo 3).
+- **Pruebas:** el proyecto `tests/API.Tests` revisa por reflexión la superficie HTTP del controlador sin levantar la aplicación.
+
+**Por qué:**
+- Escribir el registro en un paso aparte dejaría ventanas en que el cambio se guarda sin su registro, o al revés.
+- Guardar solo lo que cambió hace el registro legible y evita copiar datos sensibles de la entidad completa.
+- Cada capa de inmutabilidad cubre una vía distinta: la API, el código de la aplicación y quien entre directo a la base. RF-AUD-06 pide que no exista ninguna operación de edición, ni oculta.
+- La comprobación del rol en el servicio protege la consulta aunque otro controlador la use sin el atributo.
 
 ## Pendientes
 

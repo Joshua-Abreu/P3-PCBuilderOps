@@ -284,6 +284,87 @@ Las filas van de más a menos unidades; si empatan, primero el que aparece en m�
 
 ---
 
+## Auditoría
+
+El historial de auditoría (Pieza 6) guarda quién cambió qué, cuándo y qué había antes, como `git log` hace con el repositorio. Cada registro trae los ocho datos de RF-AUD-01: el usuario que actuó (`usuarioId` y `usuarioNombre`), la `accion`, la `entidad` y su `entidadId`, la `fechaUtc` (UTC, con `Z`), el `valorAnterior` y el `valorNuevo`.
+
+- **Cuándo se guarda:** en la misma operación que el cambio. Si la operación se rechaza (`400`, `403`, `409`), no queda registro; si se guarda, su registro también.
+- **Formato de los valores:** son objetos JSON con solo los campos que cambiaron. Nunca están vacíos: al crear algo, el valor anterior es `{"estado":"NoExistia"}`.
+- **Secretos:** nunca se guardan contraseñas, hashes ni códigos de recuperación.
+
+### Eventos y cómo provocarlos
+
+Las peticiones son de `src/API/API.http`. Los criterios completos están en [`docs/criterios-auditoria.md`](docs/criterios-auditoria.md).
+
+| Evento | `accion` | Quién queda como `usuarioId` | Valor anterior → nuevo | Cómo provocarlo |
+|--------|----------|------------------------------|------------------------|-----------------|
+| Aprobar una solicitud (RF-AUD-02) | `SolicitudAprobada` | El Administrador que aprobó | `{"estado":"Pendiente"}` → `{"estado":"Aplicada","permiso":...,"solicitanteId":...}` | `POST /api/permisos/solicitudes/{id}/aprobar` (petición 30) |
+| Rechazar una solicitud (RF-AUD-02) | `SolicitudRechazada` | El Administrador que rechazó | `{"estado":"Pendiente"}` → `{"estado":"Rechazada",...,"motivo":...}` | `POST /api/permisos/solicitudes/{id}/rechazar` con `{"motivo": "..."}` (peticiones 27 y 111) |
+| Subir un documento (RF-AUD-03) | `DocumentoSubido` | Quien lo subió | `{"estado":"NoExistia"}` → `{"estado":"Activo","nombre":...,"tipoContenido":...,"tamanoBytes":...}` | `POST /api/documentos` con el archivo en `archivo` (petición 63) |
+| Eliminar un documento (RF-AUD-03) | `DocumentoEliminado` | El dueño o el Administrador que lo eliminó | `{"estado":"Activo",...}` → `{"estado":"Eliminado",...}` | `DELETE /api/documentos/{id}` (petición 75) |
+| Cambiar un rol (RF-AUD-04) | `RolCambiado` | El Administrador | `{"rol":"Estandar"}` → `{"rol":"Administrador"}` | `PUT /api/usuarios/{id}/rol` (peticiones 7 y 132) |
+| Desactivar o reactivar un usuario (RF-CA-20) | `UsuarioDesactivado` / `UsuarioReactivado` | El Administrador | `{"estaActivo":true}` → `{"estaActivo":false}`, y al revés | `PATCH /api/usuarios/{id}/estado` (peticiones 8 y 131) |
+| Restablecimiento forzado (RF-AUD-05, RF-CA-13) | `RestablecimientoForzado` | El Administrador | `{"debeCambiarPassword":false}` → `{"debeCambiarPassword":true,"iniciadoPor":"Administrador"}` | `POST /api/usuarios/{id}/forzar-restablecimiento` (petición 14) |
+| Restablecer con el código del correo (RF-AUD-05) | `ContrasenaRestablecida` | El propio usuario | `{"debeCambiarPassword":...}` → `{"debeCambiarPassword":false,"iniciadoPor":"Usuario"}`, o `"Administrador"` si el código vino de un restablecimiento forzado | `POST /api/auth/olvide-password` (petición 133), abrir el enlace en `http://localhost:8025` y `POST /api/auth/restablecer-password` con su código (petición 134) |
+| Cambiar la propia contraseña (RF-AUD-05) | `ContrasenaCambiada` | El propio usuario | `{"debeCambiarPassword":...}` → `{"debeCambiarPassword":false,"iniciadoPor":"Usuario"}` | `POST /api/auth/cambiar-password` (petición 12) |
+
+Un cambio que no cambia nada (asignar el rol que ya tiene, activar a un usuario activo) no genera registro.
+
+### Consultar el historial
+
+`GET /api/auditoria`, solo para el Administrador. Un Estándar recibe `403` y una petición sin sesión, `401`.
+
+| Filtro | Ejemplo | Petición |
+|--------|---------|----------|
+| Ninguno | `GET /api/auditoria` | 135 |
+| Por entidad: `SolicitudPermiso`, `Documento` o `Usuario` | `GET /api/auditoria?entidad=Documento` | 136 a 138 |
+| Por usuario que actuó | `GET /api/auditoria?usuarioId=<id>` | 139 |
+| Combinados | `GET /api/auditoria?usuarioId=<id>&entidad=Usuario` | 140 |
+| Rango de fechas (`yyyy-MM-dd`, UTC, juntos; `hasta` incluye el día completo) | `GET /api/auditoria?desde=2026-11-01&hasta=2026-11-30` | 141 y 142 |
+| Paginación (`pagina` desde 1; `tamanoPagina` de 1 a 100, por defecto 50) | `GET /api/auditoria?pagina=2&tamanoPagina=10` | — |
+
+La respuesta trae `total`, `pagina`, `tamanoPagina` y los `registros`, del más reciente al más antiguo. Un registro real:
+
+```json
+{
+  "id": "7bf38b0b-7986-4868-9532-ceeb5c018258",
+  "usuarioId": "e36f3c2d-9685-480d-96c8-0e5b02d3d93e",
+  "usuarioNombre": "Administrador PCBuilderOps",
+  "accion": "RestablecimientoForzado",
+  "entidad": "Usuario",
+  "entidadId": "75a34933-5ed8-4aec-8288-aeff4ce7b62b",
+  "fechaUtc": "2026-11-27T17:42:40.6781058Z",
+  "valorAnterior": { "debeCambiarPassword": false },
+  "valorNuevo": { "debeCambiarPassword": true, "iniciadoPor": "Administrador" }
+}
+```
+
+Un filtro inválido responde `400` con `{"mensaje": "..."}` que dice cuál está mal (peticiones 145 a 147):
+- un `usuarioId` que no es un identificador;
+- una entidad desconocida;
+- una fecha mal escrita;
+- una sola fecha del rango;
+- `desde` posterior a `hasta`;
+- una página menor que 1;
+- un tamaño fuera de 1 a 100.
+
+### El historial no se edita ni se borra (RF-AUD-06)
+
+- **HTTP:** no existe ninguna operación de edición ni de borrado. `PUT`, `PATCH` o `DELETE` sobre `/api/auditoria` responden `405` (peticiones 148 y 149).
+- **Código:** las interfaces públicas solo registran (`IAuditor`) y consultan (`IHistorialAuditoria`), y la entidad no tiene propiedades modificables desde afuera.
+- **Aplicación:** si un código interno intenta modificar o borrar un registro a través del `DbContext`, el guardado se rechaza.
+- **Base de datos:** el disparador `TR_RegistrosAuditoria_Inmutable` de SQL Server rechaza cualquier `UPDATE` o `DELETE` sobre la tabla. Para comprobarlo con el proyecto levantado:
+
+```bash
+docker compose exec db bash -c '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -d PCBuilderOps -Q "DELETE FROM RegistrosAuditoria;"'
+```
+
+Responde `Msg 50001 ... El historial de auditoria no se puede modificar ni borrar.` y el historial queda igual.
+
+**Persistencia (RD-09):** el historial vive en SQL Server, en el volumen `sqldata`. Después de `docker compose down` (sin `-v`) y `docker compose up`, `GET /api/auditoria` devuelve los mismos registros.
+
+---
+
 ## API externa
 
 | Dato | Valor |
@@ -492,7 +573,18 @@ Desde la raíz del repositorio, con el SDK de .NET 10 instalado:
 dotnet test P3-PCBuilderOps.slnx
 ```
 
-Ejecuta las dos suites (xUnit): `tests/Core.Tests` para Gestión de permisos, el Manejador de documentos y las Notificaciones, y `tests/PCBuilderOps.Tests` para el módulo de negocio y la API externa. **No requiere variables de entorno, SQL Server, Docker, red ni levantar la API** (RD-12): las máquinas de estados se prueban en memoria, los servicios usan una base SQLite en memoria nueva por cada prueba, los documentos se guardan en una carpeta temporal y ExchangeRate-API se reemplaza por respuestas fijas. Las pruebas son independientes entre sí y del orden de ejecución.
+Ejecuta las tres suites (xUnit): `tests/Core.Tests` para Gestión de permisos, el Manejador de documentos, las Notificaciones, los Reportes y la Auditoría; `tests/PCBuilderOps.Tests` para el módulo de negocio y la API externa; y `tests/API.Tests` para la superficie HTTP de la auditoría. **No requiere variables de entorno, SQL Server, Docker, red ni levantar la API** (RD-12): las máquinas de estados se prueban en memoria, los servicios usan una base SQLite en memoria nueva por cada prueba, los documentos se guardan en una carpeta temporal y ExchangeRate-API se reemplaza por respuestas fijas. Las pruebas son independientes entre sí y del orden de ejecución.
+
+### Auditoría
+
+Además de `tests/Core.Tests` y `tests/PCBuilderOps.Tests`, el mismo comando ejecuta `tests/API.Tests`, que revisa la superficie HTTP del controlador de auditoría por reflexión, sin levantar la aplicación (RD-12). Cada prueba cita en un comentario el criterio de [`docs/criterios-auditoria.md`](docs/criterios-auditoria.md) que verifica.
+
+| Archivo | Qué verifica |
+|---------|--------------|
+| `tests/Core.Tests/Auditoria/EventosAuditadosTests.cs` | **Una prueba por cada tipo de evento** (aprobar, rechazar, subir, eliminar, cambiar rol, desactivar y reactivar, restablecimiento forzado, restablecer con el código propio o del forzado, cambiar la propia contraseña). Cada una revisa los ocho campos del registro, incluidos el valor anterior y el nuevo. Además, que ninguno guarda contraseñas, hashes ni códigos, y que una operación rechazada no deja registro (CA-AUD-01 a 12). |
+| `tests/Core.Tests/Auditoria/ConsultaAuditoriaTests.cs` | Filtros por usuario, por entidad y combinados, con resultados distintos. El rango incluye el último segundo del día y nada del siguiente, y acepta los bordes del calendario. También la paginación, que **un Estándar no consulta el historial** y cada filtro inválido con su mensaje (CA-AUD-14 a 17). |
+| `tests/Core.Tests/Auditoria/InmutabilidadAuditoriaTests.cs` | **Nada modifica ni borra el historial:** las interfaces solo registran y consultan, la entidad no tiene setters públicos, y modificar o borrar un registro guardado se rechaza sin cambiarlo (CA-AUD-13). |
+| `tests/API.Tests/AuditoriaControllerTests.cs` | El controlador solo expone `GET`, ningún controlador expone escritura sobre `/api/auditoria`, y la consulta exige el rol Administrador sin acciones anónimas (CA-AUD-13, 16). |
 
 ### Regresión de la Asignación 3
 
@@ -805,3 +897,19 @@ Ver la sección [API externa](#api-externa). Las peticiones 78 a 80 de `src/API/
 | **RF-REP-05** (Rango de fechas) | Los dos reportes con un rango que termina ayer (123 y 124). | Sin filas y con los totales en `0`; con el rango de hoy sí hay filas. |
 | **RF-REP-04** (Rol) | Los dos reportes como cliente (125 y 126) y con `?usuarioId=` y `?clienteId=` de otro usuario (127). | Solo sus solicitudes y los componentes de sus órdenes; el parámetro extra no cambia nada. |
 | **RD-07** y **RD-06** | Sin fechas, con `desde` posterior a `hasta` (128 y 129) y sin token (130). | `400` con `{"mensaje": "..."}` que explica el problema, y `401`. |
+
+### 15. Auditoría (Asignación 4)
+
+**Preparación:** las peticiones 1 a 77 y 106 a 111 de `src/API/API.http` ya provocan la mayoría de los eventos; las peticiones 131 a 149 completan los que faltan y consultan el historial. Ver la sección [Auditoría](#auditoría) y [`docs/criterios-auditoria.md`](docs/criterios-auditoria.md).
+
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **RF-AUD-01** (Ocho datos) | `GET /api/auditoria` como Administrador (135). | Cada registro trae `usuarioId`, `usuarioNombre`, `accion`, `entidad`, `entidadId`, `fechaUtc` con `Z`, `valorAnterior` y `valorNuevo`, ninguno vacío. |
+| **RF-AUD-02** (Solicitudes) | Aprobar (30) y rechazar con motivo (27, 111); luego `?entidad=SolicitudPermiso` (136). | `SolicitudAprobada` y `SolicitudRechazada` con el Administrador que resolvió, de `Pendiente` a `Aplicada` o `Rechazada` y con el motivo. Aprobar dos veces (32) responde `409` sin registro nuevo. |
+| **RF-AUD-03** (Documentos) | Subir (63) y eliminar (75); luego `?entidad=Documento` (137). | `DocumentoSubido` de `NoExistia` a `Activo` con nombre, tipo y tamaño, y `DocumentoEliminado` de `Activo` a `Eliminado`, cada uno con quien actuó. El intento de otro Estándar (74) no deja registro. |
+| **RF-AUD-04** (Rol y estado) | Cambiar rol (7 y 132), desactivar (8) y reactivar (131); luego `?entidad=Usuario` (138). | `RolCambiado` con el rol anterior y el nuevo, y `UsuarioDesactivado` y `UsuarioReactivado` con `estaActivo` anterior y nuevo. La auto-desactivación (10) responde `403` sin registro. |
+| **RF-AUD-05** (Contraseñas) | Cambiar la propia (12), forzar (14), y pedir y usar un código propio (133 y 134). | `ContrasenaCambiada`, `RestablecimientoForzado` (`iniciadoPor: Administrador`) y `ContrasenaRestablecida` (`iniciadoPor: Usuario`, o `Administrador` si el código vino del forzado). Ningún registro contiene contraseñas, hashes ni el código. |
+| **RF-AUD-06** (Inmutable) | `DELETE` y `PUT` sobre `/api/auditoria/{id}` (148 y 149), y el `DELETE` en SQL Server de la sección Auditoría. | `405`, y el disparador responde `El historial de auditoria no se puede modificar ni borrar.`; el historial no cambia. |
+| **RF-AUD-07** (Consulta) | Los filtros de las peticiones 136 a 142; como cliente (143) y sin sesión (144). | Cada filtro devuelve solo lo que cumple, con resultados distintos; el rango que termina antes da `total: 0`. Cliente: `403`; sin sesión: `401`. |
+| **RD-07** | Filtros inválidos (145 a 147). | `400` con `{"mensaje": "..."}` que dice qué filtro está mal. |
+| **RD-09** | `docker compose down` (sin `-v`), `docker compose up` y repetir la 135. | Los mismos registros con los mismos valores. |

@@ -22,13 +22,13 @@ Este archivo es la fuente única de instrucciones para cualquier agente (opencod
 | 4. Notificaciones y cola de correos | 11–12 | ✅ Práctica 5 (etiqueta `practica-5`, PR #37 a #41): bandeja interna con preferencia de correo, avisos de permisos y del negocio (`EnPruebas`, `Entregada`), cola con 3 reintentos, estado `Fallido`, reserva atómica y consulta del Administrador. Mailpit (`http://localhost:8025`) y `docker compose run --rm despachador` vienen en el contenedor. Criterios en `docs/criterios-notificaciones-reportes.md`; ver `docs/entregas/practica-5.md`. |
 | 5. Reportes con agregación | 12 | ✅ Práctica 5: solicitudes por estado y mes, y fabricantes por piezas y valor, agregados en SQL, con rango de fechas obligatorio y alcance por rol. El reporte de tiempo de ensamble por técnico espera la Auditoría. |
 | Auditoría de lo delegado en la Práctica 5 | 11 | ✅ Asignación 3 (etiqueta `asignacion-3`): 4 hallazgos corregidos, cada uno en su commit y con su prueba de regresión; reglas nuevas en la sección 12 y criterios CA-NOT-14 a 16 y CA-REP-08. Ver `docs/bitacora-asignacion-3.md` y `docs/entregas/asignacion-3.md`. |
-| 6. Auditoría | 14 | Pendiente. |
+| 6. Auditoría | 12–14 | ✅ Asignación 4 (etiqueta `asignacion-4`): historial de auditoría escrito en la misma operación que el cambio, para resolución de solicitudes, documentos (RF-DOC-06), rol, estado y contraseñas; consulta `GET /api/auditoria` solo para el Administrador con filtros por usuario, entidad y fechas; inmutable en cuatro capas, incluido un disparador de SQL Server. Criterios en `docs/criterios-auditoria.md`; ver `docs/entregas/asignacion-4.md` y `docs/bitacora-asignacion-4.md`. Las transiciones de la orden y el reporte de tiempo de ensamble quedan para el proyecto final. |
 | Frontend web (extra, no calificado) | — | ⏳ Fases 1 (base), 2 (sesión) y 3 (catálogo con sesión) hechas, con el diseño visual de `docs/diseno/README.md`; sigue la fase 4 (armador de PC, con el cambio B2): ver `docs/frontend.md`. Cede ante cualquier entrega del curso. |
 
 ### Desviaciones conocidas (no corregir sin que el usuario lo pida)
-- Gestión de permisos (`tests/Core.Tests`) y el negocio (`tests/PCBuilderOps.Tests`) tienen pruebas automatizadas; Control de acceso solo las tiene para los enlaces de correo y el bloqueo por intentos (`tests/Core.Tests/Auth`), no para registro, activación ni sesiones (RD-12).
+- Gestión de permisos, notificaciones, reportes y auditoría (`tests/Core.Tests`), el negocio (`tests/PCBuilderOps.Tests`) y la superficie HTTP de la auditoría (`tests/API.Tests`) tienen pruebas automatizadas; Control de acceso solo las tiene para los enlaces de correo y el bloqueo por intentos (`tests/Core.Tests/Auth`), no para registro, activación ni sesiones (RD-12).
 - Las etiquetas `practica-2-defecto-N` y `practica-3-defecto-N` contienen defectos plantados a propósito: nunca se fusionan a `main` ni se "corrigen".
-- Las etiquetas de entregas (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`, `practica-4`, `practica-5`, `asignacion-3`) no se mueven: se evalúa el punto etiquetado.
+- Las etiquetas de entregas (`practica-1`, `asignacion-2`, `practica-2`, `practica-3`, `practica-4`, `practica-5`, `asignacion-3`, `asignacion-4`) no se mueven: se evalúa el punto etiquetado.
 
 ---
 
