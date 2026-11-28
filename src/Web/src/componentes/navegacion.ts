@@ -6,15 +6,17 @@ export interface Enlace {
   texto: string
   requisito?: Requisito
   soloVisitantesOClientes?: boolean
+  exacta?: boolean
 }
 
 const enlaces: Enlace[] = [
-  { ruta: '/', texto: 'Inicio' },
+  { ruta: '/', texto: 'Inicio', exacta: true },
   { ruta: '/catalogo', texto: 'Catálogo' },
+  { ruta: '/admin/catalogo', texto: 'Administrar catálogo', requisito: 'administrador' },
   { ruta: '/armar', texto: 'Armar mi PC', soloVisitantesOClientes: true },
   { ruta: '/mis-ordenes', texto: 'Mis órdenes', requisito: 'cliente' },
   { ruta: '/taller', texto: 'Taller', requisito: 'taller' },
-  { ruta: '/admin', texto: 'Administración', requisito: 'administrador' },
+  { ruta: '/admin', texto: 'Administración', requisito: 'administrador', exacta: true },
 ]
 
 export const enlacesVisibles = (usuario: Usuario | null) =>

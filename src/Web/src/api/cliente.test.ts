@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { alCerrarSesion, guardarToken, leerToken } from '../sesion/almacenToken'
-import { pedir } from './cliente'
+import { pedir, pedirArchivo } from './cliente'
 import { ErrorApi, MENSAJE_SIN_CONEXION } from './errores'
 
 const respuesta = (estado: number, cuerpo?: unknown) =>
@@ -215,5 +215,39 @@ describe('sesión revocada', () => {
     expect(error.message).toBe('Credenciales incorrectas.')
     expect(oyente).not.toHaveBeenCalled()
     dejarDeOir()
+  })
+})
+
+// RF-NEG-06
+describe('pedirArchivo', () => {
+  it('pide el archivo con el token y devuelve su contenido', async () => {
+    // Preparar
+    guardarToken('token-de-prueba')
+    fetchFalso.mockResolvedValue(
+      new Response('imagen', { status: 200, headers: { 'Content-Type': 'image/png' } }),
+    )
+
+    // Actuar
+    const archivo = await pedirArchivo('/componentes/abc/imagen')
+
+    // Verificar
+    const { url, cabeceras } = peticionEnviada()
+    expect(url).toBe('/api/componentes/abc/imagen')
+    expect(cabeceras.get('Authorization')).toBe('Bearer token-de-prueba')
+    expect(await archivo.text()).toBe('imagen')
+  })
+
+  it('un error de la API se convierte en ErrorApi y un 401 cierra la sesión', async () => {
+    // Preparar
+    guardarToken('token-revocado')
+    fetchFalso.mockResolvedValue(respuesta(401, { mensaje: 'Necesitas iniciar sesión.' }))
+
+    // Actuar
+    const error = await capturarError(pedirArchivo('/componentes/abc/imagen'))
+
+    // Verificar
+    expect(error.estado).toBe(401)
+    expect(error.message).toBe('Necesitas iniciar sesión.')
+    expect(leerToken()).toBeNull()
   })
 })

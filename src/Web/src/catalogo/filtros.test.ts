@@ -20,6 +20,8 @@ const componente = (
   stockDisponible: 5,
   tipoMemoria: null,
   ranurasMemoria: null,
+  estaActivo: true,
+  imagenUrl: null,
   ...datos,
 })
 

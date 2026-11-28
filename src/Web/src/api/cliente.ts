@@ -16,34 +16,52 @@ export async function pedir<T>(
   ruta: string,
   { metodo = 'GET', cuerpo, senal }: OpcionesPeticion = {},
 ): Promise<T> {
-  const token = leerToken()
-  const cabeceras = new Headers({ Accept: 'application/json' })
   const esFormulario = cuerpo instanceof FormData
+  const cabeceras = new Headers({ Accept: 'application/json' })
 
-  if (token) cabeceras.set('Authorization', `Bearer ${token}`)
   if (cuerpo !== undefined && !esFormulario) cabeceras.set('Content-Type', 'application/json')
+
+  const respuesta = await enviar(ruta, {
+    method: metodo,
+    headers: cabeceras,
+    body: cuerpo === undefined ? undefined : esFormulario ? cuerpo : JSON.stringify(cuerpo),
+    signal: senal,
+  })
+
+  return (await leerCuerpo(respuesta)) as T
+}
+
+// RF-NEG-06
+export async function pedirArchivo(ruta: string, senal?: AbortSignal): Promise<Blob> {
+  const respuesta = await enviar(ruta, { method: 'GET', headers: new Headers(), signal: senal })
+  return respuesta.blob()
+}
+
+async function enviar(
+  ruta: string,
+  opciones: RequestInit & { headers: Headers },
+): Promise<Response> {
+  const token = leerToken()
+  if (token) opciones.headers.set('Authorization', `Bearer ${token}`)
 
   let respuesta: Response
   try {
-    respuesta = await fetch(`/api${ruta}`, {
-      method: metodo,
-      headers: cabeceras,
-      body: cuerpo === undefined ? undefined : esFormulario ? cuerpo : JSON.stringify(cuerpo),
-      signal: senal,
-    })
+    respuesta = await fetch(`/api${ruta}`, opciones)
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') throw error
     throw new ErrorApi(0, MENSAJE_SIN_CONEXION)
   }
 
-  const datos = await leerCuerpo(respuesta)
-
   // RF-CA-12
   if (respuesta.status === 401 && token) cerrarSesionLocal()
 
-  if (!respuesta.ok) throw new ErrorApi(respuesta.status, extraerMensaje(datos, respuesta.status))
+  if (!respuesta.ok)
+    throw new ErrorApi(
+      respuesta.status,
+      extraerMensaje(await leerCuerpo(respuesta), respuesta.status),
+    )
 
-  return datos as T
+  return respuesta
 }
 
 async function leerCuerpo(respuesta: Response): Promise<unknown> {

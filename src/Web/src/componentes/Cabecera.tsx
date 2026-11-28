@@ -19,8 +19,8 @@ export function Cabecera() {
           aria-label="Principal"
           className="order-3 flex w-full flex-wrap gap-1 md:order-none md:w-auto"
         >
-          {enlacesVisibles(null).map(({ ruta, texto }) => (
-            <NavLink key={ruta} to={ruta} end={ruta === '/'} className={estiloEnlace}>
+          {enlacesVisibles(null).map(({ ruta, texto, exacta }) => (
+            <NavLink key={ruta} to={ruta} end={exacta} className={estiloEnlace}>
               {texto}
             </NavLink>
           ))}

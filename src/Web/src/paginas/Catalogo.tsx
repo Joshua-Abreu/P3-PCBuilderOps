@@ -80,6 +80,11 @@ export function Catalogo() {
             Armar mi PC
           </Link>
         )}
+        {cumpleRequisito(usuario, 'administrador') && (
+          <Link to="/admin/catalogo" className={estiloBotonPrimario}>
+            Administrar catálogo
+          </Link>
+        )}
       </div>
 
       <div className="space-y-4 rounded-xl border border-borde bg-superficie p-5">

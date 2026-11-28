@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router'
 import { Plantilla } from './componentes/Plantilla'
 import { Activar } from './paginas/Activar'
+import { AdministrarCatalogo } from './paginas/AdministrarCatalogo'
 import { Catalogo } from './paginas/Catalogo'
 import { Cuenta } from './paginas/Cuenta'
 import { Inicio } from './paginas/Inicio'
@@ -51,7 +52,10 @@ export const enrutador = createBrowserRouter([
       },
       {
         element: <RutaProtegida requisito="administrador" />,
-        children: [{ path: 'admin', element: <Proximamente titulo="Administración" fase={6} /> }],
+        children: [
+          { path: 'admin', element: <Proximamente titulo="Administración" fase={6} /> },
+          { path: 'admin/catalogo', element: <AdministrarCatalogo /> },
+        ],
       },
       { path: '*', element: <NoEncontrada /> },
     ],
