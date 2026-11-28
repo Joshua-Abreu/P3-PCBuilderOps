@@ -31,7 +31,7 @@ const esOrden = (valor: string | null): valor is Orden => ORDENES.some((o) => o.
 export const etiquetaCategoria = (categoria: string) =>
   CATEGORIAS.find((c) => c.valor === categoria)?.etiqueta ?? categoria
 
-const normalizar = (texto: string) =>
+export const normalizar = (texto: string) =>
   texto
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')

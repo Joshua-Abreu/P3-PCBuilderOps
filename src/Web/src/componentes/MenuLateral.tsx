@@ -46,8 +46,8 @@ export function MenuLateral() {
         className={`${abierto ? 'flex' : 'hidden'} flex-1 flex-col gap-6 px-3 pb-4 lg:flex`}
       >
         <nav aria-label="Principal" className="flex flex-col gap-1">
-          {enlacesVisibles(usuario).map(({ ruta, texto }) => (
-            <NavLink key={ruta} to={ruta} end={ruta === '/'} className={estiloEnlace}>
+          {enlacesVisibles(usuario).map(({ ruta, texto, exacta }) => (
+            <NavLink key={ruta} to={ruta} end={exacta} className={estiloEnlace}>
               {texto}
             </NavLink>
           ))}

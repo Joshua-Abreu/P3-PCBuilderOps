@@ -1,6 +1,6 @@
 import type { Componente } from '../api/componentes'
 import { etiquetaCategoria } from './filtros'
-import { IlustracionCategoria } from './IlustracionCategoria'
+import { FotoComponente } from './FotoComponente'
 import { formatearPrecio } from './formato'
 
 const POCAS_EXISTENCIAS = 3
@@ -18,6 +18,15 @@ function Existencias({ cantidad }: { cantidad: number }) {
   return <span className="text-sm font-medium text-exito">{cantidad} en existencia</span>
 }
 
+// RF-NEG-01
+export function EtiquetaRetirado() {
+  return (
+    <span className="rounded-full border border-borde-fuerte bg-superficie-2 px-2.5 py-0.5 text-xs font-semibold text-texto-suave">
+      Retirado
+    </span>
+  )
+}
+
 // FN-01
 export function TarjetaComponente({ componente }: { componente: Componente }) {
   const energia =
@@ -27,13 +36,17 @@ export function TarjetaComponente({ componente }: { componente: Componente }) {
 
   return (
     <article className="flex flex-col gap-4 rounded-xl border border-borde bg-superficie p-5 transition-colors hover:border-borde-fuerte">
-      <IlustracionCategoria categoria={componente.categoria} />
+      <FotoComponente componente={componente} />
 
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-semibold tracking-wider text-acento-texto uppercase">
           {etiquetaCategoria(componente.categoria)}
         </p>
-        <Existencias cantidad={componente.stockDisponible} />
+        {componente.estaActivo ? (
+          <Existencias cantidad={componente.stockDisponible} />
+        ) : (
+          <EtiquetaRetirado />
+        )}
       </div>
 
       <div>
