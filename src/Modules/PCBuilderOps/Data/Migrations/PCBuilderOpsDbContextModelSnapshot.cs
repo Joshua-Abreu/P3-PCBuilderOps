@@ -401,6 +401,43 @@ namespace PCBuilderOps.Data.Migrations
                     b.ToTable("PruebasRendimiento", (string)null);
                 });
 
+            modelBuilder.Entity("PCBuilderOps.Domain.TransicionOrden", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("EstadoAnterior")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EstadoNuevo")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("OrdenEnsambleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long?>("SegundosEnEstadoAnterior")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.HasIndex("EstadoNuevo", "FechaUtc")
+                        .HasDatabaseName("IX_TransicionesOrden_EstadoNuevo_FechaUtc");
+
+                    b.HasIndex("OrdenEnsambleId", "EstadoNuevo")
+                        .IsUnique()
+                        .HasDatabaseName("UX_TransicionesOrden_UnaPorEstado");
+
+                    b.ToTable("TransicionesOrden", (string)null);
+                });
+
             modelBuilder.Entity("PCBuilderOps.Domain.DetalleEnsamble", b =>
                 {
                     b.HasOne("PCBuilderOps.Domain.Componente", "Componente")
@@ -441,9 +478,26 @@ namespace PCBuilderOps.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PCBuilderOps.Domain.TransicionOrden", b =>
+                {
+                    b.HasOne("PCBuilderOps.Domain.OrdenEnsamble", null)
+                        .WithMany("Historial")
+                        .HasForeignKey("OrdenEnsambleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Auth.Domain.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("PCBuilderOps.Domain.OrdenEnsamble", b =>
                 {
                     b.Navigation("Detalles");
+
+                    b.Navigation("Historial");
 
                     b.Navigation("Pruebas");
                 });

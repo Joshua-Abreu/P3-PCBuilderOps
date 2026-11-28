@@ -17,11 +17,16 @@ public class ReportesController : ControllerBase
 {
     private readonly IReportesService _reportes;
     private readonly IReporteFabricantesService _reporteFabricantes;
+    private readonly IReporteTiempoEnsambleService _reporteTiempoEnsamble;
 
-    public ReportesController(IReportesService reportes, IReporteFabricantesService reporteFabricantes)
+    public ReportesController(
+        IReportesService reportes,
+        IReporteFabricantesService reporteFabricantes,
+        IReporteTiempoEnsambleService reporteTiempoEnsamble)
     {
         _reportes = reportes;
         _reporteFabricantes = reporteFabricantes;
+        _reporteTiempoEnsamble = reporteTiempoEnsamble;
     }
 
     // RF-REP-01
@@ -33,6 +38,11 @@ public class ReportesController : ControllerBase
     [HttpGet("fabricantes")]
     public Task<IActionResult> Fabricantes([FromQuery] string? desde, [FromQuery] string? hasta, CancellationToken ct) =>
         Ejecutar(desde, hasta, async rango => Ok(await _reporteFabricantes.FabricantesAsync(rango, AlcanceDelUsuario(), ct)));
+
+    // RF-REP-02, RF-NEG-08, CA-HIS-14 a CA-HIS-16
+    [HttpGet("tiempo-ensamble")]
+    public Task<IActionResult> TiempoEnsamble([FromQuery] string? desde, [FromQuery] string? hasta, CancellationToken ct) =>
+        Ejecutar(desde, hasta, async rango => Ok(await _reporteTiempoEnsamble.TiempoEnsambleAsync(rango, AlcanceDelUsuario(), ct)));
 
     private static async Task<IActionResult> Ejecutar(string? desde, string? hasta, Func<RangoFechas, Task<IActionResult>> reporte)
     {

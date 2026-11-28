@@ -64,5 +64,5 @@ public class OrdenesController : NegocioControllerBase
     [HttpPost("ordenes/{id:guid}/iniciar-armado")]
     [Authorize(Roles = "Administrador")]
     public Task<IActionResult> IniciarArmado(Guid id, [FromBody] IniciarArmadoRequest request, CancellationToken ct) =>
-        Ejecutar(async () => Ok(await _ordenes.IniciarArmadoAsync(id, request.TecnicoId, ct)));
+        Ejecutar(async () => Ok(await _ordenes.IniciarArmadoAsync(UsuarioActualId(), id, request.TecnicoId, ct)));
 }

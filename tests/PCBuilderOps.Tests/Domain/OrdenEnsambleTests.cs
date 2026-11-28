@@ -66,7 +66,7 @@ public class OrdenEnsambleTests
         var orden = OrdenEnsamble.Cotizar(OrdenesDePrueba.ClienteId, [(cpu, 1)], OrdenesDePrueba.Fecha);
 
         // Actuar
-        orden.IniciarArmado(OrdenesDePrueba.TecnicoId);
+        orden.IniciarArmado(OrdenesDePrueba.TecnicoId, OrdenesDePrueba.AdministradorId, OrdenesDePrueba.Fecha);
 
         // Verificar
         Assert.Equal(EstadoOrdenEnsamble.EnArmado, orden.Estado);
@@ -82,7 +82,7 @@ public class OrdenEnsambleTests
         var orden = OrdenesDePrueba.Cotizada(stockCpu: 1);
 
         // Actuar
-        orden.IniciarArmado(OrdenesDePrueba.TecnicoId);
+        orden.IniciarArmado(OrdenesDePrueba.TecnicoId, OrdenesDePrueba.AdministradorId, OrdenesDePrueba.Fecha);
 
         // Verificar
         Assert.Equal(EstadoOrdenEnsamble.EnArmado, orden.Estado);
@@ -96,7 +96,7 @@ public class OrdenEnsambleTests
         var orden = OrdenesDePrueba.Cotizada(stockCpu: 0);
 
         // Actuar
-        var accion = () => orden.IniciarArmado(OrdenesDePrueba.TecnicoId);
+        var accion = () => orden.IniciarArmado(OrdenesDePrueba.TecnicoId, OrdenesDePrueba.AdministradorId, OrdenesDePrueba.Fecha);
 
         // Verificar
         Assert.Throws<StockInsuficienteException>(accion);
@@ -111,10 +111,10 @@ public class OrdenEnsambleTests
         // Preparar
         var cpu = OrdenesDePrueba.Cpu(stock: 5);
         var orden = OrdenEnsamble.Cotizar(OrdenesDePrueba.ClienteId, [(cpu, 1)], OrdenesDePrueba.Fecha);
-        orden.IniciarArmado(OrdenesDePrueba.TecnicoId);
+        orden.IniciarArmado(OrdenesDePrueba.TecnicoId, OrdenesDePrueba.AdministradorId, OrdenesDePrueba.Fecha);
 
         // Actuar
-        var accion = () => orden.IniciarArmado(OrdenesDePrueba.TecnicoId);
+        var accion = () => orden.IniciarArmado(OrdenesDePrueba.TecnicoId, OrdenesDePrueba.AdministradorId, OrdenesDePrueba.Fecha);
 
         // Verificar
         Assert.Throws<TransicionOrdenNoPermitidaException>(accion);
@@ -129,7 +129,7 @@ public class OrdenEnsambleTests
         var orden = OrdenesDePrueba.Cotizada();
 
         // Actuar
-        var accion = () => orden.Entregar();
+        var accion = () => orden.Entregar(OrdenesDePrueba.TecnicoId, OrdenesDePrueba.Fecha);
 
         // Verificar
         Assert.Throws<TransicionOrdenNoPermitidaException>(accion);
@@ -144,7 +144,7 @@ public class OrdenEnsambleTests
         var orden = OrdenesDePrueba.EnEstado(EstadoOrdenEnsamble.Entregada);
 
         // Actuar
-        var accion = () => orden.Entregar();
+        var accion = () => orden.Entregar(OrdenesDePrueba.TecnicoId, OrdenesDePrueba.Fecha);
 
         // Verificar
         Assert.Throws<TransicionOrdenNoPermitidaException>(accion);
@@ -159,7 +159,7 @@ public class OrdenEnsambleTests
         var orden = OrdenesDePrueba.EnEstado(EstadoOrdenEnsamble.EnPruebas);
 
         // Actuar
-        var accion = () => orden.Entregar();
+        var accion = () => orden.Entregar(OrdenesDePrueba.TecnicoId, OrdenesDePrueba.Fecha);
 
         // Verificar
         Assert.Throws<PruebasNoAprobadasException>(accion);
@@ -176,7 +176,7 @@ public class OrdenEnsambleTests
         OrdenesDePrueba.RegistrarPrueba(orden, esAprobada: false, Despues);
 
         // Actuar
-        var accion = () => orden.Entregar();
+        var accion = () => orden.Entregar(OrdenesDePrueba.TecnicoId, OrdenesDePrueba.Fecha);
 
         // Verificar
         Assert.Throws<PruebasNoAprobadasException>(accion);
@@ -193,7 +193,7 @@ public class OrdenEnsambleTests
         OrdenesDePrueba.RegistrarPrueba(orden, esAprobada: true, Despues);
 
         // Actuar
-        orden.Entregar();
+        orden.Entregar(OrdenesDePrueba.TecnicoId, OrdenesDePrueba.Fecha);
 
         // Verificar
         Assert.Equal(EstadoOrdenEnsamble.Entregada, orden.Estado);
@@ -209,7 +209,7 @@ public class OrdenEnsambleTests
         OrdenesDePrueba.RegistrarPrueba(orden, esAprobada: false, Antes);
 
         // Actuar
-        orden.Entregar();
+        orden.Entregar(OrdenesDePrueba.TecnicoId, OrdenesDePrueba.Fecha);
 
         // Verificar
         Assert.Equal(EstadoOrdenEnsamble.Entregada, orden.Estado);

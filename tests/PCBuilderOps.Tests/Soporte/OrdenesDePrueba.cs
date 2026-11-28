@@ -6,6 +6,7 @@ public static class OrdenesDePrueba
 {
     public static readonly Guid ClienteId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     public static readonly Guid TecnicoId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+    public static readonly Guid AdministradorId = Guid.Parse("33333333-3333-3333-3333-333333333333");
     public static readonly DateTime Fecha = new(2026, 10, 31, 9, 0, 0, DateTimeKind.Utc);
 
     public static Componente Cpu(string socket = "AM5", int consumoWatts = 100, int stock = 5) =>
@@ -39,18 +40,18 @@ public static class OrdenesDePrueba
         if (estado == EstadoOrdenEnsamble.Cotizada)
             return orden;
 
-        orden.IniciarArmado(TecnicoId);
+        orden.IniciarArmado(TecnicoId, AdministradorId, Fecha);
 
         if (estado == EstadoOrdenEnsamble.EnArmado)
             return orden;
 
-        orden.PasarAPruebas();
+        orden.PasarAPruebas(TecnicoId, Fecha);
 
         if (estado == EstadoOrdenEnsamble.EnPruebas)
             return orden;
 
         RegistrarPrueba(orden, esAprobada: true, Fecha);
-        orden.Entregar();
+        orden.Entregar(TecnicoId, Fecha);
 
         return orden;
     }

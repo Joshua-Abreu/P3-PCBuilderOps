@@ -18,6 +18,7 @@ public class PCBuilderOpsDbContext : DbContext
     public DbSet<Componente> Componentes => Set<Componente>();
     public DbSet<DetalleEnsamble> DetallesEnsamble => Set<DetalleEnsamble>();
     public DbSet<PruebaRendimiento> PruebasRendimiento => Set<PruebaRendimiento>();
+    public DbSet<TransicionOrden> TransicionesOrden => Set<TransicionOrden>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
         configurationBuilder.UsarFechasUtc();

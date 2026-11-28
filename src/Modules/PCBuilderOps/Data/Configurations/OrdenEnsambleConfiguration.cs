@@ -58,6 +58,11 @@ public class OrdenEnsambleConfiguration : IEntityTypeConfiguration<OrdenEnsamble
             .HasForeignKey(p => p.OrdenEnsambleId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(o => o.Historial)
+            .WithOne()
+            .HasForeignKey(t => t.OrdenEnsambleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(o => o.Estado)
             .HasDatabaseName("IX_OrdenesEnsamble_Estado");
     }

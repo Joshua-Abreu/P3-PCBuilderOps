@@ -49,7 +49,22 @@ public sealed class BaseDeDatosDelNegocio : IDisposable
         return new(contexto, Reloj, new Notificador(contexto, new EncoladorCorreos(contexto, Reloj), Reloj), new Auditor(contexto, Reloj));
     }
 
-    public OrdenesService NuevoServicioOrdenes() => new(NuevoContextoNegocio(), NuevaGestionPermisos(), Reloj, NuevoNotificador());
+    // CA-HIS-01: el auditor, el notificador y la operación comparten el contexto del Core, como en una petición.
+    public OrdenesService NuevoServicioOrdenes(PCBuilderOpsDbContext? contextoNegocio = null, Func<AppDbContext, INotificador>? notificador = null)
+    {
+        var contextoCore = NuevoContextoCore();
+
+        return new(
+            contextoNegocio ?? NuevoContextoNegocio(),
+            NuevaGestionPermisos(),
+            Reloj,
+            notificador?.Invoke(contextoCore) ?? new Notificador(contextoCore, new EncoladorCorreos(contextoCore, Reloj), Reloj),
+            new Auditor(contextoCore, Reloj),
+            new OperacionCompartida(contextoCore));
+    }
+
+    public ReporteTiempoEnsambleService NuevoReporteTiempoEnsamble(PCBuilderOpsDbContext? contexto = null) =>
+        new(contexto ?? NuevoContextoNegocio());
 
     public Notificador NuevoNotificador()
     {

@@ -18,7 +18,7 @@ public class MaquinaEstadosOrdenEnsambleTests
         var orden = OrdenesDePrueba.EnEstado(desde);
 
         // Actuar
-        orden.TransicionarA(hacia);
+        orden.TransicionarA(hacia, OrdenesDePrueba.TecnicoId, OrdenesDePrueba.Fecha);
 
         // Verificar
         Assert.Equal(hacia, orden.Estado);
@@ -45,7 +45,7 @@ public class MaquinaEstadosOrdenEnsambleTests
         var orden = OrdenesDePrueba.EnEstado(desde);
 
         // Actuar
-        var accion = () => orden.TransicionarA(hacia);
+        var accion = () => orden.TransicionarA(hacia, OrdenesDePrueba.TecnicoId, OrdenesDePrueba.Fecha);
 
         // Verificar
         Assert.Throws<TransicionOrdenNoPermitidaException>(accion);

@@ -30,13 +30,6 @@ public class Notificador : INotificador
             mensaje,
             ct);
 
-    // RF-NOT-03
-    public async Task NotificarYGuardarAsync(Guid usuarioId, string asunto, string mensaje, CancellationToken ct = default)
-    {
-        await NotificarAsync(usuarioId, asunto, mensaje, ct);
-        await _dbContext.SaveChangesAsync(ct);
-    }
-
     private async Task NotificarAsync(IQueryable<Usuario> destinatarios, string asunto, string mensaje, CancellationToken ct)
     {
         var usuarios = await destinatarios

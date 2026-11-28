@@ -1,4 +1,6 @@
+using Core.Auditoria.Services;
 using Core.Auth.Exceptions;
+using Core.Data;
 using Core.Notifications.Services;
 using Core.Permisos.Domain;
 using Core.Permisos.Services;
@@ -15,17 +17,23 @@ public class OrdenesService : IOrdenesService
     private readonly IVerificadorPermisos _verificadorPermisos;
     private readonly TimeProvider _reloj;
     private readonly INotificador _notificador;
+    private readonly IAuditor _auditor;
+    private readonly IOperacionCompartida _operacion;
 
     public OrdenesService(
         PCBuilderOpsDbContext dbContext,
         IVerificadorPermisos verificadorPermisos,
         TimeProvider reloj,
-        INotificador notificador)
+        INotificador notificador,
+        IAuditor auditor,
+        IOperacionCompartida operacion)
     {
         _dbContext = dbContext;
         _verificadorPermisos = verificadorPermisos;
         _reloj = reloj;
         _notificador = notificador;
+        _auditor = auditor;
+        _operacion = operacion;
     }
 
     private DateTime AhoraUtc => _reloj.GetUtcNow().UtcDateTime;
@@ -66,15 +74,21 @@ public class OrdenesService : IOrdenesService
     }
 
     // FN-02
-    public async Task<OrdenDetalle> IniciarArmadoAsync(Guid ordenId, Guid tecnicoId, CancellationToken ct = default)
+    public async Task<OrdenDetalle> IniciarArmadoAsync(Guid administradorId, Guid ordenId, Guid tecnicoId, CancellationToken ct = default)
     {
         var orden = await ObtenerAsync(ordenId, ct);
 
         if (!await _verificadorPermisos.TienePermisoAsync(tecnicoId, TipoPermiso.OperarTaller, ct))
             throw new ValidacionException("El técnico indicado no tiene el permiso OperarTaller.");
 
-        orden.IniciarArmado(tecnicoId);
-        await GuardarTransicionAsync(orden.Id, EstadoOrdenEnsamble.EnArmado, ct);
+        await TransicionarAsync(
+            orden,
+            administradorId,
+            AuditoriaOrden.ArmadoIniciado,
+            () => orden.IniciarArmado(tecnicoId, administradorId, AhoraUtc),
+            o => new { estado = o.Estado.ToString(), tecnicoAsignadoId = o.TecnicoAsignadoId },
+            aviso: null,
+            ct);
 
         return ADetalle(orden);
     }
@@ -86,14 +100,16 @@ public class OrdenesService : IOrdenesService
 
         var orden = await ObtenerAsync(ordenId, ct);
 
-        orden.PasarAPruebas();
-        await GuardarTransicionAsync(orden.Id, EstadoOrdenEnsamble.EnPruebas, ct);
-
-        // RF-NEG-07, RF-NOT-03
-        await _notificador.NotificarYGuardarAsync(
-            orden.ClienteUsuarioId,
-            $"Tu orden {orden.CodigoSeguimiento} está en pruebas",
-            $"La orden {orden.CodigoSeguimiento} pasó al estado {orden.Estado}: el armado terminó y el equipo está en pruebas de estrés y benchmarking.",
+        await TransicionarAsync(
+            orden,
+            actor.UsuarioId,
+            AuditoriaOrden.OrdenEnPruebas,
+            () => orden.PasarAPruebas(actor.UsuarioId, AhoraUtc),
+            SoloEstado,
+            // RF-NEG-07, RF-NOT-03
+            o => new AvisoCliente(
+                $"Tu orden {o.CodigoSeguimiento} está en pruebas",
+                $"La orden {o.CodigoSeguimiento} pasó al estado {o.Estado}: el armado terminó y el equipo está en pruebas de estrés y benchmarking."),
             ct);
 
         return ADetalle(orden);
@@ -126,14 +142,16 @@ public class OrdenesService : IOrdenesService
 
         var orden = await ObtenerAsync(ordenId, ct);
 
-        orden.Entregar();
-        await GuardarTransicionAsync(orden.Id, EstadoOrdenEnsamble.Entregada, ct);
-
-        // RF-NEG-07, RF-NOT-03
-        await _notificador.NotificarYGuardarAsync(
-            orden.ClienteUsuarioId,
-            $"Tu orden {orden.CodigoSeguimiento} fue entregada",
-            $"La orden {orden.CodigoSeguimiento} pasó al estado {orden.Estado}: el equipo aprobó sus pruebas y quedó entregado.",
+        await TransicionarAsync(
+            orden,
+            actor.UsuarioId,
+            AuditoriaOrden.OrdenEntregada,
+            () => orden.Entregar(actor.UsuarioId, AhoraUtc),
+            SoloEstado,
+            // RF-NEG-07, RF-NOT-03
+            o => new AvisoCliente(
+                $"Tu orden {o.CodigoSeguimiento} fue entregada",
+                $"La orden {o.CodigoSeguimiento} pasó al estado {o.Estado}: el equipo aprobó sus pruebas y quedó entregado."),
             ct);
 
         return ADetalle(orden);
@@ -174,6 +192,37 @@ public class OrdenesService : IOrdenesService
 
         return ordenes.Select(AResumen).ToList();
     }
+
+    // RF-AUD-01, RF-NOT-03, CA-HIS-01 a CA-HIS-04
+    private async Task TransicionarAsync(
+        OrdenEnsamble orden,
+        Guid usuarioId,
+        string accion,
+        Action transicionar,
+        Func<OrdenEnsamble, object> valoresAuditados,
+        Func<OrdenEnsamble, AvisoCliente>? aviso,
+        CancellationToken ct)
+    {
+        var valorAnterior = valoresAuditados(orden);
+
+        transicionar();
+
+        await _operacion.EjecutarAsync(_dbContext, async enOperacion =>
+        {
+            await GuardarTransicionAsync(orden.Id, orden.Estado, enOperacion);
+
+            _auditor.Registrar(usuarioId, accion, AuditoriaOrden.Entidad, orden.Id.ToString(), valorAnterior, valoresAuditados(orden));
+
+            if (aviso?.Invoke(orden) is { } avisoCliente)
+                await _notificador.NotificarAsync(orden.ClienteUsuarioId, avisoCliente.Asunto, avisoCliente.Mensaje, enOperacion);
+
+            return orden.Estado;
+        }, ct);
+    }
+
+    private static object SoloEstado(OrdenEnsamble orden) => new { estado = orden.Estado.ToString() };
+
+    private sealed record AvisoCliente(string Asunto, string Mensaje);
 
     // Hallazgo 1 (Asignación 3), RF-NEG-04
     private async Task GuardarTransicionAsync(Guid ordenId, EstadoOrdenEnsamble hacia, CancellationToken ct)
@@ -230,6 +279,7 @@ public class OrdenesService : IOrdenesService
         await _dbContext.OrdenesEnsamble
             .Include(o => o.Detalles).ThenInclude(d => d.Componente)
             .Include(o => o.Pruebas)
+            .Include(o => o.Historial)
             .FirstOrDefaultAsync(o => o.Id == ordenId, ct)
             ?? throw new OrdenNoEncontradaException();
 
@@ -261,5 +311,10 @@ public class OrdenesService : IOrdenesService
                 p.PuntajeBenchmark,
                 p.EsAprobada,
                 p.FechaEjecucionUtc))
+            .ToList(),
+        o.Historial
+            .OrderBy(t => t.FechaUtc)
+            .ThenBy(t => t.EstadoNuevo)
+            .Select(t => new EntradaHistorialOrden(t.EstadoAnterior?.ToString(), t.EstadoNuevo.ToString(), t.FechaUtc))
             .ToList());
 }
