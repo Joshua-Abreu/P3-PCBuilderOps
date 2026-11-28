@@ -5,7 +5,7 @@
 | Tipo de trabajo | Extra, no calificado por ninguna rúbrica. Las entregas del curso tienen prioridad. |
 | Carpeta | `src/Web` (proyecto de Node, fuera de `P3-PCBuilderOps.slnx`) |
 | Ramas | Una por fase: `feature/web-...`; los cambios del backend que pida el frontend van en su propia rama `feature/...`. |
-| Estado | ⏳ Fases 1 a 3 y diseño visual hechos; sigue la fase 4 |
+| Estado | ⏳ Fases 1 a 3, diseño visual y administración del catálogo con fotos hechos; sigue la fase 4 |
 | Diseño visual | `docs/diseno/README.md` (colores, letras y reglas, a partir de Google Stitch) |
 
 > *Un cliente arma su computadora en el navegador viendo en vivo si las piezas son compatibles, la cotiza y sigue su orden hasta la entrega; el técnico y el Administrador operan el taller desde la misma aplicación.*
@@ -91,6 +91,7 @@ El Administrador no cotiza (la API responde `403` a `POST /api/ordenes`), por es
 | `/cuenta` | Con sesión | Datos propios, cambiar contraseña y cerrar sesión. | `GET /api/auth/yo`, `POST /api/auth/cambiar-password`, `POST /api/auth/logout` |
 | `/taller` | Técnico, Administrador | Órdenes del taller por estado. | `GET /api/taller/ordenes` |
 | `/taller/:id` | Técnico, Administrador | Detalle de la orden: pasar a pruebas, registrar una prueba de rendimiento y entregar. Los rechazos de la máquina de estados (`409`) se muestran con su mensaje. | `GET /api/taller/ordenes/{id}` (**cambio B5**), `POST .../pasar-a-pruebas`, `POST .../pruebas`, `POST .../entregar` |
+| `/admin/catalogo` | Administrador | Lista de todos los componentes, retirados incluidos, con búsqueda y categoría. Crear y editar con el formulario (la categoría no cambia al editar; potencia solo para fuentes y memoria solo para placas base), retirar y reactivar, y subir, cambiar o quitar la foto (JPG, PNG o WebP, hasta 2 MB). La validación del navegador avisa antes; la API decide. | `GET`, `POST /api/componentes`, `PUT .../{id}`, `PATCH .../estado`, `PUT`, `DELETE` y `GET .../imagen` |
 | `/admin/asignar` | Administrador | Órdenes `Cotizada` y asignación de un técnico para iniciar el armado. | `GET /api/taller/ordenes`, `GET /api/taller/tecnicos` (**cambio B6**), `POST /api/ordenes/{id}/iniciar-armado` |
 | `/admin/solicitudes` | Administrador | Solicitudes pendientes: aprobar o rechazar con motivo. | `GET .../pendientes`, `POST .../{id}/aprobar`, `POST .../{id}/rechazar` |
 | `/admin/usuarios` | Administrador | Listado paginado, crear usuario, cambiar rol, activar o desactivar y forzar restablecimiento. | `GET`, `POST /api/usuarios`, `PUT .../rol`, `PATCH .../estado`, `POST .../forzar-restablecimiento` |
@@ -159,7 +160,7 @@ Opcional, más adelante: descripción e imagen de cada componente para un catál
 - [x] Diseño visual: tema oscuro de Stitch afinado en Claude Design y aplicado a las pantallas hechas
 - [x] Ilustración por categoría en las tarjetas del catálogo (las fotos reales llegan con la administración del catálogo)
 - [x] Administración del catálogo en la API (B9)
-- [ ] Pantalla de administración del catálogo y fotos en las tarjetas
+- [x] Pantalla de administración del catálogo (`/admin/catalogo`) y fotos en las tarjetas
 - [ ] Fase 4: armador de PC (con B2)
 - [ ] Fase 5: pantallas del cliente (con B7)
 - [ ] Fase 6: taller y Administrador (con B5 y B6)

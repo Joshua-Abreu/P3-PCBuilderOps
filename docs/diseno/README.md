@@ -51,7 +51,7 @@ Los estados de la orden usan su color **y** su nombre, para no depender solo del
 
 - Cada tarjeta muestra una **ilustración propia de su categoría** (procesador, placa base, gráfica, RAM, almacenamiento y fuente), dibujada en SVG con el acento cian. Están en `src/Web/src/catalogo/ilustraciones.tsx`; una categoría desconocida muestra un dibujo genérico.
 - No se copian fotos de tiendas ni de fabricantes: tienen derechos de autor y dependerían de otro sitio.
-- Cuando exista la administración del catálogo, el Administrador podrá subir la foto real de cada componente; la tarjeta mostrará la foto y, si no hay, la ilustración.
+- El Administrador sube la foto real de cada componente desde `/admin/catalogo`. La tarjeta muestra la foto y, mientras carga o si no hay, la ilustración. La foto se pide con el token (`FotoComponente`), porque la API exige sesión para verla (RF-NEG-06).
 
 ## Reglas al hacer pantallas nuevas
 
