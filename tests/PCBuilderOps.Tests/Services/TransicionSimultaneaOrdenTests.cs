@@ -1,6 +1,7 @@
 using Core.Auth.Domain;
 using Microsoft.EntityFrameworkCore;
 using PCBuilderOps.Data;
+using PCBuilderOps.Domain;
 using PCBuilderOps.Exceptions;
 using PCBuilderOps.Services;
 using PCBuilderOps.Tests.Soporte;
@@ -30,8 +31,7 @@ public sealed class TransicionSimultaneaOrdenTests : IDisposable
 
     public void Dispose() => _bd.Dispose();
 
-    private OrdenesService ServicioSobre(PCBuilderOpsDbContext contexto) =>
-        new(contexto, _bd.NuevaGestionPermisos(), _bd.Reloj, _bd.NuevoNotificador());
+    private OrdenesService ServicioSobre(PCBuilderOpsDbContext contexto) => _bd.NuevoServicioOrdenes(contexto);
 
     private int AvisosDelCliente() =>
         _bd.NuevoContextoCore().Notificaciones.Count(n => n.UsuarioId == _clienteId);
@@ -43,7 +43,7 @@ public sealed class TransicionSimultaneaOrdenTests : IDisposable
         // Preparar
         var orden = await _bd.NuevoServicioOrdenes().CotizarAsync(_clienteId, PcCompatible);
         var tecnicoId = await _bd.CrearTecnicoConPermisoAsync(_administradorId);
-        await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(orden.Id, tecnicoId);
+        await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(_administradorId, orden.Id, tecnicoId);
         var tecnico = new ActorTaller(tecnicoId, false);
         var contextoDelSegundo = _bd.NuevoContextoNegocio();
         await contextoDelSegundo.OrdenesEnsamble
@@ -58,5 +58,11 @@ public sealed class TransicionSimultaneaOrdenTests : IDisposable
         // Verificar
         await Assert.ThrowsAsync<TransicionOrdenNoPermitidaException>(pasoTardio);
         Assert.Equal(1, AvisosDelCliente());
+
+        // CA-HIS-04
+        Assert.Equal(1, _bd.NuevoContextoNegocio().TransicionesOrden
+            .Count(t => t.OrdenEnsambleId == orden.Id && t.EstadoNuevo == EstadoOrdenEnsamble.EnPruebas));
+        Assert.Equal(1, _bd.NuevoContextoCore().RegistrosAuditoria
+            .Count(r => r.EntidadId == orden.Id.ToString() && r.Accion == AuditoriaOrden.OrdenEnPruebas));
     }
 }

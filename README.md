@@ -217,7 +217,7 @@ Ejecutarlo dos veces seguidas no duplica envíos: la segunda vez informa `Enviad
 
 ## Reportes
 
-Los dos reportes exigen sesión (sin ella, `401`) y un rango de fechas obligatorio: `desde` y `hasta` en formato `yyyy-MM-dd`, en UTC, con los dos días completos incluidos (RF-REP-05). Sin alguna de las fechas, con una fecha mal escrita o con `desde` posterior a `hasta`, responden `400` con `{"mensaje": "..."}`. La agrupación y las sumas se calculan en SQL Server con `GROUP BY` y no se cargan los registros para resumirlos en memoria (RF-REP-03).
+Los tres reportes exigen sesión (sin ella, `401`) y un rango de fechas obligatorio: `desde` y `hasta` en formato `yyyy-MM-dd`, en UTC, con los dos días completos incluidos (RF-REP-05). Sin alguna de las fechas, con una fecha mal escrita o con `desde` posterior a `hasta`, responden `400` con `{"mensaje": "..."}`. La agrupación y las sumas se calculan en SQL Server con `GROUP BY` y no se cargan los registros para resumirlos en memoria (RF-REP-03).
 
 **Quién ve qué (RF-REP-04):** el Administrador ve los datos de todos. Un Estándar ve solo los suyos: sus solicitudes y los componentes de sus órdenes. El filtro sale de su sesión, así que agregar a la URL el id de otro usuario no cambia el resultado.
 
@@ -282,6 +282,54 @@ Las filas van de más a menos unidades; si empatan, primero el que aparece en m�
 3. Repetirlos como cliente (125 y 126): solo sus solicitudes y sus órdenes. Con `?usuarioId=` o `?clienteId=` de otro usuario (127) el resultado no cambia.
 4. Sin fechas (128), con `desde` posterior a `hasta` (129) y sin token (130): `400`, `400` y `401`.
 
+### Reporte del negocio: tiempo promedio de ensamble por técnico (RF-REP-02, RF-NEG-08)
+
+**Pregunta:** ¿cuánto tarda cada técnico en armar un equipo? Sirve para repartir el trabajo del taller y prometer fechas de entrega realistas. El tiempo de una orden es el que pasó en `EnArmado`, desde que el Administrador inició el armado hasta que el técnico la pasó a pruebas. Cada orden cuenta en el día en que terminó su armado. Se calcula con el [historial de la orden](#historial-de-la-orden).
+
+```http
+GET http://localhost:5206/api/reportes/tiempo-ensamble?desde=2026-11-01&hasta=2026-11-30
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "desde": "2026-11-01",
+  "hasta": "2026-11-30",
+  "totalOrdenes": 3,
+  "promedioGeneralMinutos": 140.0,
+  "filas": [
+    { "tecnicoId": "…", "tecnico": "Juan Pérez", "ordenes": 2, "promedioMinutos": 180.0, "minimoMinutos": 120.0, "maximoMinutos": 240.0 },
+    { "tecnicoId": "…", "tecnico": "Ana Gómez", "ordenes": 1, "promedioMinutos": 60.0, "minimoMinutos": 60.0, "maximoMinutos": 60.0 }
+  ]
+}
+```
+
+- **Agrupación:** las filas van del promedio más alto al más bajo. Los minutos llevan un decimal.
+- **Alcance:** el Administrador ve a todos los técnicos. Un técnico ve solo su fila, y un cliente que no arma equipos recibe la lista vacía.
+- **Órdenes que no cuentan:** las que se armaron antes de que existiera el historial, porque no se sabe cuándo empezó su armado. No se cuentan con tiempo cero ni desde la cotización.
+
+Peticiones 154 a 161 de `src/API/API.http`. Los criterios están en [`docs/criterios-historial-orden.md`](docs/criterios-historial-orden.md), sección 4.
+
+---
+
+## Historial de la orden
+
+Cada orden de ensamble guarda la lista de sus cambios de estado. El cliente la ve en el detalle de su orden (`GET /api/ordenes/{id}`, campo `historial`) y alimenta el reporte de tiempo de ensamble.
+
+```json
+"historial": [
+  { "estadoAnterior": null, "estadoNuevo": "Cotizada", "fechaUtc": "2026-11-28T03:31:18.2269317Z" },
+  { "estadoAnterior": "Cotizada", "estadoNuevo": "EnArmado", "fechaUtc": "2026-11-28T03:31:18.2942187Z" },
+  { "estadoAnterior": "EnArmado", "estadoNuevo": "EnPruebas", "fechaUtc": "2026-11-28T03:31:21.4471087Z" },
+  { "estadoAnterior": "EnPruebas", "estadoNuevo": "Entregada", "fechaUtc": "2026-11-28T03:31:22.6546402Z" }
+]
+```
+
+- **Dónde nace cada entrada:** en el mismo método de la orden que valida la transición (RD-04). Cotizar abre el historial con la primera entrada, sin estado anterior.
+- **Qué guarda además la base:** quién hizo cada cambio y cuánto tiempo estuvo la orden en el estado anterior. Un índice único impide dos entradas de una orden hacia el mismo estado.
+- **Una sola operación:** cada transición guarda junto el estado, su entrada en el historial, su [registro de auditoría](#auditoría) y, al pasar a `EnPruebas` o `Entregada`, la notificación y el correo del cliente. Si cualquiera falla, no se guarda nada. La orden vive en el contexto de datos del módulo y la auditoría en el del Core, así que la API les da una sola conexión por petición. El Core ofrece `IOperacionCompartida`, que recibe cualquier `DbContext`, sin conocer el del módulo (RD-03), y lo hace guardar en su propia transacción.
+- **Órdenes anteriores:** la migración `AgregarHistorialOrden` le da a cada orden existente su entrada de creación con su fecha. No inventa las transiciones que no se registraron.
+
 ---
 
 ## Auditoría
@@ -307,6 +355,11 @@ Las peticiones son de `src/API/API.http`. Los criterios completos están en [`do
 | Restablecimiento forzado (RF-AUD-05, RF-CA-13) | `RestablecimientoForzado` | El Administrador | `{"debeCambiarPassword":false}` → `{"debeCambiarPassword":true,"iniciadoPor":"Administrador"}` | `POST /api/usuarios/{id}/forzar-restablecimiento` (petición 14) |
 | Restablecer con el código del correo (RF-AUD-05) | `ContrasenaRestablecida` | El propio usuario | `{"debeCambiarPassword":...}` → `{"debeCambiarPassword":false,"iniciadoPor":"Usuario"}`, o `"Administrador"` si el código vino de un restablecimiento forzado | `POST /api/auth/olvide-password` (petición 133), abrir el enlace en `http://localhost:8025` y `POST /api/auth/restablecer-password` con su código (petición 134) |
 | Cambiar la propia contraseña (RF-AUD-05) | `ContrasenaCambiada` | El propio usuario | `{"debeCambiarPassword":...}` → `{"debeCambiarPassword":false,"iniciadoPor":"Usuario"}` | `POST /api/auth/cambiar-password` (petición 12) |
+| Iniciar el armado de una orden | `ArmadoIniciado` | El Administrador | `{"estado":"Cotizada","tecnicoAsignadoId":null}` → `{"estado":"EnArmado","tecnicoAsignadoId":...}` | `POST /api/ordenes/{id}/iniciar-armado` (petición 50) |
+| Pasar una orden a pruebas | `OrdenEnPruebas` | El técnico o el Administrador | `{"estado":"EnArmado"}` → `{"estado":"EnPruebas"}` | `POST /api/taller/ordenes/{id}/pasar-a-pruebas` (petición 51) |
+| Entregar una orden | `OrdenEntregada` | El técnico o el Administrador | `{"estado":"EnPruebas"}` → `{"estado":"Entregada"}` | `POST /api/taller/ordenes/{id}/entregar` (petición 56) |
+
+Las tres últimas son las transiciones de la orden de ensamble, con `entidad` = `OrdenEnsamble`. Se guardan en la misma operación que la transición aunque la orden viva en el contexto de datos del módulo (ver [Historial de la orden](#historial-de-la-orden)). Cotizar y registrar una prueba de rendimiento no son transiciones y no se auditan.
 
 Un cambio que no cambia nada (asignar el rol que ya tiene, activar a un usuario activo) no genera registro.
 
@@ -317,7 +370,7 @@ Un cambio que no cambia nada (asignar el rol que ya tiene, activar a un usuario 
 | Filtro | Ejemplo | Petición |
 |--------|---------|----------|
 | Ninguno | `GET /api/auditoria` | 135 |
-| Por entidad: `SolicitudPermiso`, `Documento` o `Usuario` | `GET /api/auditoria?entidad=Documento` | 136 a 138 |
+| Por entidad: `SolicitudPermiso`, `Documento`, `Usuario` u `OrdenEnsamble` | `GET /api/auditoria?entidad=Documento` | 136 a 138 y 152 |
 | Por usuario que actuó | `GET /api/auditoria?usuarioId=<id>` | 139 |
 | Combinados | `GET /api/auditoria?usuarioId=<id>&entidad=Usuario` | 140 |
 | Rango de fechas (`yyyy-MM-dd`, UTC, juntos; `hasta` incluye el día completo) | `GET /api/auditoria?desde=2026-11-01&hasta=2026-11-30` | 141 y 142 |
@@ -585,6 +638,18 @@ Además de `tests/Core.Tests` y `tests/PCBuilderOps.Tests`, el mismo comando eje
 | `tests/Core.Tests/Auditoria/ConsultaAuditoriaTests.cs` | Filtros por usuario, por entidad y combinados, con resultados distintos. El rango incluye el último segundo del día y nada del siguiente, y acepta los bordes del calendario. También la paginación, que **un Estándar no consulta el historial** y cada filtro inválido con su mensaje (CA-AUD-14 a 17). |
 | `tests/Core.Tests/Auditoria/InmutabilidadAuditoriaTests.cs` | **Nada modifica ni borra el historial:** las interfaces solo registran y consultan, la entidad no tiene setters públicos, y modificar o borrar un registro guardado se rechaza sin cambiarlo (CA-AUD-13). |
 | `tests/API.Tests/AuditoriaControllerTests.cs` | El controlador solo expone `GET`, ningún controlador expone escritura sobre `/api/auditoria`, y la consulta exige el rol Administrador sin acciones anónimas (CA-AUD-13, 16). |
+
+### Historial de la orden
+
+Cada prueba cita en un comentario el criterio de [`docs/criterios-historial-orden.md`](docs/criterios-historial-orden.md) que verifica.
+
+| Archivo | Qué verifica |
+|---------|--------------|
+| `tests/Core.Tests/Data/OperacionCompartidaTests.cs` | La operación compartida guarda junto lo de otro contexto y lo del Core. Si falla el guardado del Core o el cambio después de guardar, no queda nada. Rechaza un contexto de otra conexión sin ejecutar el cambio, y recibe cualquier `DbContext` sin conocer el módulo (CA-HIS-01, 02, 05). |
+| `tests/PCBuilderOps.Tests/Services/HistorialOrdenTests.cs` | Cotizar abre el historial. El flujo completo deja cuatro entradas con su responsable, su fecha y el tiempo en el estado anterior, y otro cliente no las ve. La base rechaza una entrada repetida. Una transición guarda junto estado, historial, auditoría y aviso, y si el notificador falla después de guardar la orden, no queda nada. Ninguna transición rechazada deja rastro, y cotizar o registrar una prueba no se auditan (CA-HIS-01 a 03, 06 a 09, 13). |
+| `tests/PCBuilderOps.Tests/Services/AuditoriaOrdenTests.cs` | **Una prueba por cada transición auditada** (`ArmadoIniciado`, `OrdenEnPruebas`, `OrdenEntregada`) que revisa los ocho campos, incluidos el valor anterior y el nuevo. Además, la consulta por la entidad `OrdenEnsamble` y el mensaje que la lista entre las válidas (CA-HIS-11, 12). |
+| `tests/PCBuilderOps.Tests/Services/ReporteTiempoEnsambleServiceTests.cs` | Promedio, mínimo y máximo por técnico con el reloj controlado, y la consulta con `GROUP BY`. El rango por el día en que terminó el armado, incluido el último día y los bordes del calendario. Un técnico ve solo su fila y un cliente ninguna, y una orden sin inicio del armado registrado no cuenta (CA-HIS-14 a 17). |
+| `tests/PCBuilderOps.Tests/Services/TransicionSimultaneaOrdenTests.cs` | Dos pases simultáneos a pruebas dejan una sola entrada de historial y un solo registro de auditoría (CA-HIS-04). |
 
 ### Regresión de la Asignación 3
 
@@ -913,3 +978,19 @@ Ver la sección [API externa](#api-externa). Las peticiones 78 a 80 de `src/API/
 | **RF-AUD-07** (Consulta) | Los filtros de las peticiones 136 a 142; como cliente (143) y sin sesión (144). | Cada filtro devuelve solo lo que cumple, con resultados distintos; el rango que termina antes da `total: 0`. Cliente: `403`; sin sesión: `401`. |
 | **RD-07** | Filtros inválidos (145 a 147). | `400` con `{"mensaje": "..."}` que dice qué filtro está mal. |
 | **RD-09** | `docker compose down` (sin `-v`), `docker compose up` y repetir la 135. | Los mismos registros con los mismos valores. |
+
+### 16. Historial de la orden y tiempo de ensamble
+
+**Preparación:** las peticiones 39 a 62 de `src/API/API.http` llevan una orden de la cotización a la entrega; las peticiones 150 a 161 consultan su historial, su auditoría y el reporte. Ver [Historial de la orden](#historial-de-la-orden) y [`docs/criterios-historial-orden.md`](docs/criterios-historial-orden.md).
+
+| Criterio | Cómo provocarlo | Resultado esperado |
+|----------|-----------------|--------------------|
+| **CA-HIS-06** y **CA-HIS-07** (Historial) | El cliente consulta su orden entregada (150). | Cuatro entradas en orden, de `Cotizada` a `Entregada`, cada una con su `fechaUtc` con `Z`. |
+| **CA-HIS-08** (Solo el dueño) | Otro Estándar pide la misma orden (151). | `404`, sin historial. |
+| **CA-HIS-11** (Auditoría de la orden) | `GET /api/auditoria?entidad=OrdenEnsamble` como Administrador (152). | `ArmadoIniciado` del Administrador con el técnico asignado, y `OrdenEnPruebas` y `OrdenEntregada` del técnico, con el estado anterior y el nuevo. |
+| **CA-HIS-12** (Entidad nueva) | La entidad en minúsculas (153) y una desconocida (145). | El mismo resultado que la 152, y `400` con un mensaje que lista `OrdenEnsamble` entre las válidas. |
+| **CA-HIS-14** (Tiempo de ensamble) | El reporte como Administrador con un rango que incluya hoy (154). | Una fila por técnico con `ordenes`, `promedioMinutos`, `minimoMinutos` y `maximoMinutos`, más el total y el promedio general. |
+| **CA-HIS-15** (Rango) | Un rango que termina antes (155), sin fechas (158), invertido (159) y los bordes del calendario (160). | Sin filas, `400`, `400` y `200`. |
+| **CA-HIS-16** (Rol) | Como técnico (156), como cliente (157) y sin token (161). | Solo la fila del técnico, la lista vacía y `401`. |
+| **CA-HIS-03** (Rechazos sin rastro) | Las transiciones rechazadas de las peticiones 46, 47, 48, 52, 54, 57 y 62. | El error de siempre, y ni el historial ni la auditoría de esa orden cambian. |
+| **CA-HIS-18** (Persistencia) | `docker compose down` (sin `-v`), `docker compose up` y repetir la 150, la 152 y la 154. | Las mismas respuestas. |

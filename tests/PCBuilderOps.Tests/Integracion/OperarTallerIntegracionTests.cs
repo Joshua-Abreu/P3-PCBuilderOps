@@ -37,7 +37,7 @@ public sealed class OperarTallerIntegracionTests : IDisposable
             new LineaCotizacion(ComponentesIniciales.Fuente850W, 1)
         ]);
 
-        await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(orden.Id, tecnicoAsignadoId);
+        await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(_administradorId, orden.Id, tecnicoAsignadoId);
         await _bd.NuevoServicioOrdenes().PasarAPruebasAsync(new ActorTaller(tecnicoAsignadoId, false), orden.Id);
 
         return orden.Id;

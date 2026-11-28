@@ -13,8 +13,10 @@ using Core.Notifications.Workers;
 using Core.Permisos.Services;
 using Core.Reportes.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PCBuilderOps.Data;
+using PCBuilderOps.Domain;
 using PCBuilderOps.Services;
 using PCBuilderOps.TasaCambio;
 
@@ -24,14 +26,17 @@ var connectionString = CadenaConexion.Obtener(builder.Configuration.GetConnectio
 
 var configuracionJwt = ConfiguracionJwt.DesdeEntorno();
 
+// CA-HIS-05: una conexión por petición, compartida por los dos contextos, para que IOperacionCompartida guarde en una sola transacción.
+builder.Services.AddScoped(_ => new SqlConnection(connectionString));
+
 // Mantener igual que Core/Data/AppDbContextFactory.cs (migraciones): toda opción nueva de UseSqlServer va en ambos.
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<AppDbContext>((servicios, options) =>
+    options.UseSqlServer(servicios.GetRequiredService<SqlConnection>()));
 
 // Mantener igual que PCBuilderOpsDbContextFactory (migraciones): toda opción nueva de UseSqlServer va en ambos.
-builder.Services.AddDbContext<PCBuilderOpsDbContext>(options =>
+builder.Services.AddDbContext<PCBuilderOpsDbContext>((servicios, options) =>
     options.UseSqlServer(
-        connectionString,
+        servicios.GetRequiredService<SqlConnection>(),
         sql => sql.MigrationsHistoryTable(PCBuilderOpsDbContext.TablaHistorialMigraciones)));
 
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
@@ -65,9 +70,12 @@ builder.Services.AddScoped<INotificador, Notificador>();
 builder.Services.AddScoped<INotificacionesService, NotificacionesService>();
 builder.Services.AddScoped<IAuditor, Auditor>();
 builder.Services.AddScoped<IHistorialAuditoria, HistorialAuditoria>();
-builder.Services.AddSingleton(new EntidadesAuditables(EntidadAuditada.DelCore));
+builder.Services.AddScoped<IOperacionCompartida, OperacionCompartida>();
+// RD-03: la API, que conoce las dos partes, junta las entidades auditables del Core y del módulo.
+builder.Services.AddSingleton(new EntidadesAuditables([.. EntidadAuditada.DelCore, .. AuditoriaOrden.Entidades]));
 builder.Services.AddScoped<IReportesService, ReportesService>();
 builder.Services.AddScoped<IReporteFabricantesService, ReporteFabricantesService>();
+builder.Services.AddScoped<IReporteTiempoEnsambleService, ReporteTiempoEnsambleService>();
 builder.Services.AddScoped<IColaCorreoService, ColaCorreoService>();
 // RF-NOT-08: la cola se envía en segundo plano, sin bloquear las operaciones.
 builder.Services.AddHostedService<EmailQueueWorker>();

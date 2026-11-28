@@ -4,7 +4,7 @@ public interface IOrdenesService
 {
     Task<OrdenDetalle> CotizarAsync(Guid clienteId, IReadOnlyCollection<LineaCotizacion> lineas, CancellationToken ct = default);
     Task<ValidacionArmado> ValidarArmadoAsync(IReadOnlyCollection<LineaCotizacion> lineas, CancellationToken ct = default);
-    Task<OrdenDetalle> IniciarArmadoAsync(Guid ordenId, Guid tecnicoId, CancellationToken ct = default);
+    Task<OrdenDetalle> IniciarArmadoAsync(Guid administradorId, Guid ordenId, Guid tecnicoId, CancellationToken ct = default);
     Task<OrdenDetalle> PasarAPruebasAsync(ActorTaller actor, Guid ordenId, CancellationToken ct = default);
     Task<OrdenDetalle> RegistrarPruebaAsync(ActorTaller actor, Guid ordenId, DatosPrueba datos, CancellationToken ct = default);
     Task<OrdenDetalle> EntregarAsync(ActorTaller actor, Guid ordenId, CancellationToken ct = default);
@@ -62,4 +62,8 @@ public record OrdenDetalle(
     decimal CostoTotal,
     DateTime FechaCreacionUtc,
     IReadOnlyList<DetalleOrden> Detalles,
-    IReadOnlyList<PruebaOrden> Pruebas);
+    IReadOnlyList<PruebaOrden> Pruebas,
+    IReadOnlyList<EntradaHistorialOrden> Historial);
+
+// FN-05, CA-HIS-07
+public record EntradaHistorialOrden(string? EstadoAnterior, string EstadoNuevo, DateTime FechaUtc);

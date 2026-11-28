@@ -1392,7 +1392,7 @@ GET {{API_HostAddress}}/api/auditoria
 
 ###
 
-### 145. RD-07: entidad desconocida (esperar 400 "La entidad no es válida. Usa SolicitudPermiso, Documento, Usuario.")
+### 145. RD-07, CA-HIS-12: entidad desconocida (esperar 400 "La entidad no es válida. Usa SolicitudPermiso, Documento, Usuario, OrdenEnsamble.")
 GET {{API_HostAddress}}/api/auditoria?entidad=Factura
 Authorization: Bearer {{loginAdminPermisos.response.body.token}}
 
@@ -1424,5 +1424,81 @@ Content-Type: application/json
 {
   "accion": "Alterada"
 }
+
+###
+
+# ==========================================================================================
+# Historial de la orden y tiempo de ensamble (docs/criterios-historial-orden.md)
+# Requiere las peticiones 39 a 62: la orden de la 39 queda Entregada con su historial completo.
+# ==========================================================================================
+
+### 150. CA-HIS-06, CA-HIS-07: el cliente ve el historial de su orden (esperar cuatro entradas, de Cotizada a Entregada, con Z)
+GET {{API_HostAddress}}/api/ordenes/{{orden.response.body.id}}
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 151. CA-HIS-08: otro Estándar no ve la orden ni su historial (esperar 404)
+GET {{API_HostAddress}}/api/ordenes/{{orden.response.body.id}}
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 152. CA-HIS-11: auditoría de las transiciones (esperar ArmadoIniciado, OrdenEnPruebas y OrdenEntregada)
+GET {{API_HostAddress}}/api/auditoria?entidad=OrdenEnsamble
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 153. CA-HIS-12: la entidad no distingue mayúsculas (esperar lo mismo que la 152)
+GET {{API_HostAddress}}/api/auditoria?entidad=ordenensamble
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 154. CA-HIS-14: tiempo de ensamble por técnico, como Administrador (esperar filas {tecnico, ordenes, promedioMinutos, minimoMinutos, maximoMinutos})
+GET {{API_HostAddress}}/api/reportes/tiempo-ensamble?desde={{reporteDesde}}&hasta={{reporteHasta}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 155. CA-HIS-15: rango que termina antes de los armados (esperar totalOrdenes 0 y sin filas)
+GET {{API_HostAddress}}/api/reportes/tiempo-ensamble?desde={{reporteDesde}}&hasta={{reporteHastaAyer}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 156. CA-HIS-16: el técnico solo ve su fila
+GET {{API_HostAddress}}/api/reportes/tiempo-ensamble?desde={{reporteDesde}}&hasta={{reporteHasta}}
+Authorization: Bearer {{loginTecnico.response.body.token}}
+
+###
+
+### 157. CA-HIS-16: un cliente que no arma equipos (esperar 200 con filas vacías)
+GET {{API_HostAddress}}/api/reportes/tiempo-ensamble?desde={{reporteDesde}}&hasta={{reporteHasta}}
+Authorization: Bearer {{loginCliente.response.body.token}}
+
+###
+
+### 158. CA-HIS-15: sin fechas (esperar 400 "Indica desde y hasta con el formato yyyy-MM-dd.")
+GET {{API_HostAddress}}/api/reportes/tiempo-ensamble
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 159. CA-HIS-15: desde posterior a hasta (esperar 400)
+GET {{API_HostAddress}}/api/reportes/tiempo-ensamble?desde={{reporteHasta}}&hasta={{reporteDesde}}
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 160. CA-HIS-15, Hallazgo 3: bordes del calendario (esperar 200)
+GET {{API_HostAddress}}/api/reportes/tiempo-ensamble?desde=0001-01-01&hasta=9999-12-31
+Authorization: Bearer {{loginAdminPermisos.response.body.token}}
+
+###
+
+### 161. CA-HIS-16: sin sesión (esperar 401)
+GET {{API_HostAddress}}/api/reportes/tiempo-ensamble?desde={{reporteDesde}}&hasta={{reporteHasta}}
 
 ###

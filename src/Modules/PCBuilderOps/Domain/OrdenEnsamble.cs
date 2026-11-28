@@ -10,6 +10,7 @@ public class OrdenEnsamble
 
     private readonly List<DetalleEnsamble> _detalles = [];
     private readonly List<PruebaRendimiento> _pruebas = [];
+    private readonly List<TransicionOrden> _historial = [];
 
     private OrdenEnsamble() { }
 
@@ -26,6 +27,7 @@ public class OrdenEnsamble
 
     public IReadOnlyList<DetalleEnsamble> Detalles => _detalles;
     public IReadOnlyList<PruebaRendimiento> Pruebas => _pruebas;
+    public IReadOnlyList<TransicionOrden> Historial => _historial;
 
     // FN-01
     public static OrdenEnsamble Cotizar(
@@ -48,14 +50,15 @@ public class OrdenEnsamble
         orden.CodigoSeguimiento = $"ORD-{orden.Id:N}"[..12].ToUpperInvariant();
         orden._detalles.AddRange(componentes.Select(c => DetalleEnsamble.Crear(orden.Id, c.Componente, c.Cantidad)));
         orden.CostoTotal = orden._detalles.Sum(d => d.Subtotal);
+        orden._historial.Add(TransicionOrden.Crear(orden.Id, null, orden.Estado, clienteUsuarioId, ahoraUtc, null));
 
         return orden;
     }
 
     // FN-02, RF-NEG-04, RF-NEG-05
-    public void IniciarArmado(Guid tecnicoId)
+    public void IniciarArmado(Guid tecnicoId, Guid usuarioId, DateTime ahoraUtc)
     {
-        TransicionarA(EstadoOrdenEnsamble.EnArmado, () =>
+        TransicionarA(EstadoOrdenEnsamble.EnArmado, usuarioId, ahoraUtc, () =>
         {
             foreach (var detalle in _detalles)
                 detalle.Componente.ReservarStock(detalle.Cantidad);
@@ -65,7 +68,8 @@ public class OrdenEnsamble
     }
 
     // FN-04
-    public void PasarAPruebas() => TransicionarA(EstadoOrdenEnsamble.EnPruebas);
+    public void PasarAPruebas(Guid usuarioId, DateTime ahoraUtc) =>
+        TransicionarA(EstadoOrdenEnsamble.EnPruebas, usuarioId, ahoraUtc);
 
     // FN-03
     public PruebaRendimiento RegistrarPrueba(
@@ -88,18 +92,26 @@ public class OrdenEnsamble
     }
 
     // FN-04
-    public void Entregar() => TransicionarA(EstadoOrdenEnsamble.Entregada, ExigirPruebaMasRecienteAprobada);
+    public void Entregar(Guid usuarioId, DateTime ahoraUtc) =>
+        TransicionarA(EstadoOrdenEnsamble.Entregada, usuarioId, ahoraUtc, ExigirPruebaMasRecienteAprobada);
 
     // RD-04: toda transición de la orden pasa por aquí.
-    internal void TransicionarA(EstadoOrdenEnsamble hacia, Action? alCumplirTransicion = null)
+    internal void TransicionarA(EstadoOrdenEnsamble hacia, Guid usuarioId, DateTime ahoraUtc, Action? alCumplirTransicion = null)
     {
         MaquinaEstadosOrdenEnsamble.ValidarTransicion(Estado, hacia);
 
         alCumplirTransicion?.Invoke();
 
+        _historial.Add(TransicionOrden.Crear(Id, Estado, hacia, usuarioId, ahoraUtc, SegundosEnEstadoActual(ahoraUtc)));
         Estado = hacia;
         Version = Guid.NewGuid();
     }
+
+    // RF-NEG-08, CA-HIS-17
+    private long? SegundosEnEstadoActual(DateTime ahoraUtc) =>
+        _historial.LastOrDefault(t => t.EstadoNuevo == Estado) is { } llegada
+            ? Math.Max(0, (long)(ahoraUtc - llegada.FechaUtc).TotalSeconds)
+            : null;
 
     private void ExigirPruebaMasRecienteAprobada()
     {

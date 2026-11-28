@@ -192,6 +192,25 @@ El reporte del Core (`ReportesService`) agrupa `SolicitudesPermiso` por año, me
 - Cada capa de inmutabilidad cubre una vía distinta: la API, el código de la aplicación y quien entre directo a la base. RF-AUD-06 pide que no exista ninguna operación de edición, ni oculta.
 - La comprobación del rol en el servicio protege la consulta aunque otro controlador la use sin el atributo.
 
+### 2026-11-28 · Historial de la orden y una sola transacción entre el contexto del Core y el del módulo (RF-AUD-01, RF-NEG-08, RF-NOT-03, RD-03, RD-04)
+- **Historial de la orden:** la tabla `TransicionesOrden` del módulo guarda cada cambio de estado con el estado anterior y el nuevo, quién lo hizo, la fecha y los segundos que la orden estuvo en el estado anterior. Cotizar crea la primera entrada. Las entradas nacen en `OrdenEnsamble.TransicionarA`, el mismo método que valida la transición (RD-04). El índice único `UX_TransicionesOrden_UnaPorEstado` impide dos entradas de una orden hacia el mismo estado (Hallazgo 2 de la Asignación 3).
+- **Auditoría de las transiciones:** iniciar el armado, pasar a pruebas y entregar se auditan con la entidad `OrdenEnsamble` y las acciones `ArmadoIniciado`, `OrdenEnPruebas` y `OrdenEntregada`. El módulo declara sus nombres en `AuditoriaOrden`, y la API los une a los del Core en `EntidadesAuditables`.
+- **Una sola operación:** el Core ofrece `IOperacionCompartida.EjecutarAsync(DbContext, cambio)`.
+  - abre la transacción en `AppDbContext` y hace que el otro contexto la use;
+  - ejecuta el cambio, que guarda en ese contexto;
+  - guarda lo que quedó registrado en el Core (auditoría, notificación, correo en cola) y confirma.
+  
+  Si algo falla, se deshace todo. La API crea una `SqlConnection` por petición y la comparte entre los dos contextos. Si el contexto no comparte la conexión del Core, la operación se rechaza antes de guardar (`ConexionNoCompartidaException`), en vez de guardar a medias.
+- **Notificaciones de la orden:** ahora se guardan dentro de esa misma operación. Esto reemplaza lo de la decisión del 2026-11-19, donde la transición se guardaba primero y la notificación después, con su propio `SaveChanges`, y quita `INotificador.NotificarYGuardarAsync`, que ya no usa nadie.
+- **Reporte de tiempo de ensamble:** `GET /api/reportes/tiempo-ensamble` promedia, por técnico asignado, los segundos que cada orden estuvo en `EnArmado`, contando cada orden en el día en que pasó a `EnPruebas`. El alcance es el de los otros reportes: el Administrador ve todo y un Estándar solo su fila.
+- **Órdenes anteriores:** la migración `AgregarHistorialOrden` crea la entrada de creación de cada orden existente. No inventa las demás transiciones, así que una orden cuyo armado empezó antes de la migración no entra en el reporte.
+
+**Por qué:**
+- La auditoría exige guardar el registro en la misma operación que el cambio. Con dos contextos y dos conexiones eso no es posible sin una transacción distribuida, que .NET no admite en el contenedor Linux. Con una conexión compartida, una transacción local basta.
+- Que la operación reciba un `DbContext` cualquiera mantiene RD-03: el Core no conoce el contexto ni los tipos del módulo.
+- Guardar la duración en la propia entrada deja que la base agregue con `SUM`, `MIN` y `MAX` sin funciones de fecha propias de SQL Server, así la misma consulta corre en SQLite en las pruebas.
+- El historial es un dato del negocio, que el cliente consulta y que alimenta un reporte. La auditoría es el registro inmutable del Core de quién hizo qué. Por eso son dos tablas: una no reemplaza a la otra.
+
 ## Pendientes
 
 - ~~**Fechas leídas de la base sin `Z` (RD-11).**~~ Resuelto en la Asignación 3 (Hallazgo 4): `ConvencionFechasUtc` marca como UTC toda fecha que leen `AppDbContext` y `PCBuilderOpsDbContext`.

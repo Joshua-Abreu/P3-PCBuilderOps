@@ -43,7 +43,7 @@ public sealed class OrdenesServiceTests : IDisposable
         var orden = await CotizarAsync();
         var tecnicoId = await _bd.CrearTecnicoConPermisoAsync(_administradorId);
 
-        await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(orden.Id, tecnicoId);
+        await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(_administradorId, orden.Id, tecnicoId);
 
         return await _bd.NuevoServicioOrdenes().PasarAPruebasAsync(Administrador, orden.Id);
     }
@@ -162,7 +162,7 @@ public sealed class OrdenesServiceTests : IDisposable
         var stockAntes = await StockGuardadoAsync(ComponentesIniciales.CpuAm5);
 
         // Actuar
-        var resultado = await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(orden.Id, tecnicoId);
+        var resultado = await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(_administradorId, orden.Id, tecnicoId);
 
         // Verificar
         Assert.Equal("EnArmado", await EstadoGuardadoAsync(orden.Id));
@@ -180,7 +180,7 @@ public sealed class OrdenesServiceTests : IDisposable
         var stockAntes = await StockGuardadoAsync(ComponentesIniciales.CpuAm5);
 
         // Actuar
-        var accion = () => _bd.NuevoServicioOrdenes().IniciarArmadoAsync(orden.Id, tecnicoSinPermisoId);
+        var accion = () => _bd.NuevoServicioOrdenes().IniciarArmadoAsync(_administradorId, orden.Id, tecnicoSinPermisoId);
 
         // Verificar
         await Assert.ThrowsAsync<ValidacionException>(accion);
@@ -203,11 +203,11 @@ public sealed class OrdenesServiceTests : IDisposable
         var primera = await _bd.NuevoServicioOrdenes().CotizarAsync(_clienteId, lineas);
         var segunda = await _bd.NuevoServicioOrdenes().CotizarAsync(_clienteId, lineas);
         var tecnicoId = await _bd.CrearTecnicoConPermisoAsync(_administradorId);
-        await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(primera.Id, tecnicoId);
+        await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(_administradorId, primera.Id, tecnicoId);
         var stockCpuAntes = await StockGuardadoAsync(ComponentesIniciales.CpuAm5);
 
         // Actuar
-        var accion = () => _bd.NuevoServicioOrdenes().IniciarArmadoAsync(segunda.Id, tecnicoId);
+        var accion = () => _bd.NuevoServicioOrdenes().IniciarArmadoAsync(_administradorId, segunda.Id, tecnicoId);
 
         // Verificar
         await Assert.ThrowsAsync<StockInsuficienteException>(accion);
@@ -223,7 +223,7 @@ public sealed class OrdenesServiceTests : IDisposable
         var tecnicoId = await _bd.CrearTecnicoConPermisoAsync(_administradorId);
 
         // Actuar
-        var accion = () => _bd.NuevoServicioOrdenes().IniciarArmadoAsync(Guid.NewGuid(), tecnicoId);
+        var accion = () => _bd.NuevoServicioOrdenes().IniciarArmadoAsync(_administradorId, Guid.NewGuid(), tecnicoId);
 
         // Verificar
         await Assert.ThrowsAsync<OrdenNoEncontradaException>(accion);
@@ -254,7 +254,7 @@ public sealed class OrdenesServiceTests : IDisposable
         // Preparar
         var orden = await CotizarAsync();
         var tecnicoId = await _bd.CrearTecnicoConPermisoAsync(_administradorId);
-        await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(orden.Id, tecnicoId);
+        await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(_administradorId, orden.Id, tecnicoId);
         var sinPermiso = new ActorTaller(_bd.CrearUsuario(RolUsuario.Estandar), false);
 
         // Actuar

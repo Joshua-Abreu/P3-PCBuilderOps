@@ -85,7 +85,7 @@ El Administrador no cotiza (la API responde `403` a `POST /api/ordenes`), por es
 | `/restablecer?token=` | Visitante | Destino del enlace del correo: valida el código y pide la contraseña nueva. | `GET` y `POST /api/auth/restablecer-password` (**cambio B3**) |
 | `/armar` | Cliente | **Armador de PC** (sección 7). Termina en la cotización. | `GET /api/componentes`, `POST /api/componentes/validar` (**cambio B2**), `POST /api/ordenes` |
 | `/mis-ordenes` | Cliente | Órdenes propias con estado y costo. | `GET /api/ordenes/mias` |
-| `/mis-ordenes/:id` | Cliente | Componentes, línea de estados, pruebas de rendimiento y costo convertido a otra moneda. | `GET /api/ordenes/{id}`, `GET /api/ordenes/{id}/costo?moneda=` |
+| `/mis-ordenes/:id` | Cliente | Componentes, línea de estados (campo `historial` del detalle), pruebas de rendimiento y costo convertido a otra moneda. | `GET /api/ordenes/{id}`, `GET /api/ordenes/{id}/costo?moneda=` |
 | `/documentos` | Cliente, Administrador | Subir, listar, descargar y eliminar documentos. El Administrador ve los de todos. | `GET`, `POST`, `DELETE /api/documentos`, `GET /api/documentos/{id}/descarga` |
 | `/solicitudes` | Cliente | Solicitar `OperarTaller` y ver el estado de las solicitudes propias, con el motivo si fue rechazada. | `POST /api/permisos/solicitudes`, `GET /api/permisos/solicitudes/mias` |
 | `/cuenta` | Con sesión | Datos propios, cambiar contraseña y cerrar sesión. | `GET /api/auth/yo`, `POST /api/auth/cambiar-password`, `POST /api/auth/logout` |

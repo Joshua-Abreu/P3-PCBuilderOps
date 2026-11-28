@@ -42,7 +42,7 @@ public sealed class NotificacionesOrdenTests : IDisposable
         var orden = await _bd.NuevoServicioOrdenes().CotizarAsync(_clienteId, PcCompatible);
         var tecnicoId = await _bd.CrearTecnicoConPermisoAsync(_administradorId);
 
-        await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(orden.Id, tecnicoId);
+        await _bd.NuevoServicioOrdenes().IniciarArmadoAsync(_administradorId, orden.Id, tecnicoId);
 
         return (orden, new ActorTaller(tecnicoId, false));
     }
